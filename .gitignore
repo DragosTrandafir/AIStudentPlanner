@@ -1,2 +1,13 @@
-.venv/
 __init__.py
+.env
+
+# Python
+*.pyc
+__pycache__/
+.venv/
+
+# IDE / project files
+.idea/
+
+# Secrets
+logs/
