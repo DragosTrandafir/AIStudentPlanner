@@ -44,6 +44,7 @@ def get_input_output_instructions(title, name, start_datetime, end_datetime, typ
     )
     return input_output_instructions
 
+
 def get_general_heuristics_header():
     return (
         "General estimation principles:\n"
@@ -55,7 +56,6 @@ def get_general_heuristics_header():
         "- Use action-oriented task names appropriate to the task type "
         "(e.g., 'Review Seminar Material', 'Revise Code Exercises', 'Solve Model Problems').\n"
     )
-
 
 
 # special prompts
@@ -74,7 +74,6 @@ def get_practical_exam_heuristics():
         "- Typical total: 9–12 preparation hours.\n\n"
         "Adjust values based on task description realism."
     )
-
 
 
 # Practical Exam example

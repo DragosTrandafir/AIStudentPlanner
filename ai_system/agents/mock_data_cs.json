@@ -4,7 +4,7 @@
       "subject_name/project_name": "Object-Oriented Programming",
       "start_datetime": "2025-09-09T09:00:00",
       "end_datetime": "2025-09-09T11:00:00",
-      "type": "Practical Exam",
+      "type": "Written Exam",
       "difficulty": 1,
           "description": "The easiest exam.",
           "status": "Pending"

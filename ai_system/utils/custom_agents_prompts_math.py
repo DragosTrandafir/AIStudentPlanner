@@ -1,7 +1,7 @@
 # general prompts
 def get_role_prompt_math(type_):
     role_prompt = (
-        f"You are an expert academic planner specializing in Mathematics University {type_}s. "
+        f"You are an expert academic planner specializing in Mathematics university {type_}s. "
         f"Your role is to analyze each {type_} and generate a structured, schedulable work plan in pure JSON format. "
         f"The plan must be actionable, realistic, and suitable for direct import into a scheduling system.\n\n"
         f"Do NOT explain your reasoning or include any text outside the JSON."
@@ -9,28 +9,79 @@ def get_role_prompt_math(type_):
     return role_prompt
 
 
+def get_input_output_instructions_math(title, name, start_datetime, end_datetime, type_, difficulty, description, status):
+    input_output_instructions = (
+        f"Below is the data for a {type_} task. "
+        f"Use it to estimate workload, difficulty, and subtasks using the given heuristics.\n\n"
+
+        f"Task data:\n"
+        f"{{\n"
+        f'  "title": "{title}",\n'
+        f'  "name": "{name}",\n'
+        f'  "start_datetime": "{start_datetime}",\n'
+        f'  "end_datetime": "{end_datetime}",\n'
+        f'  "type": "{type_}",\n'
+        f'  "difficulty": "{difficulty}",\n'
+        f'  "description": "{description}",\n'
+        f'  "status": "{status}"\n'
+        f"}}\n\n"
+
+        f"Expected output (JSON only):\n"
+        f"{{\n"
+        f'  "summary": "Brief 1-sentence overview of the task.",\n'
+        f'  "total_estimated_hours": <integer>,\n'
+        f'  "difficulty": <integer from 1–5, balanced between input and your estimate>,\n'
+        f'  "tasks": [\n'
+        f'    {{ "task_name": <string>, "estimated_hours": <integer>, "priority": <integer starting from 1> }}\n'
+        f'  ],\n'
+        f'  "deadline": "{start_datetime}"\n'
+        f"}}\n\n"
+
+        f"Output rules:\n"
+        f"- Output MUST be valid JSON only (no extra text, no trailing commas, no Markdown, no explanations).\n"
+        f"- Use realistic and coherent time estimates consistent with heuristics.\n"
+        f"- Priorities must start at 1 and increase sequentially.\n"
+    )
+    return input_output_instructions
+
+
+def get_general_heuristics_header():
+    return (
+        "General estimation principles:\n"
+        "- Always produce practical, schedulable subtasks (no vague items like 'study a bit').\n"
+        "- Adjust total hours based on difficulty and task type.\n"
+        "- Keep total hours consistent with both heuristics and input difficulty.\n"
+        "- Make sure total hours = the sum of all subtask hours.\n"
+        "- Subtasks should not exceed 5 hours each unless clearly justified.\n"
+        "- Use action-oriented task names appropriate to the task type "
+        "(e.g., 'Review Seminar Material', 'Revise Code Exercises', 'Solve Model Problems').\n"
+    )
+
+
 # special prompts
 
-# MATH
+# CS
 
 # Practical Exam heuristics
-def get_practical_exam_heuristics_math():
+def get_practical_exam_heuristics():
     return (
         "Heuristics for Practical Exams:\n"
-        "- Typically 7 or 14 laboratories.\n"
-        "- Laboratories review: ~3 hours.\n"
-        "- Solving past exam models: 3-4 hours.\n"
-        "- Typical total: 6-7 preparation hours.\n\n"
+        "- Typically 7 or 14 seminars and laboratories.\n"
+        "- Laboratories review: 2–3 hours.\n"
+        "- Seminars review: ~2 hours.\n"
+        "- Additional review (algorithms/coding problems): 1–2 hours.\n"
+        "- Solving past exam models: 4–5 hours.\n"
+        "- Typical total: 9–12 preparation hours.\n\n"
         "Adjust values based on task description realism."
     )
 
 
 # Practical Exam example
-def get_practical_exam_example_math():
+def get_practical_exam_example():
     return (
         "Example JSON (for reference only — do not copy verbatim):\n"
         "{\n"
-        '  "summary": "Preparation for practical exam covering labs, seminars, and coding models.",\n'
+        '  "summary": "Preparation for practical exam of medium difficulty (you can include also description info)",\n'
         '  "total_estimated_hours": 11,\n'
         '  "difficulty": 3,\n'
         '  "tasks": [\n'
