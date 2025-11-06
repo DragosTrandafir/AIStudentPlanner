@@ -1,8 +1,11 @@
     {
       "id": 1,
-      "title": "Calculus Homework 1",
-      "project_id": 1,
+      "title": "My first exam",
+      "subject_name/project_name": "Data Structures And Algorithms",
       "start_datetime": "2025-11-10T09:00:00",
-      "end_datetime": "2025-11-12T23:59:00",
-      "type": "Assignment"
+      "end_datetime": "2025-11-10T11:00:00",
+      "type": "Practical Exam",
+      "difficulty": 3,
+          "description": "I want to traverse the lectures and laboratories twice",
+          "status": "Pending"
     }

@@ -9,7 +9,8 @@ load_dotenv()
 hf_token = os.getenv("HF_TOKEN")
 
 # model used by agents
-agent_model = os.getenv("AGENT_MODEL")
+custom_agent_model = os.getenv("CUSTOM_AGENT_MODEL")
 
-cs_agent1 = CSAgent(hf_token, agent_model)
+# consider current date
+cs_agent1 = CSAgent(hf_token, custom_agent_model)
 cs_agent1.propose_agent_plan("C:/Users/DragosTrandafiri/PycharmProjects/AlphaFlow/ai_system/agents/mock_data.json")
