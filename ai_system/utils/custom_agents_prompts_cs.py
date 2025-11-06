@@ -67,3 +67,29 @@ def get_practical_exam_example():
             f'  ],\n'
             f'  "deadline": "2025-11-10T09:00:00"\n'
             f"}}")
+
+
+# Written Exam heuristics
+def get_written_exam_heuristics():
+    return (f"Use the following heuristics for estimating hours, difficulty and tasks:\n"
+            f"- We have 14 lectures"
+            f"- Each lecture review = ???????\n"
+            f"- Additional notes, outlines and summaries = ?????.\n"
+            f"- Written exams typically require 6–10 total preparation hours. ??????\n")
+
+
+# Written Exam example
+def get_written_exam_example():
+    return (f"Example format (for reference only):\n"
+            f"{{\n"
+            f'  "summary": "Short sentence describing the overall goal.",\n'
+            f'  "total_estimated_hours": 12,\n'
+            f'  "difficulty": 4,\n'
+            f'  "tasks": [\n'
+            f'    {{ "task_name": "Seminars review (part 1)", "estimated_hours": 3, "priority": 1 }},\n'
+            f'    {{ "task_name": "Seminars review (part 2)", "estimated_hours": 5, "priority": 2 }},\n'
+            f'    {{ "task_name": "Laboratories review", "estimated_hours": 4, "priority": 3 }}\n'
+            f'    {{ "task_name": "Algorithms", "estimated_hours": 2, "priority": 4 }}\n'
+            f'  ],\n'
+            f'  "deadline": "2025-11-10T09:00:00"\n'
+            f"}}")
