@@ -11,6 +11,8 @@ hf_token = os.getenv("HF_TOKEN")
 # model used by agents
 custom_agent_model = os.getenv("CUSTOM_AGENT_MODEL")
 
-# consider current date
+# (consider current date)
 cs_agent1 = CSAgent(hf_token, custom_agent_model)
-cs_agent1.propose_agent_plan("C:/Users/DragosTrandafiri/PycharmProjects/AlphaFlow/ai_system/agents/mock_data.json")
+response = cs_agent1.propose_agent_plan("C:/Users/DragosTrandafiri/PycharmProjects/AlphaFlow/ai_system/agents"
+                                        "/mock_data_cs.json")
+print(response)

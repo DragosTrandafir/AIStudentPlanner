@@ -37,7 +37,7 @@ class CSAgent(BaseAgent):
 
             full_prompt = "\n\n".join(prompt_practical_exam)
             response = make_llm_call(client, full_prompt, self.model)
-            print(response)
+            return response
         elif type_ == "Written Exam":
             prompt_written_exam = (
                 get_role_prompt(type_),
@@ -49,4 +49,4 @@ class CSAgent(BaseAgent):
             )
             full_prompt = "\n\n".join(prompt_written_exam)
             response = make_llm_call(client, full_prompt, self.model)
-            print(response)
+            return response
