@@ -1,11 +1,11 @@
     {
       "id": 1,
-      "title": "My first exam",
-      "subject_name/project_name": "Data Structures And Algorithms",
-      "start_datetime": "2025-11-10T09:00:00",
-      "end_datetime": "2025-11-10T11:00:00",
+      "title": "OOP practic",
+      "subject_name/project_name": "Object-Oriented Programming",
+      "start_datetime": "2025-09-09T09:00:00",
+      "end_datetime": "2025-09-09T11:00:00",
       "type": "Practical Exam",
-      "difficulty": 3,
-          "description": "I want to traverse the lectures and laboratories twice",
+      "difficulty": 2,
+          "description": "I need only a bit of exercise and practice, since I understood the concepts.",
           "status": "Pending"
     }
