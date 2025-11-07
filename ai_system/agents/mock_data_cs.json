@@ -4,8 +4,8 @@
       "subject_name/project_name": "Object-Oriented Programming",
       "start_datetime": "2025-09-09T09:00:00",
       "end_datetime": "2025-09-09T11:00:00",
-      "type": "Written Exam",
-      "difficulty": 1,
-          "description": "I have been present to every lecture.",
+      "type": "Practical Exam",
+      "difficulty": 5,
+          "description": "I did not understand anything during the semester.",
           "status": "Pending"
     }

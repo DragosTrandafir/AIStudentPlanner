@@ -19,7 +19,7 @@ def get_practical_exam_heuristics():
 # Practical Exam example
 def get_practical_exam_example():
     return (
-        "Example JSON (for reference only — do not copy verbatim):\n"
+        "Example JSON (for reference only — adapt details as needed):\n"
         "{\n"
         '  "summary": "Preparation for practical exam of medium difficulty (you can include also description info)",\n'
         '  "total_estimated_hours": 11,\n'
@@ -46,26 +46,24 @@ def get_written_exam_heuristics():
         "- Creating additional notes, outlines, and summaries: 2–4 hours.\n"
         "- Solving past written exam models: 3–4 hours.\n"
         "- Typical total preparation time: 12–17 hours.\n\n"
-        "Adjust the distribution of time and difficulty according to task details, "
-        "difficulty level, and available preparation window."
+        "Adjust the distribution of time and difficulty according to task details and "
+        "difficulty level."
     )
 
 
 # Written Exam example
 def get_written_exam_example():
     return (
-        "Example JSON (for reference only — do not copy verbatim):\n"
+        "Example JSON (for reference only — adapt details as needed):\n"
         "{\n"
-        '  "summary": "Comprehensive review of lecture material, summaries, and exam models.",\n'
-        '  "total_estimated_hours": 16,\n'
-        '  "difficulty": 4,\n'
+        '  "summary": "Preparation for a medium-difficulty Data Structures written exam.",\n'
+        '  "total_estimated_hours": 14,\n'
+        '  "difficulty": 3,\n'
         '  "tasks": [\n'
         '    { "task_name": "Lecture review (part 1)", "estimated_hours": 4, "priority": 1 },\n'
-        '    { "task_name": "Lecture review (part 2)", "estimated_hours": 4, "priority": 2 },\n'
-        '    { "task_name": "Seminar review", "estimated_hours": 1, "priority": 3 },\n'
-        '    { "task_name": "Notes and outlines (part 1)", "estimated_hours": 2, "priority": 4 },\n'
-        '    { "task_name": "Notes and outlines (part 2)", "estimated_hours": 2, "priority": 5 },\n'
-        '    { "task_name": "Exam model solving", "estimated_hours": 3, "priority": 6 }\n'
+        '    { "task_name": "Lecture review (part 2)", "estimated_hours": 3, "priority": 2 },\n'
+        '    { "task_name": "Notes and outlines", "estimated_hours": 3, "priority": 3 },\n'
+        '    { "task_name": "Exam model solving", "estimated_hours": 4, "priority": 4 }\n'
         '  ],\n'
         '  "deadline": "2025-11-10T09:00:00"\n'
         "}"

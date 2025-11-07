@@ -1,10 +1,9 @@
 # general prompts
-def get_role_prompt(type_,general_university_type):
+def get_role_prompt(type_, general_university_type):
     role_prompt = (
         f"You are an expert academic planner specializing in {general_university_type} university {type_}s. "
         f"Your role is to analyze each {type_} and generate a structured, schedulable work plan in pure JSON format. "
         f"The plan must be actionable, realistic, and suitable for direct import into a scheduling system.\n\n"
-        f"Do NOT explain your reasoning or include any text outside the JSON."
     )
     return role_prompt
 
@@ -26,7 +25,7 @@ def get_input_output_instructions(title, name, start_datetime, end_datetime, typ
         f'  "status": "{status}"\n'
         f"}}\n\n"
 
-        f"Expected output (JSON only):\n"
+        f"Expected output (JSON only (DO NOT INCLUDE extra text, no trailing commas, no Markdown, no explanations)):\n"
         f"{{\n"
         f'  "summary": "Brief 1-sentence overview of the task.",\n'
         f'  "total_estimated_hours": <integer>,\n'
@@ -48,11 +47,10 @@ def get_input_output_instructions(title, name, start_datetime, end_datetime, typ
 def get_general_heuristics_header():
     return (
         "General estimation principles:\n"
-        "- Always produce practical, schedulable subtasks (no vague items like 'study a bit').\n"
         "- Adjust total hours based on difficulty and task type.\n"
         "- Keep total hours consistent with both heuristics and input difficulty.\n"
         "- Make sure total hours = the sum of all subtask hours.\n"
-        "- Subtasks should not exceed 5 hours each unless clearly justified.\n"
-        "- Use action-oriented task names appropriate to the task type "
-        "(e.g., 'Review Seminar Material', 'Solve Model Problems', ...).\n"
+        "- Subtasks SHOULD NOT exceed 5 hours (split them in parts: (part 1), (part 2), ...).\n"
+        "- Use action-oriented subtask names appropriate to the subtask type "
+        "(e.g.,'Solve Model Problems', 'Additional notes', ...).\n"
     )
