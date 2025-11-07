@@ -9,11 +9,25 @@
     "lint": "eslint"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
     "fullcalendar": "^6.1.19",
     "next": "16.0.1",
     "react": "19.2.0",
+=======
+    "@fullcalendar/daygrid": "^6.1.19",
+    "@fullcalendar/interaction": "^6.1.19",
+    "@fullcalendar/react": "^6.1.19",
+    "@headlessui/react": "^2.2.9",
+    "@heroicons/react": "^2.2.0",
+    "date-fns": "^4.1.0",
+    "fullcalendar": "^6.1.19",
+    "next": "16.0.1",
+    "react": "19.2.0",
+    "react-date-range": "^2.0.1",
+    "react-datepicker": "^8.8.0",
+>>>>>>> 92b6bd3 (Add CalendarPage, AddTaskModal, TaskDetailsModal components)
     "react-dom": "19.2.0",
     "react-modal": "^3.16.3"
   },
