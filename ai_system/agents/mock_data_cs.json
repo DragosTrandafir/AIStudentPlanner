@@ -6,6 +6,6 @@
       "end_datetime": "2025-09-09T11:00:00",
       "type": "Written Exam",
       "difficulty": 1,
-          "description": "The easiest exam.",
+          "description": "I have been present to every lecture.",
           "status": "Pending"
     }
