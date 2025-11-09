@@ -35,8 +35,8 @@ export default function AddTaskModal({ onClose, onSave, existingTask }) {
   }, [existingTask]);
 
   const typeColors = {
-    "Assignment": "#F4C2C2",
-    "Project": "#F3E5AB",
+    Assignment: "#F4C2C2",
+    Project: "#F3E5AB",
     "Written Exam": "#AFEEEE",
     "Practical Exam": "#98FB98",
   };
@@ -57,48 +57,84 @@ export default function AddTaskModal({ onClose, onSave, existingTask }) {
     onClose();
   };
 
+  const accentColor = "#8a0f5d";
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-3">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 px-3">
       <div
-        className="w-full max-w-lg p-8 rounded-3xl shadow-2xl border border-amber-300"
-        style={{ backgroundColor: "#3B2F2F", color: "#FAEBD7" }}
+        className="w-full max-w-md p-4 rounded-2xl shadow-2xl border"
+        style={{
+          backgroundColor: "#ffefd5",
+          borderColor: accentColor,
+          color: accentColor,
+          maxHeight: "90vh",
+          overflowY: "auto",
+        }}
       >
-        <h2 className="text-3xl font-bold text-center mb-6 text-amber-200">
+        <h2
+          className="text-xl font-bold text-center mb-4"
+          style={{ color: accentColor }}
+        >
           {existingTask ? "✏ Edit Task" : "✨ Add New Task"}
         </h2>
 
-        <div className="space-y-4">
+        <div className="space-y-2">
           {/* Title */}
           <div>
-            <label className="block text-sm text-amber-100 mb-1">Task Title *</label>
+            <label className="block text-sm mb-1" style={{ color: accentColor }}>
+              Task Title *
+            </label>
             <input
               type="text"
-              placeholder="Enter task name"
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full p-2 rounded-lg bg-[#5A4B3C] text-white placeholder-amber-200"
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
+              className="w-full px-2 py-1 rounded-lg text-sm"
+              style={{
+                backgroundColor: "#fff8f5",
+                color: accentColor,
+                border: `1px solid ${accentColor}`,
+              }}
             />
           </div>
 
           {/* Subject */}
           <div>
-            <label className="block text-sm text-amber-100 mb-1">Subject / Project</label>
+            <label className="block text-sm mb-1" style={{ color: accentColor }}>
+              Subject / Project
+            </label>
             <input
               type="text"
-              placeholder="e.g. Literature, Science..."
               value={formData.subject}
-              onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-              className="w-full p-2 rounded-lg bg-[#5A4B3C] text-white"
+              onChange={(e) =>
+                setFormData({ ...formData, subject: e.target.value })
+              }
+              className="w-full px-2 py-1 rounded-lg text-sm"
+              style={{
+                backgroundColor: "#fff8f5",
+                color: accentColor,
+                border: `1px solid ${accentColor}`,
+              }}
             />
           </div>
 
           {/* Type */}
           <div>
-            <label className="block text-sm text-amber-100 mb-1">Task Type</label>
+            <label className="block text-sm mb-1" style={{ color: accentColor }}>
+              Task Type
+            </label>
             <select
               value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-              className="w-full p-2 rounded-lg bg-[#5A4B3C] text-white"
+              onChange={(e) =>
+                setFormData({ ...formData, type: e.target.value })
+              }
+              className="w-full px-2 py-1 rounded-lg text-sm"
+              style={{
+                backgroundColor: "#fff8f5",
+                color: accentColor,
+                border: `1px solid ${accentColor}`,
+              }}
             >
               <option>Assignment</option>
               <option>Project</option>
@@ -107,69 +143,144 @@ export default function AddTaskModal({ onClose, onSave, existingTask }) {
             </select>
           </div>
 
-          {/* Dates */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm text-amber-100 mb-1">Start Date & Time</label>
-              <DatePicker
-                selected={startDate}
-                onChange={(date) => {
-                  setStartDate(date);
-                  if (date > endDate) setEndDate(date);
+          {/* Dates Section */}
+          <div
+            className="p-2 rounded-lg mt-2"
+            style={{
+              backgroundColor: "#ffe6f1",
+              border: `1px solid ${accentColor}`,
+            }}
+          >
+            <h3
+              className="font-semibold mb-1 text-center text-sm"
+              style={{ color: accentColor }}
+            >
+              📅 Schedule
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div
+                className="p-1 rounded-lg"
+                style={{
+                  border: `1px solid ${accentColor}`,
+                  backgroundColor: "#fff8f5",
                 }}
-                showTimeSelect
-                timeFormat="HH:mm"
-                timeIntervals={15}
-                dateFormat="MMMM d, yyyy h:mm aa"
-                className="w-full p-2 rounded-lg bg-[#5A4B3C] text-white"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-amber-100 mb-1">End Date & Time</label>
-              <DatePicker
-                selected={endDate}
-                onChange={(date) => setEndDate(date)}
-                showTimeSelect
-                timeFormat="HH:mm"
-                timeIntervals={15}
-                dateFormat="MMMM d, yyyy h:mm aa"
-                className="w-full p-2 rounded-lg bg-[#5A4B3C] text-white"
-                minDate={startDate}
-              />
+              >
+                <label
+                  className="block text-xs mb-1"
+                  style={{ color: accentColor }}
+                >
+                  Start
+                </label>
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => {
+                    setStartDate(date);
+                    if (date > endDate) setEndDate(date);
+                  }}
+                  showTimeSelect
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
+                  dateFormat="MMM d, yyyy h:mm aa"
+                  className="w-full px-2 py-1 rounded-lg text-xs"
+                  style={{
+                    backgroundColor: "#fff",
+                    color: accentColor,
+                    border: `1px solid ${accentColor}`,
+                  }}
+                />
+              </div>
+
+              <div
+                className="p-1 rounded-lg"
+                style={{
+                  border: `1px solid ${accentColor}`,
+                  backgroundColor: "#fff8f5",
+                }}
+              >
+                <label
+                  className="block text-xs mb-1"
+                  style={{ color: accentColor }}
+                >
+                  End
+                </label>
+                <DatePicker
+                  selected={endDate}
+                  onChange={(date) => setEndDate(date)}
+                  showTimeSelect
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
+                  dateFormat="MMM d, yyyy h:mm aa"
+                  className="w-full px-2 py-1 rounded-lg text-xs"
+                  style={{
+                    backgroundColor: "#fff",
+                    color: accentColor,
+                    border: `1px solid ${accentColor}`,
+                  }}
+                  minDate={startDate}
+                />
+              </div>
             </div>
           </div>
 
           {/* Difficulty */}
           <div>
-            <label className="block text-sm text-amber-100 mb-1">Difficulty (1–5)</label>
+            <label className="block text-sm mb-1" style={{ color: accentColor }}>
+              Difficulty (1–5)
+            </label>
             <input
               type="number"
               min="1"
               max="5"
               value={formData.difficulty}
-              onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
-              className="w-full p-2 rounded-lg bg-[#5A4B3C] text-white"
+              onChange={(e) =>
+                setFormData({ ...formData, difficulty: e.target.value })
+              }
+              className="w-full px-2 py-1 rounded-lg text-sm"
+              style={{
+                backgroundColor: "#fff8f5",
+                color: accentColor,
+                border: `1px solid ${accentColor}`,
+              }}
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm text-amber-100 mb-1">Description</label>
+            <label className="block text-sm mb-1" style={{ color: accentColor }}>
+              Description
+            </label>
             <textarea
-              placeholder="Describe what to do..."
+              rows="2"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full p-2 rounded-lg bg-[#5A4B3C] text-white placeholder-amber-200"
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              className="w-full px-2 py-1 rounded-lg text-sm"
+              style={{
+                backgroundColor: "#fff8f5",
+                color: accentColor,
+                border: `1px solid ${accentColor}`,
+              }}
             />
           </div>
 
           {/* Status */}
           <div>
-            <label className="block text-sm text-amber-100 mb-1">Status</label>
+            <label className="block text-sm mb-1" style={{ color: accentColor }}>
+              Status
+            </label>
             <select
               value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              className="w-full p-2 rounded-lg bg-[#5A4B3C] text-white"
+              onChange={(e) =>
+                setFormData({ ...formData, status: e.target.value })
+              }
+              className="w-full px-2 py-1 rounded-lg text-sm"
+              style={{
+                backgroundColor: "#fff8f5",
+                color: accentColor,
+                border: `1px solid ${accentColor}`,
+              }}
             >
               <option>Pending</option>
               <option>In Progress</option>
@@ -179,21 +290,31 @@ export default function AddTaskModal({ onClose, onSave, existingTask }) {
         </div>
 
         {/* Buttons */}
-        <div className="flex justify-end gap-3 mt-8">
+        <div className="flex justify-end gap-2 mt-4">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-amber-700 text-white rounded-lg hover:bg-amber-800"
+            className="px-3 py-1 text-sm rounded-lg font-semibold transition-all active:translate-y-[1px]"
+            style={{
+              backgroundColor: "#fcd2e0",
+              color: accentColor,
+              border: `1px solid ${accentColor}`,
+            }}
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="px-4 py-2 bg-amber-400 text-brown-900 font-semibold rounded-lg hover:bg-amber-300"
+            className="px-3 py-1 text-sm rounded-lg font-semibold transition-all active:translate-y-[1px]"
+            style={{
+              backgroundColor: accentColor,
+              color: "#fff",
+              border: `1px solid ${accentColor}`,
+            }}
           >
             {existingTask ? "Update Task" : "Save Task"}
           </button>
         </div>
       </div>
-    </div>
-  );
+    </div>
+  );
 }
