@@ -2,10 +2,10 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
 
-from backend.service.user_service import UserService
-from backend.repository.user_repository import UserRepository
-from backend.domain.user import User
-from backend.config.database import get_session
+from service.user_service import UserService
+from repository.user_repository import UserRepository
+from domain.user import User
+from config.database import get_session
 
 router = APIRouter(prefix="/users", tags=["users"])
 

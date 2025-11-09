@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import List, Optional
 
-from backend.domain.subject import Subject
-from backend.repository.subject_repository import SubjectRepository
-from backend.repository.user_repository import UserRepository
+from domain.subject import Subject
+from repository.subject_repository import SubjectRepository
+from repository.user_repository import UserRepository
 
 
 class SubjectService:

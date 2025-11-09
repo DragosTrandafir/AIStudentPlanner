@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import Optional, List
 
-from backend.domain.user import User
-from backend.repository.user_repository import UserRepository
+from domain.user import User
+from repository.user_repository import UserRepository
 
 
 class UserService:

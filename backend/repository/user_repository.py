@@ -4,7 +4,7 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.domain.user import User
+from domain.user import User
 from .base import BaseRepository
 
 
