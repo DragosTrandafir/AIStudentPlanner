@@ -130,9 +130,10 @@ class AiOrchestrator:
             agent_plan = self._run_agent_on_task(agent, task)  # kept
             plans.append(agent_plan)
 
-        final_plan = self._run_agent_on_task(self.general_agent, plans)
+        # final_plan = self._run_agent_on_task(self.general_agent, plans)
 
-        print(final_plan)
+        print(plans)
+        final_plan=""
 
         if save_to_backend:
             try:
