@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from backend.routes.user_routes import router as user_router
+from backend.routes.subject_routes import router as subject_router
 from backend.init_db import create_all
 
 
@@ -21,6 +22,7 @@ app = FastAPI(
 
 # Include routers
 app.include_router(user_router)
+app.include_router(subject_router)
 
 
 @app.get("/")
