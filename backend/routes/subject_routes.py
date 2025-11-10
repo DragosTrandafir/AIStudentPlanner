@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 from typing import Optional, List
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
@@ -19,8 +19,8 @@ class SubjectCreateRequest(BaseModel):
     type: SubjectType
     status: Optional[SubjectStatus] = None
     difficulty: Optional[int] = None
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
     description: Optional[str] = None
 
 
@@ -30,8 +30,8 @@ class SubjectUpdateRequest(BaseModel):
     type: Optional[SubjectType] = None
     status: Optional[SubjectStatus] = None
     difficulty: Optional[int] = None
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
     description: Optional[str] = None
 
 
@@ -43,8 +43,8 @@ class SubjectResponse(BaseModel):
     type: SubjectType
     status: SubjectStatus
     difficulty: int
-    start_date: Optional[date]
-    end_date: Optional[date]
+    start_date: Optional[datetime]
+    end_date: Optional[datetime]
     description: Optional[str]
 
     class Config:

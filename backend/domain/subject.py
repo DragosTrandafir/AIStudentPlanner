@@ -1,8 +1,8 @@
 from __future__ import annotations
-from datetime import datetime, date
+from datetime import datetime
 from typing import Optional, List
 
-from sqlalchemy import String, Integer, DateTime, Date, ForeignKey, Text, CheckConstraint, Enum as SQLEnum
+from sqlalchemy import String, Integer, DateTime, ForeignKey, Text, CheckConstraint, Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.config.database import Base
@@ -21,8 +21,8 @@ class Subject(Base):
     type: Mapped[SubjectType] = mapped_column(SQLEnum(SubjectType), nullable=False)
     status: Mapped[SubjectStatus] = mapped_column(SQLEnum(SubjectStatus), nullable=False, default=SubjectStatus.NOT_STARTED)
     difficulty: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
-    start_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
-    end_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
+    start_date: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    end_date: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     student_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
