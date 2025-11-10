@@ -58,7 +58,7 @@ class AiOrchestrator:
 
         self.backend = BackendAPI(backend_base_url or BACKEND_BASE_URL)
 
-        # inițializăm agenții (deocamdată doar Math și CS)
+        # inițializăm agenții
         self.math_agent = MathAgent(self.hf_token, self.model_name)
         self.cs_agent = CSAgent(self.hf_token, self.model_name)
 
@@ -196,26 +196,24 @@ class AiOrchestrator:
     # Rulare agent
     # -------------------------------------------------------
 
-    def _run_agent_on_task(self, agent: Any, task: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Agenții actuali așteaptă un path către un fișier JSON.
-        Ca să nu le stricăm API-ul, scriem task-ul într-un fișier temporar.
-        """
-
-        with tempfile.NamedTemporaryFile(mode="w+", suffix=".json", delete=True) as tmp:
+    def _run_agent_on_task(self, agent, task):
+        with tempfile.NamedTemporaryFile(mode="w+", suffix=".json", delete=False) as tmp:
             json.dump(task, tmp)
-            tmp.flush()
+            tmp_path = tmp.name  # Save path before closing
 
-            raw_response = agent.propose_agent_plan(tmp.name)
-
-        # încercăm să parsăm JSON-ul; dacă nu reușim, îl trimitem ca string brut
         try:
-            parsed = json.loads(raw_response)
-            return parsed
+            raw_response = agent.propose_agent_plan(tmp_path)
+        finally:
+            try:
+                os.remove(tmp_path)  # Clean up temp file
+            except FileNotFoundError:
+                pass
+
+        try:
+            return json.loads(raw_response)
         except json.JSONDecodeError:
             print("[AiOrchestrator] WARNING: agent returned non-JSON output, keeping raw_response.")
             return {"raw_response": raw_response}
-
     # -------------------------------------------------------
     # Generare blocuri de studiu (pseudo-calendar)
     # -------------------------------------------------------
