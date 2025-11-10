@@ -1,55 +1,15 @@
-import json
-
 from huggingface_hub import InferenceClient
 
 from ai_system.agents.base_agent import BaseAgent
-from ai_system.utils.custom_agent_prompts.custom_agents_prompts_general import get_role_prompt, \
-    get_general_heuristics_header, get_input_output_instructions
-from ai_system.utils.custom_agent_prompts.custom_agents_prompts_math import *
-from ai_system.utils.get_response import make_llm_call
+from ai_system.utils.format_handling.load_json import json_load
+from ai_system.utils.propose_plan_logic import propose_plan
 
 
 class MathAgent(BaseAgent):
     def propose_agent_plan(self, subject_data):
-        with open(subject_data, 'r') as f:
-            task = json.load(f)
-
-        title = task['title']
-        name = task['subject_name/project_name']
-        start_datetime = task['start_datetime']
-        end_datetime = task['end_datetime']
-        type_ = task['type']
-        difficulty = task['difficulty']
-        description = task['description']
-        status = task['status']
+        task = json_load(subject_data)
 
         client = InferenceClient(model=self.model, token=self.token)
-        general_university_type = "Mathematics"
+        response = propose_plan(task, "Mathematics", client)
 
-        if type_ == "Practical Exam":
-            prompt_practical_exam = (
-                get_role_prompt(type_, general_university_type),
-                get_general_heuristics_header(),
-                get_practical_exam_heuristics(),
-                get_input_output_instructions(
-                    title, name, start_datetime, end_datetime,
-                    type_, difficulty, description, status
-                ),
-                get_practical_exam_example()
-            )
-
-            full_prompt = "\n\n".join(prompt_practical_exam)
-            response = make_llm_call(client, full_prompt, self.model)
-            return response
-        elif type_ == "Written Exam":
-            prompt_written_exam = (
-                get_role_prompt(type_, general_university_type),
-                get_general_heuristics_header(),
-                get_written_exam_heuristics(),
-                get_input_output_instructions(title, name, start_datetime, end_datetime, type_, difficulty, description,
-                                              status),
-                get_written_exam_example()
-            )
-            full_prompt = "\n\n".join(prompt_written_exam)
-            response = make_llm_call(client, full_prompt, self.model)
-            return response
+        return response

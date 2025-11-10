@@ -3,7 +3,7 @@
 # CS
 
 # Practical Exam heuristics
-def get_practical_exam_heuristics():
+def get_practical_exam_heuristics_cs():
     return (
         "Heuristics for Practical Exams:\n"
         "- Typically 7 or 14 seminars and laboratories.\n"
@@ -17,7 +17,7 @@ def get_practical_exam_heuristics():
 
 
 # Practical Exam example
-def get_practical_exam_example():
+def get_practical_exam_example_cs():
     return (
         "Example JSON (for reference only — adapt details as needed):\n"
         "{\n"
@@ -37,7 +37,7 @@ def get_practical_exam_example():
 
 
 # Written Exam heuristics
-def get_written_exam_heuristics():
+def get_written_exam_heuristics_cs():
     return (
         "Heuristics for Written Exams:\n"
         "- Usually consist of around 14 lectures and possibly a few seminars.\n"
@@ -52,7 +52,7 @@ def get_written_exam_heuristics():
 
 
 # Written Exam example
-def get_written_exam_example():
+def get_written_exam_example_cs():
     return (
         "Example JSON (for reference only — adapt details as needed):\n"
         "{\n"
@@ -67,4 +67,32 @@ def get_written_exam_example():
         '  ],\n'
         '  "deadline": "2025-11-10T09:00:00"\n'
         "}"
+    )
+
+
+# Project heuristics
+def get_project_heuristics_cs():
+    return (
+        ""
+    )
+
+
+# Project example
+def get_project_example_cs():
+    return (
+        ""
+    )
+
+
+# Assignment heuristics
+def get_assignment_heuristics_cs():
+    return (
+        ""
+    )
+
+
+# Assignment example
+def get_assignment_example_cs():
+    return (
+        ""
     )
