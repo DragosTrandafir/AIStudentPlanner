@@ -68,3 +68,31 @@ def get_written_exam_example_cs():
         '  "deadline": "2025-11-10T09:00:00"\n'
         "}"
     )
+
+
+# Project heuristics
+def get_project_heuristics_cs():
+    return (
+        ""
+    )
+
+
+# Project example
+def get_project_example_cs():
+    return (
+        ""
+    )
+
+
+# Assignment heuristics
+def get_assignment_heuristics_cs():
+    return (
+        ""
+    )
+
+
+# Assignment example
+def get_assignment_example_cs():
+    return (
+        ""
+    )

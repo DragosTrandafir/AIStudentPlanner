@@ -2,13 +2,15 @@ from ai_system.utils.custom_agent_prompts.custom_agents_prompts_cs import (
     get_practical_exam_heuristics_cs,
     get_practical_exam_example_cs,
     get_written_exam_heuristics_cs,
-    get_written_exam_example_cs,
+    get_written_exam_example_cs, get_project_heuristics_cs, get_project_example_cs, get_assignment_heuristics_cs,
+    get_assignment_example_cs,
 )
 from ai_system.utils.custom_agent_prompts.custom_agents_prompts_math import (
     get_practical_exam_heuristics_math,
     get_practical_exam_example_math,
     get_written_exam_heuristics_math,
-    get_written_exam_example_math,
+    get_written_exam_example_math, get_project_heuristics_math, get_project_example_math,
+    get_assignment_heuristics_math, get_assignment_example_math,
 )
 from ai_system.utils.custom_agent_prompts.custom_agents_prompts_general import (
     get_role_prompt,
@@ -46,6 +48,23 @@ def propose_plan(task, general_university_type, client):
             get_written_exam_heuristics_math,
             get_written_exam_example_math,
         ),
+        ("Project", "Computer Science"):
+            (get_project_heuristics_cs(),
+             get_project_example_cs()
+             ),
+        ("Project", "Mathematics"):
+            (get_project_heuristics_math(),
+             get_project_example_math()
+             ),
+        ("Assignment", "Computer Science"):
+            (get_assignment_heuristics_cs(),
+             get_assignment_example_cs()
+             ),
+        ("Assignment", "Mathematics"):
+            (get_assignment_heuristics_math(),
+             get_assignment_example_math()
+             ),
+
     }
 
     # Get the right functions for the given combination
