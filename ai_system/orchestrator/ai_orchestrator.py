@@ -117,10 +117,9 @@ class AiOrchestrator:
 
         tasks_input: List[Dict[str, Any]] = (
             user_data.get("tasks")
-            or user_data.get("subjects")
-            or user_data.get("items")
-            or []
         )
+
+        print(tasks_input)
 
         all_items: List[Dict[str, Any]] = []
         all_blocks: List[Dict[str, Any]] = []
@@ -197,23 +196,12 @@ class AiOrchestrator:
     # -------------------------------------------------------
 
     def _run_agent_on_task(self, agent, task):
-        with tempfile.NamedTemporaryFile(mode="w+", suffix=".json", delete=False) as tmp:
-            json.dump(task, tmp)
-            tmp_path = tmp.name  # Save path before closing
-
         try:
-            raw_response = agent.propose_agent_plan(tmp_path)
-        finally:
-            try:
-                os.remove(tmp_path)  # Clean up temp file
-            except FileNotFoundError:
-                pass
+            raw_response = agent.propose_agent_plan(task)
+            return raw_response
+        except Exception as e:
+            print("Could not generate response")
 
-        try:
-            return json.loads(raw_response)
-        except json.JSONDecodeError:
-            print("[AiOrchestrator] WARNING: agent returned non-JSON output, keeping raw_response.")
-            return {"raw_response": raw_response}
     # -------------------------------------------------------
     # Generare blocuri de studiu (pseudo-calendar)
     # -------------------------------------------------------
