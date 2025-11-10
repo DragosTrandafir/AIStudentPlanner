@@ -1,3 +1,4 @@
+from ai_system.utils.calendar_generator_prompts.calendar_instructions import generate_calendar_instructions
 from ai_system.utils.custom_agent_prompts.custom_agents_prompts_cs import (
     get_practical_exam_heuristics_cs,
     get_practical_exam_example_cs,
@@ -85,3 +86,8 @@ def propose_plan(task, general_university_type, client):
 
     full_prompt = "\n\n".join(parts)
     return make_llm_call(client, full_prompt, client.model)
+
+
+def propose_calendar(plans_array, date, client):
+    prompt = generate_calendar_instructions(plans_array,date)
+    return make_llm_call(client, prompt, client.model)
