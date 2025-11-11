@@ -17,12 +17,13 @@ from ai_system.backend.backend_api import BackendAPI
 
 load_dotenv()
 
-HF_TOKEN = os.getenv("HF_TOKEN")
+HF_TOKEN_1 = os.getenv("HF_TOKEN_1")
+HF_TOKEN_2 = os.getenv("HF_TOKEN_2")
 CUSTOM_AGENT_MODEL = os.getenv("CUSTOM_AGENT_MODEL")
 BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL", "http://localhost:8000")
 
 # fallback simplu dacă lipsesc env-urile, ca să nu crape direct
-if HF_TOKEN is None:
+if HF_TOKEN_1 is None:
     print("[AiOrchestrator] WARNING: HF_TOKEN is not set in environment.")
 if CUSTOM_AGENT_MODEL is None:
     print("[AiOrchestrator] WARNING: CUSTOM_AGENT_MODEL is not set in environment.")
@@ -48,10 +49,11 @@ class AiOrchestrator:
             model_name: Optional[str] = None,
             backend_base_url: Optional[str] = None,
     ) -> None:
-        self.hf_token = hf_token or HF_TOKEN
+        self.hf_token_1 = hf_token or HF_TOKEN_1
+        self.hf_token_2 = hf_token or HF_TOKEN_2
         self.model_name = model_name or CUSTOM_AGENT_MODEL
 
-        if self.hf_token is None or self.model_name is None:
+        if self.hf_token_1 is None or self.model_name is None:
             raise ValueError(
                 "[AiOrchestrator] HF_TOKEN or CUSTOM_AGENT_MODEL not configured. "
                 "Check your .env file."
@@ -60,9 +62,9 @@ class AiOrchestrator:
         self.backend = BackendAPI(backend_base_url or BACKEND_BASE_URL)
 
         # inițializăm agenții
-        self.math_agent = MathAgent(self.hf_token, self.model_name)
-        self.cs_agent = CSAgent(self.hf_token, self.model_name)
-        self.general_agent = CalendarAgent(self.hf_token, self.model_name, datetime.now())
+        self.math_agent = MathAgent(self.hf_token_1, self.model_name)
+        self.cs_agent = CSAgent(self.hf_token_1, self.model_name)
+        self.general_agent = CalendarAgent(self.hf_token_2, self.model_name, datetime.now())
 
     # -------------------------------------------------------
     # API public – asta apelează backend-ul
@@ -90,8 +92,8 @@ class AiOrchestrator:
                         "id": 1,
                         "title": "OOP practic",
                         "subject_name/project_name": "Object-Oriented Programming",
-                        "start_datetime": "2025-11-18T09:00:00",
-                        "end_datetime": "2025-11-18T11:00:00",
+                        "start_datetime": "2025-11-12T09:00:00",
+                        "end_datetime": "2025-11-12T11:00:00",
                         "type": "Practical Exam",
                         "difficulty": 5,
                         "description": "I did not understand anything during the semester.",
@@ -101,8 +103,8 @@ class AiOrchestrator:
                         "id": 2,
                         "title": "PDE scris",
                         "subject_name/project_name": "Partial Differential Equations",
-                        "start_datetime": "2025-11-15T09:00:00",
-                        "end_datetime": "2025-11-15T11:00:00",
+                        "start_datetime": "2025-11-12T12:00:00",
+                        "end_datetime": "2025-11-12T15:00:00",
                         "type": "Written Exam",
                         "difficulty": 5,
                         "description": "I solved everything with ChatGPT.",
@@ -129,6 +131,8 @@ class AiOrchestrator:
             agent = self._select_agent_for_task(task)  # kept
             agent_plan = self._run_agent_on_task(agent, task)  # kept
             plans.append(agent_plan)
+
+        print(plans)
 
         final_plan = self._run_agent_on_task(self.general_agent, plans)
 
@@ -164,6 +168,7 @@ class AiOrchestrator:
         subject_name = task.get("subject_name/project_name", "").lower()
         title = task.get("title", "").lower()
         text = f"{domain} {subject_name} {title}"
+        print(text)
 
         if "math" in text or "algebra" in text or "analysis" in text \
                 or "equations" in text or "pde" in text or "ode" in text:

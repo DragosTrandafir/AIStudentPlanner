@@ -12,27 +12,22 @@ def generate_calendar_instructions(plans_array, date):
         "Your job is to integrate and coordinate all tasks from these plans into a single, unified daily calendar. "
         "Distribute work intelligently across the available days until each plan’s deadline, ensuring a realistic "
         "workload."
-        "Return a single valid JSON object following the structure below — "
-        "no explanations, no Markdown, no comments, and no trailing commas."
+        "Return a single valid JSON object following the structure below:\n\n"
     )
 
     json_structure = (
-        "The JSON must have the following structure:\n\n"
         "{\n"
         '  "summary": "One-sentence overview of the overall schedule.",\n'
         '  "calendar": [\n'
         '    {\n'
-        '      "day": "Monday",\n'
-        '      "date": "2025-12-11",\n'
+        '      "date": "year-month-day",\n'
         '      "entries": [\n'
         '        {\n'
-        '          "time": "10:00–12:00",\n'
+        '          "time_allotted": "HH:HH–HH:HH",\n'
         '          "task_name": <string>,\n'
-        '          "source_plan": <string>,\n'
-        '          "estimated_hours": <integer>,\n'
         '          "difficulty": <integer from 1–5>,\n'
         '          "priority": <integer starting from 1>\n'
-        '        }\n'
+        '        },...\n'
         '      ],\n'
         '      "notes": "Optional daily note (e.g., breaks, rest, or review)."\n'
         '    }\n'
@@ -42,14 +37,22 @@ def generate_calendar_instructions(plans_array, date):
 
     rules = (
         "SCHEDULING RULES:\n"
-        "- Respect all deadlines in the input array.\n"
+        "- Each plan has a 'deadline' that represents the exam date and time.\n"
+        "- Absolutely NO tasks may be scheduled:\n"
+        "  • On the same calendar day as the exam after its deadline time.\n"
+        "  • Within 2 hours before the exam's deadline time.\n"
+        "  • After the deadline date at all.\n"
+        "- Example: if the deadline is 2025-11-15T09:00:00, all study tasks for that exam "
+        "must end by 07:00 on 2025-11-15 at the latest.\n"
         "- Balance high-difficulty tasks so they are not scheduled back-to-back.\n"
-        "- Include breaks if daily total exceeds 4 hours; minimum 30 minutes.\n"
-        "- Avoid scheduling multiple complex tasks in a single day.\n"
-        "- Spread work evenly, preferring lighter days after demanding ones.\n"
-        "- Limit to one major task on the day of or immediately before a deadline.\n"
-        "- If tasks from different plans overlap, prioritize those with earlier deadlines or higher difficulty.\n"
-        "- Output must be only valid JSON according to the schema above — no extra commentary."
+        "- Include breaks after 2 hours of continuous activity (20–30 minutes).\n"
+        "- Avoid scheduling multiple complex tasks in a single day unless the deadline compels it.\n"
+        "- Spread work evenly, preferring lighter days after demanding ones, if deadlines allow.\n"
+        "- Respect task priorities and difficulties in the final schedule.\n"
+        "- If possible, do not schedule more than 6 hours of learning a day, try to even out the days.\n"
+        "- If possible, ensure that the student does not work between 12 am and 6 am and gets at least 6-7 hours of "
+        "sleep per night.\n"
+
     )
 
     calendar_prompt = f"{role}\n\n{goal}\n\n{json_structure}\n\n{rules}"
