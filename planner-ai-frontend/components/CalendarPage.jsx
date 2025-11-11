@@ -26,27 +26,37 @@ export default function CalendarPage() {
   };
 
   const handleSaveTask = (task) => {
-    const color = task.color || typeColors[task.type] || "#FFF8E1";
-    const newEvent = {
-      title: task.title,
-      start: new Date(task.startDate),
-      end: new Date(task.endDate),
-      backgroundColor: color,
-      borderColor: color,
-      extendedProps: { ...task, color },
-    };
-    setEvents((prev) => {
-      const idx = prev.findIndex((ev) => ev.extendedProps.id === task.id);
-      if (idx >= 0) {
-        const updated = [...prev];
-        updated[idx] = newEvent;
-        return updated;
-      }
-      return [...prev, newEvent];
-    });
-    setShowAddModal(false);
-    setEditTask(null);
+  const color = task.color || typeColors[task.type] || "#FFF8E1";
+  const start = new Date(task.startDate);
+  const end = new Date(task.endDate);
+
+  // ✅ Check if event is same-day → treat as all-day
+  const isSameDay = start.toDateString() === end.toDateString();
+
+  const newEvent = {
+    title: task.title,
+    start,
+    end,
+    backgroundColor: color,
+    borderColor: color,
+    allDay: isSameDay, // 👈 important line
+    extendedProps: { ...task, color },
   };
+
+  setEvents((prev) => {
+    const idx = prev.findIndex((ev) => ev.extendedProps.id === task.id);
+    if (idx >= 0) {
+      const updated = [...prev];
+      updated[idx] = newEvent;
+      return updated;
+    }
+    return [...prev, newEvent];
+  });
+
+  setShowAddModal(false);
+  setEditTask(null);
+};
+
 
   const handleDeleteTask = (taskId) =>
     setEvents((prev) => prev.filter((ev) => ev.extendedProps.id !== taskId));
@@ -64,6 +74,7 @@ export default function CalendarPage() {
     },
   });
 
+  //  Navigation controls for main calendar
   const handlePrev = () => {
     calendarRef.current?.getApi().prev();
     updateMonth();
@@ -77,6 +88,7 @@ export default function CalendarPage() {
     updateMonth();
   };
 
+  // Update displayed month (and sync mini calendar)
   const updateMonth = () => {
     const api = calendarRef.current?.getApi();
     if (api) {
@@ -88,6 +100,7 @@ export default function CalendarPage() {
     }
   };
 
+  //  Mini calendar → main calendar sync
   const handleMiniSelect = (date) => {
     const api = calendarRef.current?.getApi();
     if (api) {
@@ -98,7 +111,6 @@ export default function CalendarPage() {
 
   useEffect(() => updateMonth(), []);
 
-  // 🎨 Apply orange-red theme only to the big calendar
   useEffect(() => {
     const accentColor = "#e63d00";
     const style = document.createElement("style");
@@ -200,20 +212,20 @@ export default function CalendarPage() {
           <div className="flex flex-col items-center gap-3">
             <div className="flex items-center gap-3">
               <ArrowButton direction="left" onClick={handlePrev} />
-              <PrettyButton label="Today" onClick={handleToday} />
+              <TodayButton label="Today" onClick={handleToday} />
               <ArrowButton direction="right" onClick={handleNext} />
             </div>
 
             <div className="flex gap-2">
-              <PrettyButton
+              <TodayButton
                 label="Month"
                 onClick={() => calendarRef.current?.getApi().changeView("dayGridMonth")}
               />
-              <PrettyButton
+              <TodayButton
                 label="Week"
                 onClick={() => calendarRef.current?.getApi().changeView("timeGridWeek")}
               />
-              <PrettyButton
+              <TodayButton
                 label="Day"
                 onClick={() => calendarRef.current?.getApi().changeView("timeGridDay")}
               />
@@ -313,7 +325,7 @@ function Legend({ color, label }) {
   );
 }
 
-function PrettyButton({ label, onClick }) {
+function TodayButton({ label, onClick }) {
   return (
     <button
       onClick={onClick}
@@ -357,6 +369,7 @@ function MiniCalendar({ date, onPrev, onNext, onSelectDate }) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const prevMonthDays = new Date(year, month, 0).getDate();
 
+  // Build list of visible days (including prev/next months)
   const days = [];
   for (let i = 0; i < firstDay; i++)
     days.push({ day: prevMonthDays - firstDay + i + 1, current: false });

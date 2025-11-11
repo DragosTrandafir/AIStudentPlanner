@@ -13,11 +13,13 @@ export default function AddTaskModal({ onClose, onSave, existingTask }) {
     status: "Pending",
   });
 
+  //  Date state for task scheduling
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(
     new Date(new Date().getTime() + 60 * 60 * 1000)
   );
 
+  // Populate form if editing an existing task
   useEffect(() => {
     if (!existingTask) return;
     Promise.resolve().then(() => {
@@ -41,6 +43,7 @@ export default function AddTaskModal({ onClose, onSave, existingTask }) {
     "Practical Exam": "#98FB98",
   };
 
+  // Save task and close modal
   const handleSave = () => {
     if (!formData.title.trim()) {
       alert("Please enter a task title.");

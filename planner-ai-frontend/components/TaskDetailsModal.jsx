@@ -11,6 +11,7 @@ export default function TaskDetailsModal({ task, onClose, onEdit, onDelete }) {
     "Practical Exam": "#98FB98",
   };
 
+  //  Confirm deletion before removing a task
   const handleDelete = () => {
     const confirmDelete = window.confirm(
       `Are you sure you want to delete the task "${task.title}"?`
