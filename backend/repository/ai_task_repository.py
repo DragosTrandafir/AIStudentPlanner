@@ -4,7 +4,7 @@ from typing import List, Optional
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.domain.ai_task import AITask
+from domain.ai_task import AITask
 from .base import BaseRepository
 
 

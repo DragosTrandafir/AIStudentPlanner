@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base, Session
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
     # Fallback to a local SQLite file for development if Postgres is not set yet
-    f"sqlite+pysqlite:///{os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'ai_student_planner.db'))}"
+    f"sqlite+pysqlite:///{os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'ai_student_planner.db'))}"
 )
 
 # echo can be toggled via env to print SQL for debugging
