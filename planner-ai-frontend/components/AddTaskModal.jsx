@@ -3,61 +3,93 @@ import { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-export default function AddTaskModal({ onClose, onSave, existingTask }) {
+export default function AddTaskModal({ onClose, onSave, existingTask, apiBase, userId }) {
+  // Keep state values in BACKEND shape to minimize mapping
   const [formData, setFormData] = useState({
     title: "",
-    subject: "",
-    type: "Assignment",
+    name: "", // backend 'name' is the Subject / Project field
+    type: "project", // backend enum: project | written | practical
     difficulty: 1,
     description: "",
-    status: "Pending",
+    status: "not_started", // backend enum: not_started | in_progress | completed
   });
 
-  //  Date state for task scheduling
+  //  Date state for task scheduling (Date objects for UI)
   const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(
-    new Date(new Date().getTime() + 60 * 60 * 1000)
-  );
+  const [endDate, setEndDate] = useState(new Date(new Date().getTime() + 60 * 60 * 1000));
 
-  // Populate form if editing an existing task
+  // Populate form if editing an existing subject (backend shape)
   useEffect(() => {
     if (!existingTask) return;
     Promise.resolve().then(() => {
       setFormData({
         title: existingTask.title || "",
-        subject: existingTask.subject || "",
-        type: existingTask.type || "Assignment",
-        difficulty: existingTask.difficulty || 1,
+        name: existingTask.name || "",
+        type: existingTask.type || "project",
+        difficulty: existingTask.difficulty ?? 1,
         description: existingTask.description || "",
-        status: existingTask.status || "Pending",
+        status: existingTask.status || "not_started",
       });
-      setStartDate(new Date(existingTask.startDate));
-      setEndDate(new Date(existingTask.endDate));
+      if (existingTask.start_date) setStartDate(new Date(existingTask.start_date));
+      if (existingTask.end_date) setEndDate(new Date(existingTask.end_date));
     });
   }, [existingTask]);
 
-  const typeColors = {
-    Assignment: "#F4C2C2",
-    Project: "#F3E5AB",
-    "Written Exam": "#AFEEEE",
-    "Practical Exam": "#98FB98",
+  const typeLabels = {
+    project: "Project",
+    written: "Written Exam",
+    practical: "Practical Exam",
   };
 
-  // Save task and close modal
-  const handleSave = () => {
+  const statusLabels = {
+    not_started: "Not Started",
+    in_progress: "In Progress",
+    completed: "Completed",
+  };
+
+  const handleSubmit = async () => {
     if (!formData.title.trim()) {
       alert("Please enter a task title.");
       return;
     }
+    if (!formData.name.trim()) {
+      alert("Please enter the subject name.");
+      return;
+    }
 
-    onSave({
-      ...formData,
-      startDate,
-      endDate,
-      color: typeColors[formData.type],
-      id: existingTask?.id || Date.now(),
-    });
-    onClose();
+    const payload = {
+      title: formData.title,
+      name: formData.name,
+      type: formData.type,
+      status: formData.status,
+      difficulty: Number(formData.difficulty),
+      start_date: startDate ? new Date(startDate).toISOString() : null,
+      end_date: endDate ? new Date(endDate).toISOString() : null,
+      description: formData.description || null,
+    };
+
+    try {
+      const url = existingTask?.id
+        ? `${apiBase}/users/${userId}/subjects/${existingTask.id}`
+        : `${apiBase}/users/${userId}/subjects/`;
+      const method = existingTask?.id ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || "Failed to save subject");
+      }
+      const saved = await res.json();
+      onSave(saved);
+      onClose();
+    } catch (e) {
+      console.error(e);
+      alert("Error saving subject");
+    }
   };
 
   const accentColor = "#8a0f5d";
@@ -90,9 +122,7 @@ export default function AddTaskModal({ onClose, onSave, existingTask }) {
             <input
               type="text"
               value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               className="w-full px-2 py-1 rounded-lg text-sm"
               style={{
                 backgroundColor: "#fff8f5",
@@ -102,17 +132,15 @@ export default function AddTaskModal({ onClose, onSave, existingTask }) {
             />
           </div>
 
-          {/* Subject */}
+          {/* Subject Name (backend 'name') */}
           <div>
             <label className="block text-sm mb-1" style={{ color: accentColor }}>
               Subject / Project
             </label>
             <input
               type="text"
-              value={formData.subject}
-              onChange={(e) =>
-                setFormData({ ...formData, subject: e.target.value })
-              }
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="w-full px-2 py-1 rounded-lg text-sm"
               style={{
                 backgroundColor: "#fff8f5",
@@ -122,16 +150,14 @@ export default function AddTaskModal({ onClose, onSave, existingTask }) {
             />
           </div>
 
-          {/* Type */}
+          {/* Type (backend enum) */}
           <div>
             <label className="block text-sm mb-1" style={{ color: accentColor }}>
               Task Type
             </label>
             <select
               value={formData.type}
-              onChange={(e) =>
-                setFormData({ ...formData, type: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
               className="w-full px-2 py-1 rounded-lg text-sm"
               style={{
                 backgroundColor: "#fff8f5",
@@ -139,10 +165,9 @@ export default function AddTaskModal({ onClose, onSave, existingTask }) {
                 border: `1px solid ${accentColor}`,
               }}
             >
-              <option>Assignment</option>
-              <option>Project</option>
-              <option>Practical Exam</option>
-              <option>Written Exam</option>
+              <option value="project">{typeLabels.project}</option>
+              <option value="practical">{typeLabels.practical}</option>
+              <option value="written">{typeLabels.written}</option>
             </select>
           </div>
 
@@ -169,10 +194,7 @@ export default function AddTaskModal({ onClose, onSave, existingTask }) {
                   backgroundColor: "#fff8f5",
                 }}
               >
-                <label
-                  className="block text-xs mb-1"
-                  style={{ color: accentColor }}
-                >
+                <label className="block text-xs mb-1" style={{ color: accentColor }}>
                   Start
                 </label>
                 <DatePicker
@@ -201,10 +223,7 @@ export default function AddTaskModal({ onClose, onSave, existingTask }) {
                   backgroundColor: "#fff8f5",
                 }}
               >
-                <label
-                  className="block text-xs mb-1"
-                  style={{ color: accentColor }}
-                >
+                <label className="block text-xs mb-1" style={{ color: accentColor }}>
                   End
                 </label>
                 <DatePicker
@@ -236,9 +255,7 @@ export default function AddTaskModal({ onClose, onSave, existingTask }) {
               min="1"
               max="5"
               value={formData.difficulty}
-              onChange={(e) =>
-                setFormData({ ...formData, difficulty: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
               className="w-full px-2 py-1 rounded-lg text-sm"
               style={{
                 backgroundColor: "#fff8f5",
@@ -256,9 +273,7 @@ export default function AddTaskModal({ onClose, onSave, existingTask }) {
             <textarea
               rows="2"
               value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="w-full px-2 py-1 rounded-lg text-sm"
               style={{
                 backgroundColor: "#fff8f5",
@@ -268,16 +283,14 @@ export default function AddTaskModal({ onClose, onSave, existingTask }) {
             />
           </div>
 
-          {/* Status */}
+          {/* Status (backend enum) */}
           <div>
             <label className="block text-sm mb-1" style={{ color: accentColor }}>
               Status
             </label>
             <select
               value={formData.status}
-              onChange={(e) =>
-                setFormData({ ...formData, status: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
               className="w-full px-2 py-1 rounded-lg text-sm"
               style={{
                 backgroundColor: "#fff8f5",
@@ -285,9 +298,9 @@ export default function AddTaskModal({ onClose, onSave, existingTask }) {
                 border: `1px solid ${accentColor}`,
               }}
             >
-              <option>Pending</option>
-              <option>In Progress</option>
-              <option>Completed</option>
+              <option value="not_started">{statusLabels.not_started}</option>
+              <option value="in_progress">{statusLabels.in_progress}</option>
+              <option value="completed">{statusLabels.completed}</option>
             </select>
           </div>
         </div>
@@ -306,7 +319,7 @@ export default function AddTaskModal({ onClose, onSave, existingTask }) {
             Cancel
           </button>
           <button
-            onClick={handleSave}
+            onClick={handleSubmit}
             className="px-3 py-1 text-sm rounded-lg font-semibold transition-all active:translate-y-[1px]"
             style={{
               backgroundColor: accentColor,

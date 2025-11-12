@@ -5,10 +5,19 @@ export default function TaskDetailsModal({ task, onClose, onEdit, onDelete }) {
 
   const accentColor = "#8a0f5d"; // same accent as AddTaskModal
   const typeColors = {
-    Assignment: "#F4C2C2",
-    Project: "#F3E5AB",
-    "Written Exam": "#AFEEEE",
-    "Practical Exam": "#98FB98",
+    project: "#F3E5AB",
+    written: "#AFEEEE",
+    practical: "#98FB98",
+  };
+  const typeLabels = {
+    project: "Project",
+    written: "Written Exam",
+    practical: "Practical Exam",
+  };
+  const statusLabels = {
+    not_started: "Not Started",
+    in_progress: "In Progress",
+    completed: "Completed",
   };
 
   //  Confirm deletion before removing a task
@@ -21,6 +30,9 @@ export default function TaskDetailsModal({ task, onClose, onEdit, onDelete }) {
       onClose();
     }
   };
+
+  const start = task.start_date || task.startDate;
+  const end = task.end_date || task.endDate;
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 px-3">
@@ -47,7 +59,7 @@ export default function TaskDetailsModal({ task, onClose, onEdit, onDelete }) {
           <Detail label="Title" value={task.title} accentColor={accentColor} />
           <Detail
             label="Subject / Project"
-            value={task.subject || "—"}
+            value={task.name || task.subject || "—"}
             accentColor={accentColor}
           />
 
@@ -67,11 +79,11 @@ export default function TaskDetailsModal({ task, onClose, onEdit, onDelete }) {
                 border: `1px solid ${accentColor}`,
               }}
             >
-              {task.type}
+              {typeLabels[task.type] || task.type}
             </div>
           </div>
 
-          <Detail label="Status" value={task.status} accentColor={accentColor} />
+          <Detail label="Status" value={statusLabels[task.status] || task.status} accentColor={accentColor} />
           <Detail
             label="Difficulty"
             value={`${task.difficulty}/5`}
@@ -79,12 +91,12 @@ export default function TaskDetailsModal({ task, onClose, onEdit, onDelete }) {
           />
           <Detail
             label="Start"
-            value={new Date(task.startDate).toLocaleString()}
+            value={start ? new Date(start).toLocaleString() : "—"}
             accentColor={accentColor}
           />
           <Detail
             label="End"
-            value={new Date(task.endDate).toLocaleString()}
+            value={end ? new Date(end).toLocaleString() : "—"}
             accentColor={accentColor}
           />
 

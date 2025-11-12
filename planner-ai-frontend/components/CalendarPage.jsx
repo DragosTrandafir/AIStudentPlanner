@@ -9,6 +9,13 @@ import AddTaskModal from "./AddTaskModal";
 import TaskDetailsModal from "./TaskDetailsModal";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+// Backend config
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+// TODO: Replace with real logged-in user id
+const USER_ID = typeof window !== "undefined" && window.localStorage.getItem("user_id")
+  ? Number(window.localStorage.getItem("user_id"))
+  : 1;
+
 export default function CalendarPage() {
   const calendarRef = useRef(null);
   const [events, setEvents] = useState([]);
@@ -17,49 +24,92 @@ export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState("");
   const [editTask, setEditTask] = useState(null);
   const [miniDate, setMiniDate] = useState(new Date());
+  const [loading, setLoading] = useState(false);
 
+  // Backend enum -> friendly label and color
+  const typeLabels = {
+    project: "Project",
+    written: "Written Exam",
+    practical: "Practical Exam",
+  };
   const typeColors = {
-    Assignment: "#F4C2C2",
-    Project: "#F3E5AB",
-    "Written Exam": "#AFEEEE",
-    "Practical Exam": "#98FB98",
+    project: "#F3E5AB",
+    written: "#AFEEEE",
+    practical: "#98FB98",
   };
 
-  const handleSaveTask = (task) => {
-  const color = task.color || typeColors[task.type] || "#FFF8E1";
-  const start = new Date(task.startDate);
-  const end = new Date(task.endDate);
+  // Transform backend subject -> FullCalendar event
+  const subjectToEvent = (subject) => {
+    const start = subject.start_date ? new Date(subject.start_date) : null;
+    const end = subject.end_date ? new Date(subject.end_date) : null;
+    if (!start) return null; // skip items without a start date
 
-  // ✅ Check if event is same-day → treat as all-day
-  const isSameDay = start.toDateString() === end.toDateString();
+    const isSameDay = end && start.toDateString() === end.toDateString();
+    const color = typeColors[subject.type] || "#FFF8E1";
 
-  const newEvent = {
-    title: task.title,
-    start,
-    end,
-    backgroundColor: color,
-    borderColor: color,
-    allDay: isSameDay, // 👈 important line
-    extendedProps: { ...task, color },
+    return {
+      title: subject.title,
+      start,
+      ...(end ? { end } : {}),
+      backgroundColor: color,
+      borderColor: color,
+      allDay: !!(end && isSameDay),
+      extendedProps: { ...subject },
+    };
   };
 
-  setEvents((prev) => {
-    const idx = prev.findIndex((ev) => ev.extendedProps.id === task.id);
-    if (idx >= 0) {
-      const updated = [...prev];
-      updated[idx] = newEvent;
-      return updated;
+  const loadSubjects = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/users/${USER_ID}/subjects/`);
+      if (!res.ok) throw new Error("Failed to load subjects");
+      const data = await res.json();
+      const mapped = data
+        .map(subjectToEvent)
+        .filter(Boolean);
+      setEvents(mapped);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
     }
-    return [...prev, newEvent];
-  });
+  };
 
-  setShowAddModal(false);
-  setEditTask(null);
-};
+  useEffect(() => updateMonth(), []);
+  useEffect(() => {
+    loadSubjects();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  const handleSavedSubject = (subject) => {
+    // subject returned from AddTaskModal (POST/PUT)
+    const ev = subjectToEvent(subject);
+    if (!ev) return;
+    setEvents((prev) => {
+      const idx = prev.findIndex((p) => p.extendedProps.id === subject.id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = ev;
+        return copy;
+      }
+      return [...prev, ev];
+    });
+    setShowAddModal(false);
+    setEditTask(null);
+  };
 
-  const handleDeleteTask = (taskId) =>
-    setEvents((prev) => prev.filter((ev) => ev.extendedProps.id !== taskId));
+  const handleDeleteTask = async (taskId) => {
+    try {
+      const res = await fetch(`${API_BASE}/users/${USER_ID}/subjects/${taskId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Delete failed");
+      setEvents((prev) => prev.filter((ev) => ev.extendedProps.id !== taskId));
+    } catch (e) {
+      console.error(e);
+      alert("Failed to delete task");
+    }
+  };
 
   const handleEventClick = (info) => setSelectedTask(info.event.extendedProps);
 
@@ -108,8 +158,6 @@ export default function CalendarPage() {
       updateMonth();
     }
   };
-
-  useEffect(() => updateMonth(), []);
 
   useEffect(() => {
     const accentColor = "#e63d00";
@@ -171,10 +219,10 @@ export default function CalendarPage() {
         <div>
           <h2 className="text-2xl font-bold text-[#71460e] mb-4">Task Legend</h2>
           <ul className="space-y-3 text-[#71460e]">
-            <Legend color={typeColors.Assignment} label="Assignment" />
-            <Legend color={typeColors.Project} label="Project" />
-            <Legend color={typeColors["Written Exam"]} label="Written Exam" />
-            <Legend color={typeColors["Practical Exam"]} label="Practical Exam" />
+            {/* Only backend-supported types */}
+            <Legend color={typeColors.project} label={typeLabels.project} />
+            <Legend color={typeColors.written} label={typeLabels.written} />
+            <Legend color={typeColors.practical} label={typeLabels.practical} />
           </ul>
         </div>
 
@@ -282,6 +330,9 @@ export default function CalendarPage() {
               );
             }}
           />
+          {loading && (
+            <div className="text-center text-sm text-[#71460e] mt-2">Loading…</div>
+          )}
         </div>
       </main>
 
@@ -292,8 +343,10 @@ export default function CalendarPage() {
             setShowAddModal(false);
             setEditTask(null);
           }}
-          onSave={handleSaveTask}
+          onSave={handleSavedSubject}
           existingTask={editTask}
+          apiBase={API_BASE}
+          userId={USER_ID}
         />
       )}
       {selectedTask && (
