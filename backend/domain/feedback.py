@@ -5,7 +5,7 @@ from typing import Optional
 from sqlalchemy import Integer, DateTime, ForeignKey, Text, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from config.database import Base
+from backend.config.database import Base
 
 
 class Feedback(Base):

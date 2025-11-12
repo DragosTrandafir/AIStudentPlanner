@@ -4,7 +4,7 @@ from typing import List, Optional
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from domain.project import Project
+from backend.domain.project import Project
 from .base import BaseRepository
 
 

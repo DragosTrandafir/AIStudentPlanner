@@ -2,10 +2,10 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 
-from domain.ai_task import AITask, AITaskStatus
-from repository.ai_task_repository import AITaskRepository
-from repository.project_repository import ProjectRepository
-from repository.subject_repository import SubjectRepository
+from backend.domain.ai_task import AITask, AITaskStatus
+from backend.repository.ai_task_repository import AITaskRepository
+from backend.repository.project_repository import ProjectRepository
+from backend.repository.subject_repository import SubjectRepository
 
 
 class AITaskService:

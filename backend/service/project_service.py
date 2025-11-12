@@ -2,9 +2,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Optional
 
-from domain.project import Project
-from repository.project_repository import ProjectRepository
-from repository.user_repository import UserRepository
+from backend.domain.project import Project
+from backend.repository.project_repository import ProjectRepository
+from backend.repository.user_repository import UserRepository
 
 
 class ProjectService:

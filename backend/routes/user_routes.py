@@ -1,13 +1,32 @@
 from fastapi import APIRouter, HTTPException, status
 from typing import List
 
-from service.user_service import UserService
-from repository.user_repository import UserRepository
-from domain.user import User
-from config.database import get_session
-from dtos.user_dto import UserCreateRequest, UserResponse
+from backend.service.user_service import UserService
+from backend.repository.user_repository import UserRepository
+from backend.domain.user import User
+from backend.config.database import get_session
+
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+from pydantic import BaseModel, EmailStr
+from typing import Optional, List
+class UserCreateRequest(BaseModel):
+    name: str
+    email: EmailStr
+    major: Optional[str] = None
+    google_id: Optional[str] = None
+
+
+class UserResponse(BaseModel):
+    id: int
+    name: str
+    email: str
+    major: Optional[str]
+    google_id: Optional[str]
+
+    class Config:
+        from_attributes = True
 
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)

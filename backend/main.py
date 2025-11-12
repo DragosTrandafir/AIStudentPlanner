@@ -1,7 +1,9 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from routes.user_routes import router as user_router
-from init_db import create_all
+from fastapi.middleware.cors import CORSMiddleware
+from backend.routes.user_routes import router as user_router
+from backend.routes.subject_routes import router as subject_router
+from backend.init_db import create_all
 
 
 @asynccontextmanager
@@ -9,8 +11,6 @@ async def lifespan(app: FastAPI):
     # Startup: Create database tables
     create_all()
     yield
-    # Shutdown: Add cleanup logic here if needed
-    # e.g., close database connections, cleanup resources
 
 
 app = FastAPI(
@@ -19,14 +19,21 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Include routers
 app.include_router(user_router)
-
+app.include_router(subject_router)
 
 @app.get("/")
 def root():
     return {"message": "AI Student Planner API is running"}
-
 
 if __name__ == "__main__":
     import uvicorn
