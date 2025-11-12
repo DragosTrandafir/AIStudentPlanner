@@ -1,10 +1,10 @@
 from __future__ import annotations
 from typing import List, Optional
 
-from domain.feedback import Feedback
-from repository.feedback_repository import FeedbackRepository
-from repository.user_repository import UserRepository
-from repository.ai_task_repository import AITaskRepository
+from backend.domain.feedback import Feedback
+from backend.repository.feedback_repository import FeedbackRepository
+from backend.repository.user_repository import UserRepository
+from backend.repository.ai_task_repository import AITaskRepository
 
 
 class FeedbackService:

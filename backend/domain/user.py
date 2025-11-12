@@ -5,7 +5,7 @@ from typing import List, Optional
 from sqlalchemy import String, Integer, DateTime, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from config.database import Base
+from backend.config.database import Base
 
 
 class User(Base):
