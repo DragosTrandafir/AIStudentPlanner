@@ -1,0 +1,94 @@
+# special prompts
+
+# Math
+
+# Practical Exam heuristics
+def get_practical_exam_heuristics_math():
+    return (
+        "Heuristics for Practical Exams:\n"
+        "- Typically 7 or 14 laboratories.\n"
+        "- Laboratories review: 2-3 hours.\n"
+        "- Solving past exam models: 2-3 hours.\n"
+        "- Typical total: 4-6 preparation hours.\n\n"
+        "Adjust values based on task description realism."
+    )
+
+
+# Practical Exam example
+def get_practical_exam_example_math():
+    return (
+        "Example JSON (for reference only — adapt details as needed):\n"
+        "{\n"
+        '  "summary": "Preparation for practical exam of medium difficulty (you can include also description info)",\n'
+        '  "total_estimated_hours": 5,\n'
+        '  "difficulty": 3,\n'
+        '  "tasks": [\n'
+        '    { "task_name": "Laboratory review", "estimated_hours": 2, "priority": 1 },\n'
+        '    { "task_name": "Exam model solving", "estimated_hours": 3, "priority": 2 },\n'
+        '  ],\n'
+        '  "deadline": "2025-11-10T09:00:00"\n'
+        "}"
+    )
+
+
+# Written Exam heuristics
+def get_written_exam_heuristics_math():
+    return (
+        "Heuristics for Written Exams:\n"
+        "- Usually consist of around 14 lectures and 7 or 14 seminars.\n"
+        "- Lecture review: ~5 hours total.\n"
+        "- Seminar review: 5-8 hours.\n"
+        "- Creating additional notes, outlines, and summaries: ~2 hours.\n"
+        "- Solving past written exam models: 3–5 hours.\n"
+        "- Typical total preparation time: 15–20 hours.\n\n"
+        "Adjust the distribution of time and difficulty according to task details and "
+        "difficulty level."
+    )
+
+
+# Written Exam example
+def get_written_exam_example_math():
+    return (
+        "Example JSON (for reference only — adapt details as needed):\n"
+        "{\n"
+        '  "summary": "Preparation for Real Analysis Exam (you can include also description info)",\n'
+        '  "total_estimated_hours": 17,\n'
+        '  "difficulty": 3,\n'
+        '  "tasks": [\n'
+        '    { "task_name": "Lecture review", "estimated_hours": 5, "priority": 1 },\n'
+        '    { "task_name": "Seminar review (part 1)", "estimated_hours": 4, "priority": 3 },\n'
+        '    { "task_name": "Seminar review (part 2)", "estimated_hours": 2, "priority": 4 },\n'
+        '    { "task_name": "Notes and outlines", "estimated_hours": 2, "priority": 5 },\n'
+        '    { "task_name": "Exam model solving", "estimated_hours": 4, "priority": 6 }\n'
+        '  ],\n'
+        '  "deadline": "2025-11-10T09:00:00"\n'
+        "}"
+    )
+
+
+# Project heuristics
+def get_project_heuristics_math():
+    return (
+        ""
+    )
+
+
+# Project example
+def get_project_example_math():
+    return (
+        ""
+    )
+
+
+# Assignment heuristics
+def get_assignment_heuristics_math():
+    return (
+        ""
+    )
+
+
+# Assignment example
+def get_assignment_example_math():
+    return (
+        ""
+    )
