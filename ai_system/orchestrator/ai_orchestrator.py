@@ -92,8 +92,8 @@ class AiOrchestrator:
                         "id": 1,
                         "title": "OOP practic",
                         "subject_name/project_name": "Object-Oriented Programming",
-                        "start_datetime": "2025-11-12T09:00:00",
-                        "end_datetime": "2025-11-12T11:00:00",
+                        "start_datetime": "2025-11-17T09:00:00",
+                        "end_datetime": "2025-11-17T11:00:00",
                         "type": "Practical Exam",
                         "difficulty": 5,
                         "description": "I did not understand anything during the semester.",
@@ -103,8 +103,8 @@ class AiOrchestrator:
                         "id": 2,
                         "title": "PDE scris",
                         "subject_name/project_name": "Partial Differential Equations",
-                        "start_datetime": "2025-11-12T12:00:00",
-                        "end_datetime": "2025-11-12T15:00:00",
+                        "start_datetime": "2025-11-18T12:00:00",
+                        "end_datetime": "2025-11-18T15:00:00",
                         "type": "Written Exam",
                         "difficulty": 5,
                         "description": "I solved everything with ChatGPT.",
@@ -136,7 +136,7 @@ class AiOrchestrator:
 
         final_plan = self._run_agent_on_task(self.general_agent, plans)
 
-        print(f"Una canzone triste: {final_plan}")
+        print(f"Plan final: {final_plan}")
 
         if save_to_backend:
             try:
