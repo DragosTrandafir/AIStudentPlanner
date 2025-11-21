@@ -1,47 +1,75 @@
 import requests
+from typing import Dict, Any, List
 
 
 class BackendAPI:
-    def __init__(self, base_url):
-        self.base_url = base_url
+    """
+    Wrapper over your FastAPI backend.
+    Provides:
+      - get_user_data(user_id)
+      - get_feedback(user_id)    (placeholder)
+      - save_plan(user_id, plan)
+    """
 
-    # get user data for planning
-    def get_user_data(self, user_id: str):
-        """
-        Fetches all user-specific planning data from backend.
-        Includes: subjects, projects with their attributes
-        """
-        url = f"{self.base_url}/api/plan/generate"
-        response = requests.get(url, params={"user_id": user_id})
-        #response.raise_for_status()
-        return response.json()
+    def __init__(self, base_url: str):
+        self.base_url = base_url.rstrip("/")
 
-    # get latest feedback
-    def get_feedback(self, user_id: str):
+    def get_user_data(self, user_id: int) -> Dict[str, Any]:
         """
-        Retrieves recent user feedback related to the plan (e.g. 'too much', 'missed today').
+        Returns user subjects in the format expected by the orchestrator.
         """
-        url = f"{self.base_url}/api/plan/feedback"
-        response = requests.get(url, params={"user_id": user_id})
-        # response.raise_for_status()
-        return response.json()
+        url = f"{self.base_url}/users/{user_id}/subjects"
 
-    # save generated plan in DB
-    def save_plan(self, user_id: str, plan: dict):
-        """
-        Sends the new JSON plan to the backend for storage in the DB.
-        """
-        url = f"{self.base_url}/api/plan/save"
-        response = requests.post(url, json={"user_id": user_id, "plan": plan})
-        # response.raise_for_status()
-        return response.json()
+        response = requests.get(url)
 
-    # get last plan from DB
-    def get_last_plan(self, user_id: str):
-        """
-        Retrieves last stored plan (for recovery or consistency check).
-        """
-        url = f"{self.base_url}/api/plan/last"
-        response = requests.get(url, params={"user_id": user_id})
-        # response.raise_for_status()
-        return response.json()
+        if response.status_code != 200:
+            raise Exception(
+                f"[BackendAPI] Failed to fetch subjects: {response.status_code} - {response.text}"
+            )
+
+        subjects = response.json()  # list of SubjectResponse
+
+        # Convert backend subjects → orchestrator tasks format
+        tasks = []
+        for s in subjects:
+            tasks.append({
+                "id": s["id"],
+                "title": s["title"],
+                "subject_name/project_name": s["name"],
+                "start_datetime": s["start_date"],
+                "end_datetime": s["end_date"],
+                "type": s["type"],            # EXAM / PROJECT / etc.
+                "difficulty": s["difficulty"],
+                "description": s["description"],
+                "status": s["status"],        # PENDING / IN_PROGRESS / COMPLETED
+            })
+
+        print("--------------------------------------------------------------------------")
+        return {"tasks": tasks}
+
+
+    # def get_feedback(self, user_id: int) -> Dict[str, Any]:
+    #     """
+    #     Placeholder implementation.
+    #     Your backend does not yet support feedback retrieval.
+    #     """
+    #     print("[BackendAPI] WARNING: Feedback endpoint not implemented yet.")
+    #     return {}  # Empty feedback until implemented
+
+
+    # def save_plan(self, user_id: int, plan: Dict[str, Any]) -> bool:
+    #     """
+    #     Sends the generated study plan to the backend.
+    #     Requires a backend endpoint like:
+    #         POST /users/{user_id}/plan
+    #     """
+    #     url = f"{self.base_url}/users/{user_id}/plan"
+    #
+    #     response = requests.post(url, json=plan)
+    #
+    #     if response.status_code not in (200, 201):
+    #         raise Exception(
+    #             f"[BackendAPI] Failed to save plan: {response.status_code} - {response.text}"
+    #         )
+    #
+    #     return True

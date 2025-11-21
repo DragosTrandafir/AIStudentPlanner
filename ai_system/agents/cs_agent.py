@@ -13,6 +13,8 @@ class CSAgent(BaseAgent):
         response = propose_plan(subject_data, "Computer Science", client)
 
         try:
+            print("aici")
             return json.loads(response)  # parse right here
         except json.JSONDecodeError:
+            print("aici2")
             return {"raw_response": response}

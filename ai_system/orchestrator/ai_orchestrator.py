@@ -83,7 +83,7 @@ class AiOrchestrator:
         #user_data = self.backend.get_user_data(user_id)
         #feedback = self.backend.get_feedback(user_id)
         try:
-            user_data = self.backend.get_user_data(user_id)
+            user_data = self.backend.get_user_data(user_id) # !!!! implement this
         except Exception as e:
             print(f"[AiOrchestrator] Backend unavailable, using mock data. ({e})")
             user_data = {
@@ -92,8 +92,8 @@ class AiOrchestrator:
                         "id": 1,
                         "title": "OOP practic",
                         "subject_name/project_name": "Object-Oriented Programming",
-                        "start_datetime": "2025-11-17T09:00:00",
-                        "end_datetime": "2025-11-17T11:00:00",
+                        "start_datetime": "2025-11-23T09:00:00",
+                        "end_datetime": "2025-11-23T11:00:00",
                         "type": "Practical Exam",
                         "difficulty": 5,
                         "description": "I did not understand anything during the semester.",
@@ -103,8 +103,8 @@ class AiOrchestrator:
                         "id": 2,
                         "title": "PDE scris",
                         "subject_name/project_name": "Partial Differential Equations",
-                        "start_datetime": "2025-11-18T12:00:00",
-                        "end_datetime": "2025-11-18T15:00:00",
+                        "start_datetime": "2025-11-19T12:00:00",
+                        "end_datetime": "2025-11-19T15:00:00",
                         "type": "Written Exam",
                         "difficulty": 5,
                         "description": "I solved everything with ChatGPT.",
@@ -123,7 +123,7 @@ class AiOrchestrator:
             user_data.get("tasks")
         )
 
-        print(tasks_input)
+        print(f"Tasks input: {tasks_input}")
 
         plans = []
 
@@ -168,7 +168,7 @@ class AiOrchestrator:
         subject_name = task.get("subject_name/project_name", "").lower()
         title = task.get("title", "").lower()
         text = f"{domain} {subject_name} {title}"
-        print(text)
+        print(f"Selected agent :{text}")
 
         if "math" in text or "algebra" in text or "analysis" in text \
                 or "equations" in text or "pde" in text or "ode" in text:
@@ -187,10 +187,12 @@ class AiOrchestrator:
 
     def _run_agent_on_task(self, agent, task):
         try:
+            print(f"_run_agent_on_task:{task}")
+            print(f"Agent to run:{agent}")
             raw_response = agent.propose_agent_plan(task)
             return raw_response
         except Exception as e:
-            print("Could not generate response")
+            print(e)
 
 
 # -----------------------------------------------------------

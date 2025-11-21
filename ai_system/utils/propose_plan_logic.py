@@ -33,7 +33,7 @@ def propose_plan(task, general_university_type, client):
 
     # Define a configuration map for all possible (exam type, university type) pairs
     prompt_map = {
-        ("Practical Exam", "Computer Science"): (
+        ("practical", "Computer Science"): (
             get_practical_exam_heuristics_cs,
             get_practical_exam_example_cs,
         ),
