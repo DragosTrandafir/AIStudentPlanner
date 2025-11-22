@@ -20,6 +20,7 @@ load_dotenv()
 HF_TOKEN_1 = os.getenv("HF_TOKEN_1")
 HF_TOKEN_2 = os.getenv("HF_TOKEN_2")
 CUSTOM_AGENT_MODEL = os.getenv("CUSTOM_AGENT_MODEL")
+CALENDAR_AGENT_MODEL = os.getenv("CALENDAR_AGENT_MODEL")
 BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL", "http://localhost:8000")
 
 # fallback simplu dacă lipsesc env-urile, ca să nu crape direct
@@ -46,14 +47,16 @@ class AiOrchestrator:
     def __init__(
             self,
             hf_token: Optional[str] = None,
-            model_name: Optional[str] = None,
+            custom_model_name: Optional[str] = None,
+            calendar_model_name: Optional[str] = None,
             backend_base_url: Optional[str] = None,
     ) -> None:
         self.hf_token_1 = hf_token or HF_TOKEN_1
         self.hf_token_2 = hf_token or HF_TOKEN_2
-        self.model_name = model_name or CUSTOM_AGENT_MODEL
+        self.custom_model_name = custom_model_name or CUSTOM_AGENT_MODEL
+        self.calendar_model_name = calendar_model_name or CALENDAR_AGENT_MODEL
 
-        if self.hf_token_1 is None or self.model_name is None:
+        if self.hf_token_1 is None or self.custom_model_name is None:
             raise ValueError(
                 "[AiOrchestrator] HF_TOKEN or CUSTOM_AGENT_MODEL not configured. "
                 "Check your .env file."
@@ -61,14 +64,10 @@ class AiOrchestrator:
 
         self.backend = BackendAPI(backend_base_url or BACKEND_BASE_URL)
 
-        # inițializăm agenții
-        self.math_agent = MathAgent(self.hf_token_1, self.model_name)
-        self.cs_agent = CSAgent(self.hf_token_1, self.model_name)
-        self.general_agent = CalendarAgent(self.hf_token_2, self.model_name, datetime.now())
+        self.math_agent = MathAgent(self.hf_token_1, self.custom_model_name)
+        self.cs_agent = CSAgent(self.hf_token_1, self.custom_model_name)
+        self.general_agent = CalendarAgent(self.hf_token_2, self.calendar_model_name, datetime.now())
 
-    # -------------------------------------------------------
-    # API public – asta apelează backend-ul
-    # -------------------------------------------------------
 
     def generate_plan_for_user(self, user_id: str, save_to_backend: bool = True) -> Dict[str, Any]:
         """
@@ -80,7 +79,6 @@ class AiOrchestrator:
         5) opțional, salvează planul în backend
         """
 
-        #user_data = self.backend.get_user_data(user_id)
         #feedback = self.backend.get_feedback(user_id)
         try:
             user_data = self.backend.get_user_data(user_id) # !!!! implement this
@@ -178,7 +176,6 @@ class AiOrchestrator:
                 or "oop" in text or "data structures" in text:
             return self.cs_agent
 
-        # fallback – dacă nu știm, punem la CS (poți schimba la nevoie)
         return self.cs_agent
 
     # -------------------------------------------------------
@@ -187,8 +184,6 @@ class AiOrchestrator:
 
     def _run_agent_on_task(self, agent, task):
         try:
-            print(f"_run_agent_on_task:{task}")
-            print(f"Agent to run:{agent}")
             raw_response = agent.propose_agent_plan(task)
             return raw_response
         except Exception as e:
@@ -200,14 +195,6 @@ class AiOrchestrator:
 # -----------------------------------------------------------
 
 if __name__ == "__main__":
-    """
-    Poți rula rapid:
-        python -m ai_system.orchestrator.ai_orchestrator
-    presupunând că:
-      - ai BACKEND_BASE_URL setat
-      - backend-ul răspunde la /api/plan/generate etc.
-      - ai un user_id de test în DB
-    """
 
     test_user_id = os.getenv("TEST_USER_ID", "demo_user")
 

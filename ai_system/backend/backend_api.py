@@ -29,7 +29,7 @@ class BackendAPI:
 
         subjects = response.json()  # list of SubjectResponse
 
-        # Convert backend subjects → orchestrator tasks format
+        #convert backend subjects → orchestrator tasks format
         tasks = []
         for s in subjects:
             tasks.append({
@@ -44,32 +44,6 @@ class BackendAPI:
                 "status": s["status"],        # PENDING / IN_PROGRESS / COMPLETED
             })
 
-        print("--------------------------------------------------------------------------")
         return {"tasks": tasks}
 
 
-    # def get_feedback(self, user_id: int) -> Dict[str, Any]:
-    #     """
-    #     Placeholder implementation.
-    #     Your backend does not yet support feedback retrieval.
-    #     """
-    #     print("[BackendAPI] WARNING: Feedback endpoint not implemented yet.")
-    #     return {}  # Empty feedback until implemented
-
-
-    # def save_plan(self, user_id: int, plan: Dict[str, Any]) -> bool:
-    #     """
-    #     Sends the generated study plan to the backend.
-    #     Requires a backend endpoint like:
-    #         POST /users/{user_id}/plan
-    #     """
-    #     url = f"{self.base_url}/users/{user_id}/plan"
-    #
-    #     response = requests.post(url, json=plan)
-    #
-    #     if response.status_code not in (200, 201):
-    #         raise Exception(
-    #             f"[BackendAPI] Failed to save plan: {response.status_code} - {response.text}"
-    #         )
-    #
-    #     return True
