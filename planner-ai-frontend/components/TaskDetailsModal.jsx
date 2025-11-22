@@ -3,7 +3,7 @@
 export default function TaskDetailsModal({ task, onClose, onEdit, onDelete }) {
   if (!task) return null;
 
-  const accentColor = "#8a0f5d"; // same accent as AddTaskModal
+  const accentColor = "#8a0f5d";
   const typeColors = {
     Assignment: "#F4C2C2",
     Project: "#F3E5AB",
@@ -141,7 +141,6 @@ export default function TaskDetailsModal({ task, onClose, onEdit, onDelete }) {
   );
 }
 
-/* Small helper component */
 function Detail({ label, value, accentColor, extraClasses = "" }) {
   return (
     <div>

@@ -30,7 +30,6 @@ export default function CalendarPage() {
   const start = new Date(task.startDate);
   const end = new Date(task.endDate);
 
-  // ✅ Check if event is same-day → treat as all-day
   const isSameDay = start.toDateString() === end.toDateString();
 
   const newEvent = {
@@ -39,7 +38,7 @@ export default function CalendarPage() {
     end,
     backgroundColor: color,
     borderColor: color,
-    allDay: isSameDay, // 👈 important line
+    allDay: isSameDay,
     extendedProps: { ...task, color },
   };
 
@@ -74,7 +73,6 @@ export default function CalendarPage() {
     },
   });
 
-  //  Navigation controls for main calendar
   const handlePrev = () => {
     calendarRef.current?.getApi().prev();
     updateMonth();
@@ -88,7 +86,7 @@ export default function CalendarPage() {
     updateMonth();
   };
 
-  // Update displayed month (and sync mini calendar)
+  // displayed month
   const updateMonth = () => {
     const api = calendarRef.current?.getApi();
     if (api) {
@@ -100,7 +98,7 @@ export default function CalendarPage() {
     }
   };
 
-  //  Mini calendar → main calendar sync
+  //  Mini calendar 
   const handleMiniSelect = (date) => {
     const api = calendarRef.current?.getApi();
     if (api) {
