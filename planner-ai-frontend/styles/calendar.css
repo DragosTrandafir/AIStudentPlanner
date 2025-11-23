@@ -1,0 +1,411 @@
+/* ===========================
+   GLOBAL RESET + LAYOUT FIX
+=========================== */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: "Inter", sans-serif;
+}
+
+main {
+  height: 100%;
+  overflow: auto; /* Fix pentru bara neagră */
+}
+/* ================================================================
+   NAVIGATION BUTTONS (‹ Today ›)
+================================================================ */
+.nav-button {
+  background: #fff7f2;
+  border: 2px solid #d18a67;
+  padding: 8px 18px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #8b4a2a;
+  cursor: pointer;
+  transition: 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-button:hover {
+  background: #ffe0d1;
+  transform: scale(1.05);
+}
+
+.nav-button:active {
+  transform: scale(0.97);
+}
+
+/* ================================================================
+   VIEW MODE BUTTONS (MONTH / WEEK / DAY)
+================================================================ */
+.view-button {
+  background: #fff7f2;
+  border: 2px solid #d18a67;
+  padding: 10px 22px;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #8b4a2a;
+  cursor: pointer;
+  transition: 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.view-button:hover {
+  background: #ffe0d1;
+  transform: scale(1.05);
+}
+
+/* active state (the selected view) */
+.view-button.active-view {
+  background: #d87c45 !important;
+  color: white !important;
+  border-color: #b45b2a !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+/* ===========================
+   HEADER + BUTTONS
+=========================== */
+.add-task-btn {
+  padding: 10px 18px;
+  background: #c27045;
+  border-radius: 14px;
+  font-size: 18px;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s;
+}
+
+.add-task-btn:hover {
+  background: #a95d34;
+}
+
+.nav-button {
+  padding: 8px 14px;
+  background: #fff7f3;
+  border: 2px solid #d29b82;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.nav-button:hover {
+  background: #f2e0d9;
+}
+
+.nav-button.active-view {
+  background: #c27045;
+  color: white;
+}
+
+/* ===========================
+   MONTH VIEW CONTAINER
+=========================== */
+.calendar-container {
+  width: 95%;
+  margin: 10px auto;
+  padding: 20px;
+  background: #ffe5e0;
+  border: 3px solid #e29f95;
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #b1462e;
+  padding-bottom: 10px;
+}
+
+/* ===========================
+   MONTH GRID
+=========================== */
+.calendar-grid-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 115px;
+  gap: 0;
+}
+
+.calendar-day-cell {
+  border: 1px solid #e8a598;
+  position: relative;
+  padding: 6px;
+  background: #fff7f7;
+  transition: 0.1s;
+}
+
+.calendar-day-cell:hover {
+  background: #fff2f2;
+}
+
+.calendar-day-cell.out-month {
+  background: #f0d0cd;
+  opacity: 0.55;
+}
+
+.calendar-day-cell.selected {
+  border: 3px solid #c6614a !important;
+  border-radius: 10px;
+}
+
+/* Day number */
+.day-number {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  color: #c44b34;
+  font-weight: 700;
+}
+
+/* ===========================
+   EVENTS
+=========================== */
+.event-wrapper {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.event-pill {
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #422b19;
+  font-size: 14px;
+  background: #ffd5d0;
+  border: 1px solid #c68172;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.event-pill:hover {
+  transform: scale(1.05);
+}
+
+/* ===========================
+   WEEK VIEW (compact version)
+=========================== */
+
+.week-view-container {
+  width: 95%;
+  height: calc(100vh - 200px);
+  background: #ffe5e0;
+  border: 3px solid #e29f95;
+  border-radius: 22px;
+  padding: 10px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.week-header {
+  display: grid;
+  grid-template-columns: 60px repeat(7, 1fr);
+  font-size: 14px;
+  font-weight: 700;
+  color: #b1462e;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.week-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 60px repeat(7, 1fr);
+  background: #fff7f7;
+  border-radius: 12px;
+  overflow-y: auto;
+  height: 100%;
+  padding-right: 6px;
+}
+
+/* orele (compactate) */
+.week-grid .hour-cell {
+  height: 32px;              /* înainte 60px */
+  font-size: 12px;
+  padding-right: 6px;
+  color: #a67863;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* celulele goale din zile */
+.week-hour-cell {
+  height: 32px;              /* înainte 60px */
+  border-bottom: 1px solid #f1cfc9;
+}
+
+/* coloanele din fiecare zi */
+.week-day-column {
+  position: relative;
+  border-left: 1px solid #e5b0a8;
+}
+
+/* TASK — mai compact */
+.week-task {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 28px;              /* mai mic */
+  padding: 5px;
+  border-radius: 6px;
+  font-size: 13px;
+  background: #ffd9ce;
+  border: 1px solid #e0a799;
+  color: #4b2e1a;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.25);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ===========================
+   DAY VIEW (compact version)
+=========================== */
+
+.day-view-container {
+  width: 95%;
+  height: calc(100vh - 200px);
+  background: #ffe5e0;
+  border: 3px solid #e29f95;
+  border-radius: 22px;
+  padding: 10px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.day-header {
+  text-align: center;
+  font-weight: 700;
+  font-size: 20px;
+  color: #b1462e;
+  margin-bottom: 8px;
+}
+
+/* zona grilă, cu scroll doar aici */
+.day-grid {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  background: #fff7f7;
+  border-radius: 12px;
+  overflow-y: auto;
+  height: 100%;
+  padding-right: 6px;
+}
+
+/* orele (compactate) */
+.hour-cell {
+  height: 32px;           /* înainte era 60px */
+  font-size: 12px;
+  padding-right: 6px;
+  color: #a67863;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* coloana mare (ziua) */
+.day-hour-cell {
+  height: 32px;
+  border-bottom: 1px solid #f1cfc9;
+}
+
+/* task */
+.day-task {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  height: 28px;           /* mai mic */
+  padding: 5px;
+  border-radius: 6px;
+  font-size: 13px;
+  background: #ffd9ce;
+  border: 1px solid #e0a799;
+  color: #4b2e1a;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.25);
+}
+
+.day-events-column {
+  position: relative;
+}
+
+/* Mini Calendar */
+.mini-day {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 3px auto;
+  border-radius: 8px;
+  transition: 0.15s;
+  font-weight: 600;
+}
+
+/* Ziua de azi (bulina portocaliu închis) */
+.mini-day.today {
+  background: #c27045;
+  color: white;
+  border-radius: 10px;
+}
+
+/* Ziua selectată (contur portocaliu) */
+.mini-day.selected {
+  outline: 2px solid #c27045;
+  color: #c27045;
+  border-radius: 10px;
+  background: #fff3ea;
+}
+
+/* ============================
+   MULTI-DAY EVENT BARS
+============================ */
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  position: relative;
+}
+
+/* bara întinsă */
+.event-bar {
+  position: relative;
+  height: 28px;
+  margin-top: 32px;
+  border-radius: 8px;
+  padding: 4px 10px;
+  color: #4b2e1a;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+  cursor: pointer;
+  z-index: 10;
+  overflow: hidden;
+}
+
+/* indicator continuare */
+.event-bar::after {
+  content: "→";
+  margin-left: 8px;
+  font-weight: 900;
+  opacity: 0.6;
+}
+

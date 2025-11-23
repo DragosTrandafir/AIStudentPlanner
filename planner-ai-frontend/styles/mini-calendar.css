@@ -1,0 +1,40 @@
+/* === Mini Month View === */
+
+.mini-calendar {
+  background: var(--bg-surface);
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  width: fit-content;
+}
+
+.mini-calendar-month {
+  text-align: center;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+  color: var(--accent);
+}
+
+.mini-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.mini-day {
+  padding: 5px;
+  text-align: center;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--text-primary);
+}
+
+.mini-day:hover {
+  background: var(--accent-bg);
+}
+
+.mini-day.selected {
+  background: var(--accent);
+  color: #fff;
+}

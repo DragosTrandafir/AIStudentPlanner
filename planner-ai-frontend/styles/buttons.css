@@ -1,0 +1,52 @@
+/* === Primary Add Task Button === */
+
+.addtask-button {
+  background: var(--accent);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s ease;
+}
+
+.addtask-button:hover {
+  background: var(--accent-light);
+}
+
+/* === Today Button === */
+
+.today-button {
+  background: var(--accent-bg);
+  color: var(--accent);
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--accent);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.12s ease;
+}
+
+.today-button:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* === Arrow Buttons === */
+
+.arrow-button {
+  background: var(--bg-muted);
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid #ccc;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: 0.15s ease;
+}
+
+.arrow-button:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+}
