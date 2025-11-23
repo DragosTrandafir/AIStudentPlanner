@@ -1,239 +1,417 @@
-"use client";
+// "use client";
 
-import { useState, useRef, useEffect } from "react";
-import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
-import AddTaskModal from "./AddTaskModal";
-import TaskDetailsModal from "./TaskDetailsModal";
+// import { useState, useRef, useEffect } from "react";
+// import FullCalendar from "@fullcalendar/react";
+// import dayGridPlugin from "@fullcalendar/daygrid";
+// import timeGridPlugin from "@fullcalendar/timegrid";
+// import interactionPlugin from "@fullcalendar/interaction";
+// import AddTaskModal from "./AddTaskModal";
+// import TaskDetailsModal from "./TaskDetailsModal";
+// import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function CalendarPage() {
-  const calendarRef = useRef(null);
-  const [events, setEvents] = useState([]);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedTask, setSelectedTask] = useState(null);
-  const [currentMonth, setCurrentMonth] = useState("");
-  const [editTask, setEditTask] = useState(null);
+// export default function CalendarPage() {
+//   const calendarRef = useRef(null);
+//   const [events, setEvents] = useState([]);
+//   const [showAddModal, setShowAddModal] = useState(false);
+//   const [selectedTask, setSelectedTask] = useState(null);
+//   const [currentMonth, setCurrentMonth] = useState("");
+//   const [editTask, setEditTask] = useState(null);
+//   const [miniDate, setMiniDate] = useState(new Date());
 
-  // Event styles
-  const eventStyleGetter = (event) => {
-    return {
-      style: {
-        backgroundColor: event.extendedProps.color || "#FFF8E1",
-        color: "#71460e",
-        borderRadius: "10px",
-        padding: "6px",
-        fontWeight: 600,
-        fontSize: "0.85rem",
-        border: "1px solid rgba(0,0,0,0.1)",
-      },
-    };
-  };
+//   const typeColors = {
+//     Assignment: "#F4C2C2",
+//     Project: "#F3E5AB",
+//     "Written Exam": "#AFEEEE",
+//     "Practical Exam": "#98FB98",
+//   };
 
-  const handleSaveTask = (task) => {
-    setEvents((prev) => {
-      const idx = prev.findIndex((ev) => ev.extendedProps.id === task.id);
-      const newEvent = {
-        title: task.title,
-        start: new Date(task.startDate),
-        end: new Date(task.endDate),
-        extendedProps: { ...task },
-      };
-      if (idx >= 0) {
-        const updated = [...prev];
-        updated[idx] = newEvent;
-        return updated;
-      }
-      return [...prev, newEvent];
-    });
-    setShowAddModal(false);
-    setEditTask(null);
-  };
+//   const handleSaveTask = (task) => {
+//     const color = task.color || typeColors[task.type] || "#FFF8E1";
+//     const newEvent = {
+//       title: task.title,
+//       start: new Date(task.startDate),
+//       end: new Date(task.endDate),
+//       backgroundColor: color,
+//       borderColor: color,
+//       extendedProps: { ...task, color },
+//     };
+//     setEvents((prev) => {
+//       const idx = prev.findIndex((ev) => ev.extendedProps.id === task.id);
+//       if (idx >= 0) {
+//         const updated = [...prev];
+//         updated[idx] = newEvent;
+//         return updated;
+//       }
+//       return [...prev, newEvent];
+//     });
+//     setShowAddModal(false);
+//     setEditTask(null);
+//   };
 
-  const handleDeleteTask = (taskId) => {
-    setEvents((prev) => prev.filter((ev) => ev.extendedProps.id !== taskId));
-  };
+//   const handleDeleteTask = (taskId) =>
+//     setEvents((prev) => prev.filter((ev) => ev.extendedProps.id !== taskId));
 
-  const handleEventClick = (info) => setSelectedTask(info.event.extendedProps);
+//   const handleEventClick = (info) => setSelectedTask(info.event.extendedProps);
 
-  const setView = (view) => {
-    const api = calendarRef.current.getApi();
-    api.changeView(view);
-    updateMonth();
-  };
+//   const eventStyleGetter = () => ({
+//     style: {
+//       color: "#71460e",
+//       borderRadius: "10px",
+//       fontWeight: 600,
+//       fontSize: "0.85rem",
+//       boxShadow: "1px 1px 4px rgba(0,0,0,0.15)",
+//       padding: "4px",
+//     },
+//   });
 
-  const handlePrev = () => {
-    calendarRef.current?.getApi().prev();
-    updateMonth();
-  };
-  const handleNext = () => {
-    calendarRef.current?.getApi().next();
-    updateMonth();
-  };
-  const handleToday = () => {
-    calendarRef.current?.getApi().today();
-    updateMonth();
-  };
+//   const handlePrev = () => {
+//     calendarRef.current?.getApi().prev();
+//     updateMonth();
+//   };
+//   const handleNext = () => {
+//     calendarRef.current?.getApi().next();
+//     updateMonth();
+//   };
+//   const handleToday = () => {
+//     calendarRef.current?.getApi().today();
+//     updateMonth();
+//   };
 
-  const updateMonth = () => {
-    const api = calendarRef.current?.getApi();
-    if (api) {
-      const date = api.getDate();
-      setCurrentMonth(
-        date.toLocaleString("default", { month: "long", year: "numeric" })
-      );
-    }
-  };
+//   const updateMonth = () => {
+//     const api = calendarRef.current?.getApi();
+//     if (api) {
+//       const date = api.getDate();
+//       setCurrentMonth(
+//         date.toLocaleString("default", { month: "long", year: "numeric" })
+//       );
+//       setMiniDate(date);
+//     }
+//   };
 
-  useEffect(() => updateMonth(), []);
+//   const handleMiniSelect = (date) => {
+//     const api = calendarRef.current?.getApi();
+//     if (api) {
+//       api.gotoDate(date);
+//       updateMonth();
+//     }
+//   };
 
-  return (
-    <div className="p-6 min-h-screen" style={{ backgroundColor: "#f2dede" }}>
-      {/* Header */}
-      <div className="flex flex-col items-center mb-6">
-        <h1 className="text-4xl font-bold text-[#71460e] mb-3">{currentMonth}</h1>
+//   useEffect(() => updateMonth(), []);
 
-        {/* Navigation */}
-        <div className="flex flex-wrap justify-center gap-2 mb-2">
-          <button
-            className="px-3 py-1 bg-white border border-[#71460e] rounded-lg shadow-sm text-[#71460e] hover:bg-[#ffe5e5]"
-            onClick={handlePrev}
-          >
-            ← Prev
-          </button>
-          <button
-            className="px-3 py-1 bg-white border border-[#71460e] rounded-lg shadow-sm text-[#71460e] hover:bg-[#ffe5e5]"
-            onClick={handleToday}
-          >
-            Today
-          </button>
-          <button
-            className="px-3 py-1 bg-white border border-[#71460e] rounded-lg shadow-sm text-[#71460e] hover:bg-[#ffe5e5]"
-            onClick={handleNext}
-          >
-            Next →
-          </button>
-        </div>
+//   // 🎨 Apply orange-red theme only to the big calendar
+//   useEffect(() => {
+//     const accentColor = "#e63d00";
+//     const style = document.createElement("style");
+//     style.innerHTML = `
+//       /* Borders */
+//       .fc-theme-standard td, .fc-theme-standard th {
+//         border: 1px solid ${accentColor} !important;
+//       }
+//       .fc-scrollgrid {
+//         border: 2px solid ${accentColor} !important;
+//         border-radius: 10px;
+//       }
 
-        {/* View Controls */}
-        <div className="flex gap-2 flex-wrap justify-center mb-4">
-          <button
-            className="px-3 py-1 bg-white rounded-lg shadow-sm hover:bg-[#ffe5e5] border border-[#71460e] text-[#71460e]"
-            onClick={() => setView("dayGridMonth")}
-          >
-            Month
-          </button>
-          <button
-            className="px-3 py-1 bg-white rounded-lg shadow-sm hover:bg-[#ffe5e5] border border-[#71460e] text-[#71460e]"
-            onClick={() => setView("timeGridWeek")}
-          >
-            Week
-          </button>
-          <button
-            className="px-3 py-1 bg-white rounded-lg shadow-sm hover:bg-[#ffe5e5] border border-[#71460e] text-[#71460e]"
-            onClick={() => setView("timeGridDay")}
-          >
-            Day
-          </button>
-          <button
-            className="px-4 py-1 bg-[#71460e] text-white rounded-lg shadow hover:bg-[#532e08]"
-            onClick={() => setShowAddModal(true)}
-          >
-            + Add Task
-          </button>
-        </div>
-      </div>
+//       /* Today cell */
+//       .fc-day-today {
+//         background-color: rgba(230, 61, 0, 0.08) !important;
+//         border: 2px solid ${accentColor} !important;
+//         border-radius: 8px;
+//       }
 
-      {/* Calendar */}
-      <div
-        className="rounded-2xl shadow-md p-4"
-        style={{
-          background: "linear-gradient(180deg, #ffe5e5 0%, #ffd6d6 100%)",
-          border: "2px solid #ffcaca",
-        }}
-      >
-        <FullCalendar
-          ref={calendarRef}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
-          headerToolbar={false}
-          events={events}
-          eventPropGetter={eventStyleGetter}
-          eventClick={handleEventClick}
-          height="75vh"
-          nowIndicator
-          allDaySlot={false}
-          dayMaxEvents={false}
-          slotEventOverlap={false}
-          eventOverlap={true}
-          datesSet={updateMonth}
-          eventContent={(arg) => (
-            <div
-              style={{
-                padding: "4px",
-                color: "#71460e",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              <div className="font-semibold">{arg.event.title}</div>
-              {arg.event.extendedProps.description && (
-                <div className="text-xs opacity-90 truncate">
-                  {arg.event.extendedProps.description}
-                </div>
-              )}
-            </div>
-          )}
-          dayHeaderContent={(arg) => (
-            <div
-              style={{
-                color: "#71460e",
-                fontWeight: "600",
-                textAlign: "center",
-              }}
-            >
-              {arg.text}
-            </div>
-          )}
-          dayCellContent={(arg) => (
-            <div
-              style={{
-                color: "#71460e",
-                fontWeight: "600",
-                textAlign: "right",
-                paddingRight: "4px",
-              }}
-            >
-              {arg.dayNumberText}
-            </div>
-          )}
-        />
-      </div>
+//       /* Weekday names (Mon, Tue...) */
+//       .fc .fc-col-header-cell-cushion {
+//         color: ${accentColor} !important;
+//         font-weight: 700;
+//       }
 
-      {/* Modals */}
-      {showAddModal && (
-        <AddTaskModal
-          onClose={() => {
-            setShowAddModal(false);
-            setEditTask(null);
-          }}
-          onSave={handleSaveTask}
-          existingTask={editTask}
-        />
-      )}
+//       /* Day numbers (1, 2, 3...) */
+//       .fc-daygrid-day-number {
+//         color: ${accentColor} !important;
+//         font-weight: 600;
+//       }
 
-      {selectedTask && (
-        <TaskDetailsModal
-          task={selectedTask}
-          onClose={() => setSelectedTask(null)}
-          onEdit={(task) => {
-            setSelectedTask(null);
-            setEditTask(task);
-            setShowAddModal(true);
-          }}
-        />
-      )}
-    </div>
-  );
-}
+//       /* Faded days from previous/next month */
+//       .fc-day-other .fc-daygrid-day-number {
+//         color: rgba(230, 61, 0, 0.5) !important;
+//       }
+
+//       /* Hover on day cells */
+//       .fc-daygrid-day:hover {
+//         background-color: rgba(230, 61, 0, 0.05) !important;
+//         transition: background-color 0.2s ease;
+//       }
+//     `;
+//     document.head.appendChild(style);
+//     return () => document.head.removeChild(style);
+//   }, []);
+
+//   return (
+//     <div
+//       className="flex min-h-screen overflow-hidden"
+//       style={{
+//         background: "linear-gradient(180deg, #ffe5e5 0%, #fff0d6 100%)",
+//         fontFamily: "Georgia, 'Times New Roman', serif",
+//       }}
+//     >
+//       {/* Sidebar */}
+//       <aside className="w-72 flex flex-col justify-between border-r border-[#e3caa8] bg-[#fff8f0] shadow-md p-4 fixed top-0 left-0 bottom-0">
+//         <div>
+//           <h2 className="text-2xl font-bold text-[#71460e] mb-4">Task Legend</h2>
+//           <ul className="space-y-3 text-[#71460e]">
+//             <Legend color={typeColors.Assignment} label="Assignment" />
+//             <Legend color={typeColors.Project} label="Project" />
+//             <Legend color={typeColors["Written Exam"]} label="Written Exam" />
+//             <Legend color={typeColors["Practical Exam"]} label="Practical Exam" />
+//           </ul>
+//         </div>
+
+//         <div className="mt-8 mb-2">
+//           <MiniCalendar
+//             date={miniDate}
+//             onPrev={() =>
+//               setMiniDate(new Date(miniDate.getFullYear(), miniDate.getMonth() - 1, 1))
+//             }
+//             onNext={() =>
+//               setMiniDate(new Date(miniDate.getFullYear(), miniDate.getMonth() + 1, 1))
+//             }
+//             onSelectDate={handleMiniSelect}
+//           />
+//         </div>
+//       </aside>
+
+//       {/* Main Calendar */}
+//       <main
+//         className="flex-1 p-6 transition-all duration-300"
+//         style={{
+//           marginLeft: "18rem",
+//           width: "calc(100% - 18rem)",
+//           overflowX: "auto",
+//         }}
+//       >
+//         <div className="flex justify-between items-start mb-6">
+//           <div className="flex flex-col items-start">
+//             <h1 className="text-4xl font-bold text-[#71460e] capitalize mb-3">
+//               {currentMonth}
+//             </h1>
+//             <AddButton onClick={() => setShowAddModal(true)} />
+//           </div>
+
+//           <div className="flex flex-col items-center gap-3">
+//             <div className="flex items-center gap-3">
+//               <ArrowButton direction="left" onClick={handlePrev} />
+//               <PrettyButton label="Today" onClick={handleToday} />
+//               <ArrowButton direction="right" onClick={handleNext} />
+//             </div>
+
+//             <div className="flex gap-2">
+//               <PrettyButton
+//                 label="Month"
+//                 onClick={() => calendarRef.current?.getApi().changeView("dayGridMonth")}
+//               />
+//               <PrettyButton
+//                 label="Week"
+//                 onClick={() => calendarRef.current?.getApi().changeView("timeGridWeek")}
+//               />
+//               <PrettyButton
+//                 label="Day"
+//                 onClick={() => calendarRef.current?.getApi().changeView("timeGridDay")}
+//               />
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Big Calendar */}
+//         <div
+//           className="rounded-2xl shadow-md p-4 mx-auto"
+//           style={{
+//             background: "linear-gradient(180deg, #fff5f8 0%, #ffe9f0 100%)",
+//             border: "2px solid #ffcaca",
+//             maxWidth: "1200px",
+//           }}
+//         >
+//           <FullCalendar
+//             ref={calendarRef}
+//             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+//             initialView="dayGridMonth"
+//             headerToolbar={false}
+//             events={events}
+//             eventPropGetter={eventStyleGetter}
+//             eventClick={handleEventClick}
+//             height="auto"
+//             contentHeight="auto"
+//             nowIndicator
+//             allDaySlot={false}
+//             firstDay={1}
+//             displayEventTime={false}
+//             dayMaxEventRows={false}
+//             eventMaxStack={9999}
+//             eventOverlap={true}
+//             aspectRatio={1.8}
+//             datesSet={updateMonth}
+//             eventContent={(arg) => {
+//               const { title, extendedProps } = arg.event;
+//               return (
+//                 <div
+//                   style={{
+//                     padding: "4px",
+//                     color: "#71460e",
+//                     overflow: "hidden",
+//                     textOverflow: "ellipsis",
+//                   }}
+//                 >
+//                   <div className="font-semibold">{title}</div>
+//                   {extendedProps?.description && (
+//                     <div className="text-xs opacity-80 truncate">
+//                       {extendedProps.description}
+//                     </div>
+//                   )}
+//                 </div>
+//               );
+//             }}
+//           />
+//         </div>
+//       </main>
+
+//       {/* Modals */}
+//       {showAddModal && (
+//         <AddTaskModal
+//           onClose={() => {
+//             setShowAddModal(false);
+//             setEditTask(null);
+//           }}
+//           onSave={handleSaveTask}
+//           existingTask={editTask}
+//         />
+//       )}
+//       {selectedTask && (
+//         <TaskDetailsModal
+//           task={selectedTask}
+//           onClose={() => setSelectedTask(null)}
+//           onEdit={(task) => {
+//             setSelectedTask(null);
+//             setEditTask(task);
+//             setShowAddModal(true);
+//           }}
+//           onDelete={handleDeleteTask}
+//         />
+//       )}
+//     </div>
+//   );
+// }
+
+// /* Small Components */
+// function Legend({ color, label }) {
+//   return (
+//     <li className="flex items-center gap-2">
+//       <span
+//         className="w-4 h-4 rounded"
+//         style={{ backgroundColor: color, border: "1px solid #71460e" }}
+//       ></span>
+//       {label}
+//     </li>
+//   );
+// }
+
+// function PrettyButton({ label, onClick }) {
+//   return (
+//     <button
+//       onClick={onClick}
+//       className="px-4 py-2 bg-[#fff8f0] border border-[#71460e] rounded-xl text-[#71460e] text-sm font-semibold shadow-md hover:bg-[#ffe5e5] transition-all active:translate-y-[3px] active:shadow-inner"
+//     >
+//       {label}
+//     </button>
+//   );
+// }
+
+// function ArrowButton({ direction, onClick }) {
+//   return (
+//     <button
+//       onClick={onClick}
+//       className="p-2 bg-[#fff8f0] border border-[#71460e] rounded-full text-[#71460e] hover:bg-[#ffe5e5] active:translate-y-[3px] transition-all shadow-md"
+//     >
+//       {direction === "left" ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+//     </button>
+//   );
+// }
+
+// function AddButton({ onClick }) {
+//   return (
+//     <button
+//       onClick={onClick}
+//       className="px-5 py-2 bg-[#aa6c32] text-white text-lg font-bold rounded-2xl shadow-md hover:bg-[#b38b66] transition-all active:translate-y-[4px] active:shadow-inner"
+//     >
+//       + Add Task
+//     </button>
+//   );
+// }
+
+// function MiniCalendar({ date, onPrev, onNext, onSelectDate }) {
+//   const today = new Date();
+//   const year = date.getFullYear();
+//   const month = date.getMonth();
+
+//   let firstDay = new Date(year, month, 1).getDay();
+//   firstDay = (firstDay + 6) % 7;
+
+//   const daysInMonth = new Date(year, month + 1, 0).getDate();
+//   const prevMonthDays = new Date(year, month, 0).getDate();
+
+//   const days = [];
+//   for (let i = 0; i < firstDay; i++)
+//     days.push({ day: prevMonthDays - firstDay + i + 1, current: false });
+//   for (let i = 1; i <= daysInMonth; i++) days.push({ day: i, current: true });
+//   while (days.length % 7 !== 0)
+//     days.push({ day: days.length - daysInMonth - firstDay + 1, current: false });
+
+//   const weekdayLabels = ["M", "T", "W", "T", "F", "S", "S"];
+
+//   return (
+//     <div className="bg-white shadow-sm rounded-xl border border-gray-300 p-3 w-full">
+//       <div className="flex justify-between items-center mb-2">
+//         <button onClick={onPrev} className="text-gray-600 hover:text-[#71460e]">
+//           <ChevronLeft size={18} />
+//         </button>
+//         <div className="font-semibold text-[#71460e] text-sm">
+//           {date.toLocaleString("default", { month: "long", year: "numeric" })}
+//         </div>
+//         <button onClick={onNext} className="text-gray-600 hover:text-[#71460e]">
+//           <ChevronRight size={18} />
+//         </button>
+//       </div>
+
+//       <div className="grid grid-cols-7 text-center text-xs font-semibold text-[#71460e] mb-1">
+//         {weekdayLabels.map((d, i) => (
+//           <div key={i}>{d}</div>
+//         ))}
+//       </div>
+
+//       <div className="grid grid-cols-7 text-center text-sm">
+//         {days.map((d, i) => {
+//           const isToday =
+//             d.current &&
+//             today.getDate() === d.day &&
+//             today.getMonth() === month &&
+//             today.getFullYear() === year;
+//           return (
+//             <div
+//               key={i}
+//               onClick={() => d.current && onSelectDate(new Date(year, month, d.day))}
+//               className={`py-1 cursor-pointer transition-all ${
+//                 d.current ? "text-[#71460e]" : "text-gray-400"
+//               } hover:bg-[#ffe5e5] rounded-lg`}
+//             >
+//               <div
+//                 className={`w-6 h-6 mx-auto flex items-center justify-center rounded-full ${
+//                   isToday ? "bg-red-500 text-white font-bold" : ""
+//                 }`}
+//               >
+//                 {d.day}
+//               </div>
+//             </div>
+//           );
+//         })}
+//       </div>
+//     </div>
+//   );
+// }

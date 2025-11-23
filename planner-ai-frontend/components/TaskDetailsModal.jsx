@@ -1,122 +1,162 @@
-"use client";
+// "use client";
 
-export default function TaskDetailsModal({ task, onClose, onEdit, onDelete }) {
-  if (!task) return null;
+// export default function TaskDetailsModal({ task, onClose, onEdit, onDelete }) {
+//   if (!task) return null;
 
-  const labelColors = {
-    Assignment: "bg-[#F4C2C2] text-[#3B2F2F]",
-    Project: "bg-[#F3E5AB] text-[#3B2F2F]",
-    "Written Exam": "bg-[#AFEEEE] text-[#3B2F2F]",
-    "Practical Exam": "bg-[#98FB98] text-[#3B2F2F]",
-  };
+//   const accentColor = "#8a0f5d"; // same accent as AddTaskModal
+//   const typeColors = {
+//     Assignment: "#F4C2C2",
+//     Project: "#F3E5AB",
+//     "Written Exam": "#AFEEEE",
+//     "Practical Exam": "#98FB98",
+//   };
 
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-3">
-      <div
-        className="w-full max-w-lg p-8 rounded-3xl shadow-2xl border border-amber-300"
-        style={{ backgroundColor: "#3B2F2F", color: "#FAEBD7" }}
-      >
-        {/* Header */}
-        <div className="text-center mb-3">
-          <h2 className="text-3xl font-bold text-amber-200 drop-shadow-md">
-            📋 Task Details
-          </h2>
-          <p className="text-sm text-amber-100 opacity-80">
-            Review all information about your task below.
-          </p>
-        </div>
+//   const handleDelete = () => {
+//     const confirmDelete = window.confirm(
+//       `Are you sure you want to delete the task "${task.title}"?`
+//     );
+//     if (confirmDelete) {
+//       onDelete(task.id);
+//       onClose();
+//     }
+//   };
 
-        {/* Task Content */}
-        <div className="space-y-4 mt-4">
-          <div>
-            <span className="block text-sm text-amber-100 mb-1">Title</span>
-            <div className="p-2 rounded-lg bg-[#5A4B3C] text-white">
-              {task.title}
-            </div>
-          </div>
+//   return (
+//     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 px-3">
+//       <div
+//         className="w-full max-w-md p-4 rounded-2xl shadow-2xl border"
+//         style={{
+//           backgroundColor: "#ffefd5",
+//           borderColor: accentColor,
+//           color: accentColor,
+//           maxHeight: "90vh",
+//           overflowY: "auto",
+//         }}
+//       >
+//         {/* Header */}
+//         <h2
+//           className="text-xl font-bold text-center mb-4"
+//           style={{ color: accentColor }}
+//         >
+//           📋 Task Details
+//         </h2>
 
-          <div>
-            <span className="block text-sm text-amber-100 mb-1">
-              Subject / Project
-            </span>
-            <div className="p-2 rounded-lg bg-[#5A4B3C] text-white">
-              {task.subject || "—"}
-            </div>
-          </div>
+//         {/* Content */}
+//         <div className="space-y-2 text-sm">
+//           <Detail label="Title" value={task.title} accentColor={accentColor} />
+//           <Detail
+//             label="Subject / Project"
+//             value={task.subject || "—"}
+//             accentColor={accentColor}
+//           />
 
-          <div>
-            <span className="block text-sm text-amber-100 mb-1">Type</span>
-            <div
-              className={`inline-block px-3 py-1 rounded-lg font-semibold text-sm ${
-                labelColors[task.type] || ""
-              }`}
-            >
-              {task.type}
-            </div>
-          </div>
+//           {/* Type */}
+//           <div>
+//             <label
+//               className="block text-sm mb-1"
+//               style={{ color: accentColor }}
+//             >
+//               Type
+//             </label>
+//             <div
+//               className="px-2 py-1 rounded-lg text-sm font-semibold inline-block"
+//               style={{
+//                 backgroundColor: typeColors[task.type] || "#fff8f5",
+//                 color: accentColor,
+//                 border: "1px solid " + accentColor,
+//               }}
+//             >
+//               {task.type}
+//             </div>
+//           </div>
 
-          <div>
-            <span className="block text-sm text-amber-100 mb-1">Status</span>
-            <div className="p-2 rounded-lg bg-[#5A4B3C] text-white">
-              {task.status}
-            </div>
-          </div>
+//           <Detail label="Status" value={task.status} accentColor={accentColor} />
+//           <Detail
+//             label="Difficulty"
+//             value={`${task.difficulty}/5`}
+//             accentColor={accentColor}
+//           />
+//           <Detail
+//             label="Start"
+//             value={new Date(task.startDate).toLocaleString()}
+//             accentColor={accentColor}
+//           />
+//           <Detail
+//             label="End"
+//             value={new Date(task.endDate).toLocaleString()}
+//             accentColor={accentColor}
+//           />
 
-          <div>
-            <span className="block text-sm text-amber-100 mb-1">Difficulty</span>
-            <div className="p-2 rounded-lg bg-[#5A4B3C] text-white">
-              {task.difficulty}/5
-            </div>
-          </div>
+//           {task.description && (
+//             <Detail
+//               label="Description"
+//               value={task.description}
+//               accentColor={accentColor}
+//               extraClasses="whitespace-pre-line"
+//             />
+//           )}
+//         </div>
 
-          <div>
-            <span className="block text-sm text-amber-100 mb-1">Start</span>
-            <div className="p-2 rounded-lg bg-[#5A4B3C] text-white">
-              {new Date(task.startDate).toLocaleString()}
-            </div>
-          </div>
+//         {/* Buttons */}
+//         <div className="flex justify-end gap-2 mt-4">
+//           <button
+//             onClick={() => onEdit(task)}
+//             className="px-3 py-1 text-sm rounded-lg font-semibold transition-all active:translate-y-[1px]"
+//             style={{
+//               backgroundColor: "#fcd2e0",
+//               color: accentColor,
+//               border: "1px solid " + accentColor,
+//             }}
+//           >
+//             ✏ Edit
+//           </button>
 
-          <div>
-            <span className="block text-sm text-amber-100 mb-1">End</span>
-            <div className="p-2 rounded-lg bg-[#5A4B3C] text-white">
-              {new Date(task.endDate).toLocaleString()}
-            </div>
-          </div>
+//           <button
+//             onClick={handleDelete}
+//             className="px-3 py-1 text-sm rounded-lg font-semibold transition-all active:translate-y-[1px] text-white"
+//             style={{
+//               backgroundColor: "#dc143c", // Crimson
+//               border: "1px solid #b01030",
+//             }}
+//           >
+//             🗑 Delete
+//           </button>
 
-          {task.description && (
-            <div>
-              <span className="block text-sm text-amber-100 mb-1">
-                Description
-              </span>
-              <div className="p-2 rounded-lg bg-[#5A4B3C] text-white whitespace-pre-line">
-                {task.description}
-              </div>
-            </div>
-          )}
-        </div>
+//           <button
+//             onClick={onClose}
+//             className="px-3 py-1 text-sm rounded-lg font-semibold transition-all active:translate-y-[1px]"
+//             style={{
+//               backgroundColor: accentColor,
+//               color: "#fff",
+//               border: "1px solid " + accentColor,
+//             }}
+//           >
+//             Close
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
 
-        {/* Buttons */}
-        <div className="flex justify-end gap-3 mt-8">
-          <button
-            onClick={() => onEdit(task)}
-            className="px-4 py-2 bg-amber-400 text-brown-900 font-semibold rounded-lg hover:bg-amber-300"
-          >
-            ✏ Edit
-          </button>
-          <button
-            onClick={() => onDelete(task.id)}
-            className="px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600"
-          >
-            🗑 Delete
-          </button>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-amber-700 text-white rounded-lg hover:bg-amber-800"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
+// /* Small helper component */
+// function Detail({ label, value, accentColor, extraClasses = "" }) {
+//   return (
+//     <div>
+//       <label className="block text-sm mb-1" style={{ color: accentColor }}>
+//         {label}
+//       </label>
+//       <div
+//         className={`px-2 py-1 rounded-lg text-sm ${extraClasses}`}
+//         style={{
+//           backgroundColor: "#fff8f5",
+//           color: accentColor,
+//           border: "1px solid " + accentColor,
+//           wordBreak: "break-word",
+//         }}
+//       >
+//         {value}
+//       </div>
+//     </div>
+//   );
+// }

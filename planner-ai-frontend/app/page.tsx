@@ -1,5 +1,5 @@
-import CalendarPage from "@/components/CalendarPage";
+import MainCalendar from "@/components/calendar/MainCalendar";
 
 export default function Home() {
-  return <CalendarPage />;
+  return <MainCalendar />;
 }

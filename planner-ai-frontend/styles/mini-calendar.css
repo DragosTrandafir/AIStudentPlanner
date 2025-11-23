@@ -1,0 +1,65 @@
+.mini-cal-container {
+  width: 230px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  padding: 14px 18px;
+  font-family: inherit;
+  user-select: none;
+}
+
+/* Month Label */
+.mini-cal-header {
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 10px;
+  color: #5a3e2b;
+}
+
+/* Grid */
+.mini-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+/* Weekday Letters */
+.mini-cal-day-header {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  color: #8a2e00;
+  opacity: 0.85;
+}
+
+/* Day Cells */
+.mini-cal-day {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 13px;
+  color: #5a3e2b;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.mini-cal-day:hover {
+  background: #ffe9d6;
+}
+
+/* Days from previous/next month */
+.mini-muted {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+/* Circle highlight for selected/today (optional) */
+.mini-cal-day.selected {
+  background: #aa6c32 !important;
+  color: white;
+}
