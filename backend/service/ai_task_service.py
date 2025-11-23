@@ -47,6 +47,14 @@ class AITaskService:
         if project_id is not None:
             if not self.project_repo.get(project_id):
                 raise ValueError("Linked project does not exist")
+        
+        print(title)
+        print(estimated_hours)
+        print(subject_id)
+        print(project_id)
+        print(status_val)
+        print(scheduled_start)
+        print(scheduled_end)
 
         task = AITask(
             title=title.strip(),
@@ -56,14 +64,23 @@ class AITaskService:
             status=status_val,
             scheduled_start=scheduled_start,
             scheduled_end=scheduled_end,
-            mini_plan=mini_plan,
+            mini_plan=None,
             notes=notes,
         )
+        print(task)
         self.ai_task_repo.add(task)
+        self.ai_task_repo.session.commit()       # ← this writes to DB
+        self.ai_task_repo.session.refresh(task)  # ← this loads the real id + defaults
+
+        print("AFTER refresh →", task)           # now id=42 (or whatever)
+        print("here?")
         return task
 
     def get_task(self, task_id: int) -> Optional[AITask]:
         return self.ai_task_repo.get(task_id)
+
+    def list_all(self, offset: int=0, limit:int = 100 ) -> List[AITask]:
+        return self.ai_task_repo.list_all(offset, limit)
 
     def list_for_subject(self, subject_id: int, *, offset: int = 0, limit: int = 100) -> List[AITask]:
         return self.ai_task_repo.list_for_subject(subject_id, offset=offset, limit=limit)

@@ -14,7 +14,15 @@ from backend.service.project_service import ProjectService
 
 router = APIRouter(prefix="/users/{user_id}/project", tags=["project"])
 
-class ProjectDto(BaseModel):
+class ProjectRequestDto(BaseModel):
+    title: str
+    deadline: datetime
+    estimated_effort:int 
+    difficulty: int
+    description: str
+
+class ProjectResponseDto(BaseModel):
+    id:int
     title: str
     deadline: datetime
     estimated_effort:int 
@@ -22,7 +30,7 @@ class ProjectDto(BaseModel):
     description: str
 
 
-@router.get("/", response_model=List[ProjectDto])
+@router.get("/", response_model=List[ProjectResponseDto])
 def list_user_feedback(
     user_id: int,
 ):
@@ -33,10 +41,10 @@ def list_user_feedback(
         service = ProjectService(project_repo, user_repo)
         return service.list_projects_for_user(user_id)
     
-@router.post("/", response_model=ProjectDto, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=ProjectResponseDto, status_code=status.HTTP_201_CREATED)
 def add_subject(
     user_id: int,
-    payload: ProjectDto,
+    payload: ProjectRequestDto,
 ):
     """Add a new project to a specific user."""
     with get_session() as session:
