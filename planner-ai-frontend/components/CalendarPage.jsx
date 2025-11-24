@@ -38,34 +38,34 @@ export default function CalendarPage() {
     practical: "#98FB98",
   };
 
-  // Transform backend subject -> FullCalendar event
-  const subjectToEvent = (subject) => {
-    const start = subject.start_date ? new Date(subject.start_date) : null;
-    const end = subject.end_date ? new Date(subject.end_date) : null;
+  // Transform backend task -> FullCalendar event
+  const taskToEvent = (task) => {
+    const start = task.start_date ? new Date(task.start_date) : null;
+    const end = task.end_date ? new Date(task.end_date) : null;
     if (!start) return null; // skip items without a start date
 
     const isSameDay = end && start.toDateString() === end.toDateString();
-    const color = typeColors[subject.type] || "#FFF8E1";
+    const color = typeColors[task.type] || "#FFF8E1";
 
     return {
-      title: subject.title,
+      title: task.title,
       start,
       ...(end ? { end } : {}),
       backgroundColor: color,
       borderColor: color,
       allDay: !!(end && isSameDay),
-      extendedProps: { ...subject },
+      extendedProps: { ...task },
     };
   };
 
-  const loadSubjects = async () => {
+  const loadTasks = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/users/${USER_ID}/subjects/`);
-      if (!res.ok) throw new Error("Failed to load subjects");
+      const res = await fetch(`${API_BASE}/users/${USER_ID}/tasks/`);
+      if (!res.ok) throw new Error("Failed to load tasks");
       const data = await res.json();
       const mapped = data
-        .map(subjectToEvent)
+        .map(taskToEvent)
         .filter(Boolean);
       setEvents(mapped);
     } catch (e) {
@@ -77,16 +77,16 @@ export default function CalendarPage() {
 
   useEffect(() => updateMonth(), []);
   useEffect(() => {
-    loadSubjects();
+    loadTasks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSavedSubject = (subject) => {
-    // subject returned from AddTaskModal (POST/PUT)
-    const ev = subjectToEvent(subject);
+  const handleSavedTask = (task) => {
+    // task returned from AddTaskModal (POST/PUT)
+    const ev = taskToEvent(task);
     if (!ev) return;
     setEvents((prev) => {
-      const idx = prev.findIndex((p) => p.extendedProps.id === subject.id);
+      const idx = prev.findIndex((p) => p.extendedProps.id === task.id);
       if (idx >= 0) {
         const copy = [...prev];
         copy[idx] = ev;
@@ -100,7 +100,7 @@ export default function CalendarPage() {
 
   const handleDeleteTask = async (taskId) => {
     try {
-      const res = await fetch(`${API_BASE}/users/${USER_ID}/subjects/${taskId}`, {
+      const res = await fetch(`${API_BASE}/users/${USER_ID}/tasks/${taskId}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Delete failed");
@@ -343,7 +343,7 @@ export default function CalendarPage() {
             setShowAddModal(false);
             setEditTask(null);
           }}
-          onSave={handleSavedSubject}
+          onSave={handleSavedTask}
           existingTask={editTask}
           apiBase={API_BASE}
           userId={USER_ID}

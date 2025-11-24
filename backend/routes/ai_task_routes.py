@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 from backend.config.database import get_session
 from backend.repository.ai_task_repository import AITaskRepository
-from backend.repository.subject_repository import SubjectRepository
+from backend.repository.task_repository import TaskRepository
 from backend.repository.project_repository import ProjectRepository
 from backend.service.ai_task_service import AITaskService
 
@@ -55,7 +55,7 @@ class AiTaskResponse(BaseModel):
 def list_ai_tasks():
     """List all AI tasks."""
     with get_session() as session:
-        subject_repo = SubjectRepository(session)
+        subject_repo = TaskRepository(session)
         project_repo = ProjectRepository(session)
         ai_task_repo = AITaskRepository(session)
         service = AITaskService(ai_task_repo, subject_repo, project_repo)
@@ -68,7 +68,7 @@ def add_ai_task(
 ):
     """Add a new AI task."""
     with get_session() as session:
-        subject_repo = SubjectRepository(session)
+        subject_repo = TaskRepository(session)
         project_repo = ProjectRepository(session)
         ai_task_repo = AITaskRepository(session)
         service = AITaskService(ai_task_repo, subject_repo, project_repo)
@@ -97,7 +97,7 @@ def update_ai_task(
     with get_session() as session:
         service = AITaskService(
             AITaskRepository(session),
-            SubjectRepository(session),
+            TaskRepository(session),
             ProjectRepository(session)
         )
         try:

@@ -27,7 +27,7 @@ class BackendAPI:
                 f"[BackendAPI] Failed to fetch subjects: {response.status_code} - {response.text}"
             )
 
-        subjects = response.json()  # list of SubjectResponse
+        subjects = response.json()  # list of TaskResponse
 
         #convert backend subjects → orchestrator tasks format
         tasks = []

@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.routes.user_routes import router as user_router
-from backend.routes.subject_routes import router as subject_router
+from backend.routes.task_routes import router as task_router
 from backend.routes.ai_task_routes import router as ai_task
 from backend.routes.feedback_routes import router as feedback_router
 from backend.routes.project_routes import router as project_router
@@ -32,7 +32,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(user_router)
-app.include_router(subject_router)
+app.include_router(task_router)
 app.include_router(ai_task)
 app.include_router(project_router)
 app.include_router(feedback_router)

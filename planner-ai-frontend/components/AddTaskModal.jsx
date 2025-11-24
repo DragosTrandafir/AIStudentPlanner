@@ -18,7 +18,7 @@ export default function AddTaskModal({ onClose, onSave, existingTask, apiBase, u
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date(new Date().getTime() + 60 * 60 * 1000));
 
-  // Populate form if editing an existing subject (backend shape)
+  // Populate form if editing an existing task (backend shape)
   useEffect(() => {
     if (!existingTask) return;
     Promise.resolve().then(() => {
@@ -53,7 +53,7 @@ export default function AddTaskModal({ onClose, onSave, existingTask, apiBase, u
       return;
     }
     if (!formData.name.trim()) {
-      alert("Please enter the subject name.");
+      alert("Please enter the task name.");
       return;
     }
 
@@ -70,8 +70,8 @@ export default function AddTaskModal({ onClose, onSave, existingTask, apiBase, u
 
     try {
       const url = existingTask?.id
-        ? `${apiBase}/users/${userId}/subjects/${existingTask.id}`
-        : `${apiBase}/users/${userId}/subjects/`;
+        ? `${apiBase}/users/${userId}/tasks/${existingTask.id}`
+        : `${apiBase}/users/${userId}/tasks/`;
       const method = existingTask?.id ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -81,14 +81,14 @@ export default function AddTaskModal({ onClose, onSave, existingTask, apiBase, u
       });
       if (!res.ok) {
         const txt = await res.text();
-        throw new Error(txt || "Failed to save subject");
+        throw new Error(txt || "Failed to save task");
       }
       const saved = await res.json();
       onSave(saved);
       onClose();
     } catch (e) {
       console.error(e);
-      alert("Error saving subject");
+      alert("Error saving task");
     }
   };
 

@@ -1,12 +1,12 @@
 from .user import User
-from .subject import Subject
+from .task import Task
 from .project import Project
 from .ai_task import AITask, AITaskStatus
 from .feedback import Feedback
 
 __all__ = [
     "User",
-    "Subject",
+    "Task",
     "Project",
     "AITask",
     "AITaskStatus",

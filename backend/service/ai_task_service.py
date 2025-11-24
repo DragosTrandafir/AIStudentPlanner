@@ -5,11 +5,11 @@ from typing import List, Optional, Dict, Any
 from backend.domain.ai_task import AITask, AITaskStatus
 from backend.repository.ai_task_repository import AITaskRepository
 from backend.repository.project_repository import ProjectRepository
-from backend.repository.subject_repository import SubjectRepository
+from backend.repository.task_repository import TaskRepository
 
 
 class AITaskService:
-    def __init__(self, ai_task_repo: AITaskRepository, subject_repo: SubjectRepository, project_repo: ProjectRepository):
+    def __init__(self, ai_task_repo: AITaskRepository, subject_repo: TaskRepository, project_repo: ProjectRepository):
         self.ai_task_repo = ai_task_repo
         self.subject_repo = subject_repo
         self.project_repo = project_repo
