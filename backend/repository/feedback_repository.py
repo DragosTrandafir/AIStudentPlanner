@@ -20,11 +20,11 @@ class FeedbackRepository(BaseRepository[Feedback]):
         stmt = select(Feedback).where(Feedback.ai_task_id == ai_task_id).offset(offset).limit(limit)
         return list(self.session.scalars(stmt).all())
     
-    def get_latest_feedback_by_user(self, user_id: int) -> Optional[Feedback]:
+    def get_latest_feedback_by_user(self, user_id: int) -> List[Feedback]:
         stmt = (
             select(Feedback)
             .where(Feedback.user_id == user_id)
             .order_by(Feedback.created_at.desc())
-            .limit(1)
+            .limit(2)
         )
-        return self.session.scalars(stmt).first()
+        return list(self.session.scalars(stmt).all())

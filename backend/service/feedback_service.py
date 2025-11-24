@@ -42,5 +42,5 @@ class FeedbackService:
     def list_feedback_for_task(self, ai_task_id: int, *, offset: int = 0, limit: int = 100) -> List[Feedback]:
         return self.feedback_repo.list_for_task(ai_task_id, offset=offset, limit=limit)
     
-    def get_latest_feedback_for_user(self, user_id: int, *, offset: int = 0, limit: int = 100) -> Optional[Feedback]:
+    def get_latest_feedback_for_user(self, user_id: int, *, offset: int = 0, limit: int = 100) -> List[Feedback]:
         return self.feedback_repo.get_latest_feedback_by_user(user_id=user_id)

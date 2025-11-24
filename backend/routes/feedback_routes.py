@@ -44,7 +44,7 @@ def list_user_feedback(
         return service.list_feedback_for_user(user_id=user_id)
 
 
-@router.get("/latest", response_model=FeedbackResponse)
+@router.get("/latest", response_model=List[FeedbackResponse])
 def list_user_feedback_latest(
     user_id: int,
 ):
