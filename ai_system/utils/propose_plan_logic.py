@@ -50,8 +50,8 @@ def propose_plan(task, general_university_type, client):
             get_written_exam_example_math,
         ),
         ("Project", "Computer Science"):
-            (get_project_heuristics_cs(),
-             get_project_example_cs()
+            (get_project_heuristics_cs,
+             get_project_example_cs
              ),
         ("Project", "Mathematics"):
             (get_project_heuristics_math(),

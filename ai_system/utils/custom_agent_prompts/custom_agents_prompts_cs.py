@@ -73,15 +73,41 @@ def get_written_exam_example_cs():
 # Project heuristics
 def get_project_heuristics_cs():
     return (
-        ""
+        "Heuristics for CS Projects:\n"
+        "- CS projects usually involve coding tasks, research, design, and debugging.\n"
+        "- Typical phases: planning, implementation, testing, documentation.\n"
+        "- Planning / Architecture: 0.5–1 hour.\n"
+        "- Implementation (coding): the main workload, 2–4 hours depending on difficulty.\n"
+        "- Testing & debugging: usually under 1 hour.\n"
+        "- Documentation + Additional notes MUST NOT exceed a combined total of 1 hour.\n"
+        "- Example: Documentation = 0.5h and Additional notes = 0.5h.\n"
+        "- If the difficulty is high, increase only the implementation/testing time—not documentation.\n"
+        "- Subtasks MUST NOT exceed 4 hours — split into logical parts (part 1, part 2, ...).\n"
+        "- Ensure total_estimated_hours equals the sum of all subtask hours.\n"
     )
-
 
 # Project example
 def get_project_example_cs():
     return (
-        ""
+        "Example JSON (for reference only — adapt details as needed):\n"
+        "{\n"
+        '  "summary": "Work plan for a medium-difficulty CS project involving coding and testing.",\n'
+        '  "total_estimated_hours": 6,\n'
+        '  "difficulty": 3,\n'
+        '  "tasks": [\n'
+        '    { "task_name": "Project planning & architecture", "estimated_hours": 1, "priority": 1 },\n'
+        '    { "task_name": "Core implementation (part 1)", "estimated_hours": 2, "priority": 2 },\n'
+        '    { "task_name": "Core implementation (part 2)", "estimated_hours": 1, "priority": 3 },\n'
+        '    { "task_name": "Testing & debugging", "estimated_hours": 1, "priority": 4 },\n'
+        '    { "task_name": "Documentation", "estimated_hours": 0.5, "priority": 5 },\n'
+        '    { "task_name": "Additional notes", "estimated_hours": 0.5, "priority": 6 }\n'
+        '  ],\n'
+        '  "deadline": "2025-11-28T09:00:00"\n'
+        "}"
     )
+
+
+
 
 
 # Assignment heuristics

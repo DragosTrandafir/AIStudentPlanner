@@ -109,6 +109,17 @@ class AiOrchestrator:
                         "difficulty": 5,
                         "description": "I solved everything with ChatGPT.",
                         "status": "Pending"
+                    },
+                    {
+                        "id": 3,
+                        "title": "OOP Final Project",
+                        "subject_name/project_name": "Object-Oriented Programming",
+                        "start_datetime": "2025-12-25T10:00:00",
+                        "end_datetime": "2025-12-27T12:00:00",
+                        "type": "Project",
+                        "difficulty": 4,
+                        "description": "Large OOP project with multiple design patterns.",
+                        "status": "Pending"
                     }
                 ]
             }
