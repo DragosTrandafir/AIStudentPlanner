@@ -30,7 +30,7 @@ class Task(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
 
     student: Mapped["User"] = relationship(back_populates="tasks")
-    ai_tasks: Mapped[List["AITask"]] = relationship(back_populates="tasks", cascade="all, delete-orphan")
+    ai_tasks: Mapped[List["AITask"]] = relationship(back_populates="task", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"Task(id={self.id!r}, title={self.title!r}, name={self.name!r}, student_id={self.student_id!r})"

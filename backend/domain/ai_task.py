@@ -48,7 +48,7 @@ class AITask(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    tasks: Mapped[Optional["Task"]] = relationship(back_populates="ai_tasks")
+    task: Mapped[Optional["Task"]] = relationship(back_populates="ai_tasks")
     project: Mapped[Optional["Project"]] = relationship(back_populates="ai_tasks")
     feedback: Mapped[Optional["Feedback"]] = relationship(back_populates="ai_task", uselist=False, cascade="all, delete-orphan")
 
