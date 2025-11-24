@@ -25,9 +25,10 @@ def get_input_output_instructions(title, name, start_datetime, end_datetime, typ
         f'  "status": "{status}"\n'
         f"}}\n\n"
 
-        f"Expected output (JSON only (DO NOT INCLUDE extra text, no trailing commas, no Markdown, no explanations)):\n"
+        f"Expected output:\n"
         f"{{\n"
         f'  "summary": "Brief 1-sentence overview of the task.",\n'
+        f'  "subject_name/project_name": "{name}",\n'
         f'  "total_estimated_hours": <integer>,\n'
         f'  "difficulty": <integer from 1–5, balanced between input and your estimate>,\n'
         f'  "tasks": [\n'
