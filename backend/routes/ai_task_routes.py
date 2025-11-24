@@ -10,66 +10,95 @@ from backend.repository.subject_repository import SubjectRepository
 from backend.repository.project_repository import ProjectRepository
 from backend.service.ai_task_service import AITaskService
 
-router = APIRouter(prefix="/ai-task", tags=["ai-task"])
+router = APIRouter(prefix="/ai-tasks", tags=["ai-tasks"])
 
-class AiTaskResponseDto(BaseModel):
+
+class AiTaskCreateRequest(BaseModel):
+    title: str
+    estimated_hours: int = 1
+    subject_id: int | None = None
+    project_id: int | None = None
+    notes: str | None = None
+    mini_plan: Dict[str, Any] | None = None
+
+
+class AiTaskUpdateRequest(BaseModel):
+    title: str | None = None
+    estimated_hours: int | None = None
+    subject_id: int | None = None
+    project_id: int | None = None
+    status: str | None = None
+    scheduled_start: datetime | None = None
+    scheduled_end: datetime | None = None
+    mini_plan: Dict[str, Any] | None = None
+    notes: str | None = None
+
+
+class AiTaskResponse(BaseModel):
     id: int
     title: str
     estimated_hours: int
-    subject_id: int
-    project_id: int 
-    status: str 
-    scheduled_start: datetime
-    scheduled_end: datetime 
+    subject_id: int | None
+    project_id: int | None
+    status: str
+    scheduled_start: datetime | None
+    scheduled_end: datetime | None
     mini_plan: Dict[str, Any] | None
-    notes: str
-
-class AiTaskRequestDto(BaseModel):
-    title: str
-    estimated_hours: int
-    subject_id: int
-    project_id: int 
-    status: str 
-    scheduled_start: datetime
-    scheduled_end: datetime 
-    mini_plan: Dict[str, Any] | None
-    notes: str
+    notes: str | None
+    created_at: datetime
+    updated_at: datetime
 
 
-@router.get("/", response_model=List[AiTaskResponseDto])
-def list_aiTask():
-    """List all ai_tasks"""
+@router.get("/", response_model=List[AiTaskResponse])
+def list_ai_tasks():
+    """List all AI tasks."""
     with get_session() as session:
         subject_repo = SubjectRepository(session)
         project_repo = ProjectRepository(session)
         ai_task_repo = AITaskRepository(session)
         service = AITaskService(ai_task_repo, subject_repo, project_repo)
         return service.list_all()
-    
-@router.post("/", response_model=AiTaskResponseDto, status_code=status.HTTP_201_CREATED)
-def add_aiTask(
-    payload: AiTaskRequestDto
+
+
+@router.post("/", response_model=AiTaskResponse, status_code=status.HTTP_201_CREATED)
+def add_ai_task(
+    payload: AiTaskCreateRequest
 ):
-    """Add a new AiTask to a specific user."""
+    """Add a new AI task."""
     with get_session() as session:
         subject_repo = SubjectRepository(session)
         project_repo = ProjectRepository(session)
         ai_task_repo = AITaskRepository(session)
         service = AITaskService(ai_task_repo, subject_repo, project_repo)
         try:
-            task=service.create_task(
+            task = service.create_task(
                 title=payload.title,
                 estimated_hours=payload.estimated_hours,
                 subject_id=payload.subject_id,
                 project_id=payload.project_id,
-                status=payload.status,
-                scheduled_start=payload.scheduled_start,
-                scheduled_end=payload.scheduled_end,
                 mini_plan=payload.mini_plan,
-                notes=payload.notes
+                notes=payload.notes,
             )
             return task
         except ValueError as e:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
         except IntegrityError:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Database integrity error")
+        
+
+@router.patch("/{task_id}", response_model=AiTaskResponse)
+def update_ai_task(
+    task_id: int,
+    payload: AiTaskUpdateRequest
+):
+    """Update an AI task."""
+    with get_session() as session:
+        service = AITaskService(
+            AITaskRepository(session),
+            SubjectRepository(session),
+            ProjectRepository(session)
+        )
+        try:
+            return service.update_task(task_id, **payload.model_dump(exclude_none=True))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
