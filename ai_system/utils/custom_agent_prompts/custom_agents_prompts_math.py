@@ -20,6 +20,7 @@ def get_practical_exam_example_math():
         "Example JSON (for reference only — adapt details as needed):\n"
         "{\n"
         '  "summary": "Preparation for practical exam of medium difficulty (you can include also description info)",\n'
+        '  "subject_name/project_name": "Differential Equations",\n'
         '  "total_estimated_hours": 5,\n'
         '  "difficulty": 3,\n'
         '  "tasks": [\n'
@@ -52,6 +53,7 @@ def get_written_exam_example_math():
         "Example JSON (for reference only — adapt details as needed):\n"
         "{\n"
         '  "summary": "Preparation for Real Analysis Exam (you can include also description info)",\n'
+        '  "subject_name/project_name": "Real Analysis",\n'
         '  "total_estimated_hours": 17,\n'
         '  "difficulty": 3,\n'
         '  "tasks": [\n'
