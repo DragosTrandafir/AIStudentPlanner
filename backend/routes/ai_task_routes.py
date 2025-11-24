@@ -16,7 +16,7 @@ router = APIRouter(prefix="/ai-tasks", tags=["ai-tasks"])
 class AiTaskCreateRequest(BaseModel):
     title: str
     estimated_hours: int = 1
-    subject_id: int | None = None
+    task_id: int | None = None
     project_id: int | None = None
     notes: str | None = None
     mini_plan: Dict[str, Any] | None = None
@@ -25,7 +25,7 @@ class AiTaskCreateRequest(BaseModel):
 class AiTaskUpdateRequest(BaseModel):
     title: str | None = None
     estimated_hours: int | None = None
-    subject_id: int | None = None
+    task_id: int | None = None
     project_id: int | None = None
     status: str | None = None
     scheduled_start: datetime | None = None
@@ -38,7 +38,7 @@ class AiTaskResponse(BaseModel):
     id: int
     title: str
     estimated_hours: int
-    subject_id: int | None
+    task_id: int | None
     project_id: int | None
     status: str
     scheduled_start: datetime | None
@@ -55,10 +55,10 @@ class AiTaskResponse(BaseModel):
 def list_ai_tasks():
     """List all AI tasks."""
     with get_session() as session:
-        subject_repo = TaskRepository(session)
+        task_repo = TaskRepository(session)
         project_repo = ProjectRepository(session)
         ai_task_repo = AITaskRepository(session)
-        service = AITaskService(ai_task_repo, subject_repo, project_repo)
+        service = AITaskService(ai_task_repo, task_repo, project_repo)
         return service.list_all()
 
 
@@ -68,15 +68,15 @@ def add_ai_task(
 ):
     """Add a new AI task."""
     with get_session() as session:
-        subject_repo = TaskRepository(session)
+        task_repo = TaskRepository(session)
         project_repo = ProjectRepository(session)
         ai_task_repo = AITaskRepository(session)
-        service = AITaskService(ai_task_repo, subject_repo, project_repo)
+        service = AITaskService(ai_task_repo, task_repo, project_repo)
         try:
             task = service.create_task(
                 title=payload.title,
                 estimated_hours=payload.estimated_hours,
-                subject_id=payload.subject_id,
+                task_id=payload.task_id,
                 project_id=payload.project_id,
                 mini_plan=payload.mini_plan,
                 notes=payload.notes,

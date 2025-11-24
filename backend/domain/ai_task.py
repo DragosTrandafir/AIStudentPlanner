@@ -34,7 +34,7 @@ class AITask(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     estimated_hours: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
-    subject_id: Mapped[Optional[int]] = mapped_column(ForeignKey("subjects.id", ondelete="SET NULL"), nullable=True)
+    task_id: Mapped[Optional[int]] = mapped_column(ForeignKey("tasks.id", ondelete="SET NULL"), nullable=True)
     project_id: Mapped[Optional[int]] = mapped_column(ForeignKey("projects.id", ondelete="SET NULL"), nullable=True)
 
     status: Mapped[str] = mapped_column(String(32), nullable=False, default=AITaskStatus.PENDING)
@@ -48,7 +48,7 @@ class AITask(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    subject: Mapped[Optional["Subject"]] = relationship(back_populates="ai_tasks")
+    tasks: Mapped[Optional["Task"]] = relationship(back_populates="ai_tasks")
     project: Mapped[Optional["Project"]] = relationship(back_populates="ai_tasks")
     feedback: Mapped[Optional["Feedback"]] = relationship(back_populates="ai_task", uselist=False, cascade="all, delete-orphan")
 

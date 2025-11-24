@@ -9,9 +9,9 @@ from backend.repository.task_repository import TaskRepository
 
 
 class AITaskService:
-    def __init__(self, ai_task_repo: AITaskRepository, subject_repo: TaskRepository, project_repo: ProjectRepository):
+    def __init__(self, ai_task_repo: AITaskRepository, task_repo: TaskRepository, project_repo: ProjectRepository):
         self.ai_task_repo = ai_task_repo
-        self.subject_repo = subject_repo
+        self.task_repo = task_repo
         self.project_repo = project_repo
 
     def create_task(
@@ -19,7 +19,7 @@ class AITaskService:
         *,
         title: str,
         estimated_hours: Optional[int] = None,
-        subject_id: Optional[int] = None,
+        task_id: Optional[int] = None,
         project_id: Optional[int] = None,
         status: Optional[str] = None,
         scheduled_start: Optional[datetime] = None,
@@ -41,9 +41,9 @@ class AITaskService:
             raise ValueError("scheduled_end cannot be before scheduled_start")
 
         # Validate linked entities if provided
-        if subject_id is not None:
-            if not self.subject_repo.get(subject_id):
-                raise ValueError("Linked subject does not exist")
+        if task_id is not None:
+            if not self.task_repo.get(task_id):
+                raise ValueError("Linked task does not exist")
         if project_id is not None:
             if not self.project_repo.get(project_id):
                 raise ValueError("Linked project does not exist")
@@ -51,7 +51,7 @@ class AITaskService:
         task = AITask(
             title=title.strip(),
             estimated_hours=estimated_hours,
-            subject_id=subject_id,
+            task_id=task_id,
             project_id=project_id,
             status=status_val,
             scheduled_start=scheduled_start,
@@ -68,8 +68,8 @@ class AITaskService:
     def list_all(self, offset: int=0, limit:int = 100 ) -> List[AITask]:
         return self.ai_task_repo.list_all(offset, limit)
 
-    def list_for_subject(self, subject_id: int, *, offset: int = 0, limit: int = 100) -> List[AITask]:
-        return self.ai_task_repo.list_for_subject(subject_id, offset=offset, limit=limit)
+    def list_for_tasks(self, task_id: int, *, offset: int = 0, limit: int = 100) -> List[AITask]:
+        return self.ai_task_repo.list_for_task(task_id, offset=offset, limit=limit)
 
     def list_for_project(self, project_id: int, *, offset: int = 0, limit: int = 100) -> List[AITask]:
         return self.ai_task_repo.list_for_project(project_id, offset=offset, limit=limit)

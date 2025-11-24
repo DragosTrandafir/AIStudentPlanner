@@ -16,20 +16,20 @@ class BackendAPI:
 
     def get_user_data(self, user_id: int) -> Dict[str, Any]:
         """
-        Returns user subjects in the format expected by the orchestrator.
+        Returns user tasks in the format expected by the orchestrator.
         """
-        url = f"{self.base_url}/users/{user_id}/subjects"
+        url = f"{self.base_url}/users/{user_id}/tasks"
 
         response = requests.get(url)
 
         if response.status_code != 200:
             raise Exception(
-                f"[BackendAPI] Failed to fetch subjects: {response.status_code} - {response.text}"
+                f"[BackendAPI] Failed to fetch tasks: {response.status_code} - {response.text}"
             )
 
         subjects = response.json()  # list of TaskResponse
 
-        #convert backend subjects → orchestrator tasks format
+        #convert backend tasks → orchestrator tasks format
         tasks = []
         for s in subjects:
             tasks.append({

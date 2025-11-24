@@ -16,8 +16,8 @@ class AITaskRepository(BaseRepository[AITask]):
         stmt = select(AITask).offset(offset).limit(limit)
         return self.session.scalars(stmt).all()
 
-    def list_for_subject(self, subject_id: int, *, offset: int = 0, limit: int = 100) -> List[AITask]:
-        stmt = select(AITask).where(AITask.subject_id == subject_id).offset(offset).limit(limit)
+    def list_for_task(self, task_id: int, *, offset: int = 0, limit: int = 100) -> List[AITask]:
+        stmt = select(AITask).where(AITask.task_id == task_id).offset(offset).limit(limit)
         return list(self.session.scalars(stmt).all())
 
     def list_for_project(self, project_id: int, *, offset: int = 0, limit: int = 100) -> List[AITask]:

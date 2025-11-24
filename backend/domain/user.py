@@ -22,7 +22,7 @@ class User(Base):
     google_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
 
-    subjects: Mapped[List["Subject"]] = relationship(
+    tasks: Mapped[List["Task"]] = relationship(
         back_populates="student", cascade="all, delete-orphan"
     )
     projects: Mapped[List["Project"]] = relationship(
