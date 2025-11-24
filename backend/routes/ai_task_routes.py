@@ -47,7 +47,9 @@ class AiTaskResponse(BaseModel):
     notes: str | None
     created_at: datetime
     updated_at: datetime
-
+    
+    class Config:
+        from_attributes = True
 
 @router.get("/", response_model=List[AiTaskResponse])
 def list_ai_tasks():
