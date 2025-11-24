@@ -59,11 +59,14 @@ class AITaskService:
             mini_plan=mini_plan,
             notes=notes,
         )
-        self.ai_task_repo.add(task)
+        self.ai_task_repo.session.add(task)
         return task
 
     def get_task(self, task_id: int) -> Optional[AITask]:
         return self.ai_task_repo.get(task_id)
+
+    def list_all(self, offset: int=0, limit:int = 100 ) -> List[AITask]:
+        return self.ai_task_repo.list_all(offset, limit)
 
     def list_for_subject(self, subject_id: int, *, offset: int = 0, limit: int = 100) -> List[AITask]:
         return self.ai_task_repo.list_for_subject(subject_id, offset=offset, limit=limit)
@@ -83,6 +86,16 @@ class AITaskService:
         if not task:
             raise ValueError("Task not found")
         task.status = status
+        return task
+
+    def update_task(self, task_id: int, **fields) -> AITask:
+        task = self.ai_task_repo.get(task_id)
+        if not task:
+            raise ValueError("Task not found")
+        for key, value in fields.items():
+            if key == "status" and value not in AITaskStatus.ALL:
+                raise ValueError(f"Invalid status: {value}")
+            setattr(task, key, value)
         return task
 
     def schedule(self, task_id: int, *, start: Optional[datetime], end: Optional[datetime]) -> AITask:
