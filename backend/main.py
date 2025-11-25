@@ -5,7 +5,6 @@ from backend.routes.user_routes import router as user_router
 from backend.routes.subject_routes import router as subject_router
 from backend.routes.ai_task_routes import router as ai_task
 from backend.routes.feedback_routes import router as feedback_router
-from backend.routes.project_routes import router as project_router
 from backend.init_db import create_all
 
 
@@ -34,7 +33,6 @@ app.add_middleware(
 app.include_router(user_router)
 app.include_router(subject_router)
 app.include_router(ai_task)
-app.include_router(project_router)
 app.include_router(feedback_router)
 
 @app.get("/")

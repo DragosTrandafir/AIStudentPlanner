@@ -1,116 +1,116 @@
 from __future__ import annotations
-from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 
-from backend.domain.ai_task import AITask, AITaskStatus
+from backend.domain.ai_task import AITask
 from backend.repository.ai_task_repository import AITaskRepository
-from backend.repository.project_repository import ProjectRepository
 from backend.repository.subject_repository import SubjectRepository
 
 
 class AITaskService:
-    def __init__(self, ai_task_repo: AITaskRepository, subject_repo: SubjectRepository, project_repo: ProjectRepository):
+    def __init__(self, ai_task_repo: AITaskRepository, subject_repo: SubjectRepository):
         self.ai_task_repo = ai_task_repo
         self.subject_repo = subject_repo
-        self.project_repo = project_repo
 
     def create_task(
         self,
         *,
-        title: str,
-        estimated_hours: Optional[int] = None,
-        subject_id: Optional[int] = None,
-        project_id: Optional[int] = None,
-        status: Optional[str] = None,
-        scheduled_start: Optional[datetime] = None,
-        scheduled_end: Optional[datetime] = None,
-        mini_plan: Optional[Dict[str, Any]] = None,
-        notes: Optional[str] = None,
+        ai_task_name: str,
+        time_allotted: str,
+        difficulty: int,
+        priority: int,
+        subject_id: int,
     ) -> AITask:
-        if not title or not title.strip():
-            raise ValueError("Title is required")
-        estimated_hours = 1 if estimated_hours is None else estimated_hours
-        if estimated_hours < 0:
-            raise ValueError("Estimated hours cannot be negative")
+        if not ai_task_name or not ai_task_name.strip():
+            raise ValueError("AI task name is required")
+        
+        if not time_allotted or not time_allotted.strip():
+            raise ValueError("Time allotted is required")
+        
+        if difficulty < 1 or difficulty > 5:
+            raise ValueError("Difficulty must be between 1 and 5")
+        
+        if priority < 1 or priority > 10:
+            raise ValueError("Priority must be between 1 and 10")
 
-        status_val = status or AITaskStatus.PENDING
-        if status_val not in AITaskStatus.ALL:
-            raise ValueError(f"Invalid status: {status_val}")
-
-        if scheduled_start and scheduled_end and scheduled_end < scheduled_start:
-            raise ValueError("scheduled_end cannot be before scheduled_start")
-
-        # Validate linked entities if provided
-        if subject_id is not None:
-            if not self.subject_repo.get(subject_id):
-                raise ValueError("Linked subject does not exist")
-        if project_id is not None:
-            if not self.project_repo.get(project_id):
-                raise ValueError("Linked project does not exist")
+        # Validate subject exists
+        if not self.subject_repo.get(subject_id):
+            raise ValueError("Subject does not exist")
 
         task = AITask(
-            title=title.strip(),
-            estimated_hours=estimated_hours,
+            ai_task_name=ai_task_name.strip(),
+            time_allotted=time_allotted.strip(),
+            difficulty=difficulty,
+            priority=priority,
             subject_id=subject_id,
-            project_id=project_id,
-            status=status_val,
-            scheduled_start=scheduled_start,
-            scheduled_end=scheduled_end,
-            mini_plan=mini_plan,
-            notes=notes,
         )
-        self.ai_task_repo.session.add(task)
+        self.ai_task_repo.add(task)
         return task
 
     def get_task(self, task_id: int) -> Optional[AITask]:
         return self.ai_task_repo.get(task_id)
 
-    def list_all(self, offset: int=0, limit:int = 100 ) -> List[AITask]:
+    def list_all(self, offset: int = 0, limit: int = 100) -> List[AITask]:
         return self.ai_task_repo.list_all(offset, limit)
 
     def list_for_subject(self, subject_id: int, *, offset: int = 0, limit: int = 100) -> List[AITask]:
         return self.ai_task_repo.list_for_subject(subject_id, offset=offset, limit=limit)
+    
+    def list_by_priority(self, priority: int, *, offset: int = 0, limit: int = 100) -> List[AITask]:
+        if priority < 1 or priority > 10:
+            raise ValueError("Priority must be between 1 and 10")
+        return self.ai_task_repo.list_by_priority(priority, offset=offset, limit=limit)
+    
+    def list_by_difficulty(self, difficulty: int, *, offset: int = 0, limit: int = 100) -> List[AITask]:
+        if difficulty < 1 or difficulty > 5:
+            raise ValueError("Difficulty must be between 1 and 5")
+        return self.ai_task_repo.list_by_difficulty(difficulty, offset=offset, limit=limit)
 
-    def list_for_project(self, project_id: int, *, offset: int = 0, limit: int = 100) -> List[AITask]:
-        return self.ai_task_repo.list_for_project(project_id, offset=offset, limit=limit)
-
-    def list_by_status(self, status: str, *, offset: int = 0, limit: int = 100) -> List[AITask]:
-        if status not in AITaskStatus.ALL:
-            raise ValueError("Invalid status")
-        return self.ai_task_repo.list_by_status(status, offset=offset, limit=limit)
-
-    def update_status(self, task_id: int, status: str) -> AITask:
-        if status not in AITaskStatus.ALL:
-            raise ValueError("Invalid status")
+    def update_task(
+        self,
+        *,
+        task_id: int,
+        ai_task_name: Optional[str] = None,
+        time_allotted: Optional[str] = None,
+        difficulty: Optional[int] = None,
+        priority: Optional[int] = None,
+        subject_id: Optional[int] = None,
+    ) -> Optional[AITask]:
         task = self.ai_task_repo.get(task_id)
         if not task:
-            raise ValueError("Task not found")
-        task.status = status
+            return None
+
+        # Update fields if provided
+        if ai_task_name is not None:
+            if not ai_task_name.strip():
+                raise ValueError("AI task name cannot be empty")
+            task.ai_task_name = ai_task_name.strip()
+
+        if time_allotted is not None:
+            if not time_allotted.strip():
+                raise ValueError("Time allotted cannot be empty")
+            task.time_allotted = time_allotted.strip()
+
+        if difficulty is not None:
+            if difficulty < 1 or difficulty > 5:
+                raise ValueError("Difficulty must be between 1 and 5")
+            task.difficulty = difficulty
+
+        if priority is not None:
+            if priority < 1 or priority > 10:
+                raise ValueError("Priority must be between 1 and 10")
+            task.priority = priority
+
+        if subject_id is not None:
+            if not self.subject_repo.get(subject_id):
+                raise ValueError("Subject does not exist")
+            task.subject_id = subject_id
+
         return task
 
-    def update_task(self, task_id: int, **fields) -> AITask:
+    def delete_task(self, task_id: int) -> bool:
         task = self.ai_task_repo.get(task_id)
         if not task:
-            raise ValueError("Task not found")
-        for key, value in fields.items():
-            if key == "status" and value not in AITaskStatus.ALL:
-                raise ValueError(f"Invalid status: {value}")
-            setattr(task, key, value)
-        return task
+            return False
 
-    def schedule(self, task_id: int, *, start: Optional[datetime], end: Optional[datetime]) -> AITask:
-        if start and end and end < start:
-            raise ValueError("End cannot be before start")
-        task = self.ai_task_repo.get(task_id)
-        if not task:
-            raise ValueError("Task not found")
-        task.scheduled_start = start
-        task.scheduled_end = end
-        return task
-
-    def attach_mini_plan(self, task_id: int, mini_plan: Dict[str, Any]) -> AITask:
-        task = self.ai_task_repo.get(task_id)
-        if not task:
-            raise ValueError("Task not found")
-        task.mini_plan = mini_plan
-        return task
+        self.ai_task_repo.delete(task)
+        return True

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Optional
+from typing import List
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -14,16 +14,16 @@ class AITaskRepository(BaseRepository[AITask]):
 
     def list_all(self, offset: int = 0, limit: int = 100) -> List[AITask]:
         stmt = select(AITask).offset(offset).limit(limit)
-        return self.session.scalars(stmt).all()
+        return list(self.session.scalars(stmt).all())
 
     def list_for_subject(self, subject_id: int, *, offset: int = 0, limit: int = 100) -> List[AITask]:
         stmt = select(AITask).where(AITask.subject_id == subject_id).offset(offset).limit(limit)
         return list(self.session.scalars(stmt).all())
-
-    def list_for_project(self, project_id: int, *, offset: int = 0, limit: int = 100) -> List[AITask]:
-        stmt = select(AITask).where(AITask.project_id == project_id).offset(offset).limit(limit)
+    
+    def list_by_priority(self, priority: int, *, offset: int = 0, limit: int = 100) -> List[AITask]:
+        stmt = select(AITask).where(AITask.priority == priority).offset(offset).limit(limit)
         return list(self.session.scalars(stmt).all())
-
-    def list_by_status(self, status: str, *, offset: int = 0, limit: int = 100) -> List[AITask]:
-        stmt = select(AITask).where(AITask.status == status).offset(offset).limit(limit)
+    
+    def list_by_difficulty(self, difficulty: int, *, offset: int = 0, limit: int = 100) -> List[AITask]:
+        stmt = select(AITask).where(AITask.difficulty == difficulty).offset(offset).limit(limit)
         return list(self.session.scalars(stmt).all())

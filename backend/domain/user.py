@@ -25,9 +25,6 @@ class User(Base):
     subjects: Mapped[List["Subject"]] = relationship(
         back_populates="student", cascade="all, delete-orphan"
     )
-    projects: Mapped[List["Project"]] = relationship(
-        back_populates="student", cascade="all, delete-orphan"
-    )
     feedbacks: Mapped[List["Feedback"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )

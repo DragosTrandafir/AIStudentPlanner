@@ -31,54 +31,49 @@ class FeedbackResponse(BaseModel):
         from_attributes = True
 
 
-@router.get("/history", response_model=List[FeedbackResponse])
-def list_user_feedback(
-    user_id: int,
-):
-    """List all feedbacks for a specific user."""
-    with get_session() as session:
-        feedback_repo = FeedbackRepository(session)
-        user_repo = UserRepository(session)
-        ai_task_repo = AITaskRepository(session)
-        service = FeedbackService(feedback_repo, user_repo, ai_task_repo)
-        return service.list_feedback_for_user(user_id=user_id)
+# TODO: Temporarily disabled
+# @router.get("/history", response_model=List[FeedbackResponse])
+# def list_user_feedback(user_id: int):
+#     """List all feedbacks for a specific user."""
+#     with get_session() as session:
+#         feedback_repo = FeedbackRepository(session)
+#         user_repo = UserRepository(session)
+#         ai_task_repo = AITaskRepository(session)
+#         service = FeedbackService(feedback_repo, user_repo, ai_task_repo)
+#         return service.list_feedback_for_user(user_id=user_id)
 
 
-@router.get("/latest", response_model=List[FeedbackResponse])
-def list_user_feedback_latest(
-    user_id: int,
-):
-    """List last feedback for a specific user."""
-    with get_session() as session:
-        feedback_repo = FeedbackRepository(session)
-        user_repo = UserRepository(session)
-        ai_task_repo = AITaskRepository(session)
-        service = FeedbackService(feedback_repo, user_repo, ai_task_repo)
+# TODO: Temporarily disabled
+# @router.get("/latest", response_model=FeedbackResponse)
+# def list_user_feedback_latest(user_id: int):
+#     """Get the latest feedback for a specific user."""
+#     with get_session() as session:
+#         feedback_repo = FeedbackRepository(session)
+#         user_repo = UserRepository(session)
+#         ai_task_repo = AITaskRepository(session)
+#         service = FeedbackService(feedback_repo, user_repo, ai_task_repo)
 
-        latest = service.get_latest_feedback_for_user(user_id)
-        if not latest:
-            raise HTTPException(status_code=404, detail="No feedback found for this user")
-        return latest
+#         latest = service.get_latest_feedback_for_user(user_id)
+#         if not latest:
+#             raise HTTPException(status_code=404, detail="No feedback found for this user")
+#         return latest
 
 
 @router.post("/", response_model=FeedbackResponse, status_code=status.HTTP_201_CREATED)
-def add_feedback(
-    user_id: int,
-    payload: FeedbackCreateRequest,
-):
-    """Add a new feedback to a specific user."""
+def add_feedback(user_id: int, payload: FeedbackCreateRequest):
+    """Add a new feedback for a specific user."""
     with get_session() as session:
         feedback_repo = FeedbackRepository(session)
         user_repo = UserRepository(session)
         ai_task_repo = AITaskRepository(session)
         service = FeedbackService(feedback_repo, user_repo, ai_task_repo)
         try:
-            feedback=service.create_feedback(
+            feedback = service.create_feedback(
                 user_id=user_id, 
                 rating=payload.rating, 
                 comments=payload.comments, 
                 ai_task_id=payload.ai_task_id
-                )
+            )
             return feedback
         except ValueError as e:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
