@@ -71,15 +71,40 @@ def get_written_exam_example_math():
 # Project heuristics
 def get_project_heuristics_math():
     return (
-        ""
+        "Heuristics for Math Projects:\n"
+        "- Math projects are usually theoretical, involving proofs, problem sets, small research tasks, or structured reports.\n"
+        "- Typical phases: topic review, theoretical development, solving exercises/proofs, writing the report.\n"
+        "- Topic review: 0.5–1 hour depending on complexity.\n"
+        "- Solving exercises / writing proofs: main workload, typically 1–3 hours depending on difficulty.\n"
+        "- Report writing: 0.5–1 hour.\n"
+        "- Optional: presentation preparation (0.5 hours) if required.\n"
+        "- Subtasks SHOULD NOT exceed 3 hours — split into (part 1), (part 2), etc.\n"
+        "- Difficulty mainly affects the number and depth of proofs/problems.\n"
+        "- Ensure total_estimated_hours equals the sum of all subtask hours.\n"
+        "Adjust the distribution of time and difficulty according to task details and "
+        "difficulty level."
     )
+
 
 
 # Project example
 def get_project_example_math():
     return (
-        ""
+        "Example JSON (for reference only — adapt details as needed):\n"
+        "{\n"
+        '  "summary": "Work plan for a medium-difficulty math project involving proofs and a short written report.",\n'
+        '  "total_estimated_hours": 5,\n'
+        '  "difficulty": 3,\n'
+        '  "tasks": [\n'
+        '    { "task_name": "Topic review", "estimated_hours": 1, "priority": 1 },\n'
+        '    { "task_name": "Proof writing (part 1)", "estimated_hours": 2, "priority": 2 },\n'
+        '    { "task_name": "Proof writing (part 2)", "estimated_hours": 1, "priority": 3 },\n'
+        '    { "task_name": "Report writing", "estimated_hours": 1, "priority": 4 }\n'
+        '  ],\n'
+        '  "deadline": "2025-11-28T09:00:00"\n'
+        "}"
     )
+
 
 
 # Assignment heuristics

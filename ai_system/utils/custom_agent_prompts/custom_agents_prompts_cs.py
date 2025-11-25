@@ -86,6 +86,8 @@ def get_project_heuristics_cs():
         "- If the difficulty is high, increase only the implementation/testing time—not documentation.\n"
         "- Subtasks MUST NOT exceed 4 hours — split into logical parts (part 1, part 2, ...).\n"
         "- Ensure total_estimated_hours equals the sum of all subtask hours.\n"
+        "Adjust the distribution of time and difficulty according to task details and "
+        "difficulty level."
     )
 
 # Project example

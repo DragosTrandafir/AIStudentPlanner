@@ -118,7 +118,19 @@ class AiOrchestrator:
                         "difficulty": 4,
                         "description": "Large OOP project with multiple design patterns.",
                         "status": "Pending"
-                    }
+                    },
+
+                {
+                    "id": 4,
+                    "title": "PDE Project",
+                    "subject_name/project_name": "Partial Differential Equations",
+                    "start_datetime": "2025-12-20T10:00:00",
+                    "end_datetime": "2025-12-22T12:00:00",
+                    "type": "Project",
+                    "difficulty": 3,
+                    "description": "Short mathematics project on PDEs with a few problems and a small report.",
+                    "status": "Pending"
+                }
                 ]
             }
 
