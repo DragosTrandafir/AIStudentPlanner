@@ -54,8 +54,8 @@ def propose_plan(task, general_university_type, client):
              get_project_example_cs
              ),
         ("Project", "Mathematics"):
-            (get_project_heuristics_math(),
-             get_project_example_math()
+            (get_project_heuristics_math,
+             get_project_example_math
              ),
         ("Assignment", "Computer Science"):
             (get_assignment_heuristics_cs(),

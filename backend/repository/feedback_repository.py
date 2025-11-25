@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -18,4 +18,13 @@ class FeedbackRepository(BaseRepository[Feedback]):
 
     def list_for_task(self, ai_task_id: int, *, offset: int = 0, limit: int = 100) -> List[Feedback]:
         stmt = select(Feedback).where(Feedback.ai_task_id == ai_task_id).offset(offset).limit(limit)
+        return list(self.session.scalars(stmt).all())
+    
+    def get_latest_feedback_by_user(self, user_id: int) -> List[Feedback]:
+        stmt = (
+            select(Feedback)
+            .where(Feedback.user_id == user_id)
+            .order_by(Feedback.created_at.desc())
+            .limit(2)
+        )
         return list(self.session.scalars(stmt).all())

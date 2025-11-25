@@ -55,3 +55,60 @@ class ProjectService:
 
     def list_projects_for_user(self, user_id: int, *, offset: int = 0, limit: int = 100) -> List[Project]:
         return self.project_repo.list_for_user(user_id, offset=offset, limit=limit)
+
+    def update_project(
+        self,
+        *,
+        project_id: int,
+        student_id: int,
+        title: Optional[str] = None,
+        deadline: Optional[datetime] = None,
+        estimated_effort: Optional[int] = None,
+        difficulty: Optional[int] = None,
+        description: Optional[str] = None,
+    ) -> Optional[Project]:
+        project = self.project_repo.get(project_id)
+        if not project:
+            return None
+
+        # Verify ownership
+        if project.student_id != student_id:
+            raise ValueError("Project does not belong to this user")
+
+        # Update fields if provided
+        if title is not None:
+            if not title.strip():
+                raise ValueError("Title cannot be empty")
+            project.title = title.strip()
+
+        if deadline is not None:
+            if deadline < datetime.utcnow():
+                raise ValueError("Deadline cannot be in the past")
+            project.deadline = deadline
+
+        if estimated_effort is not None:
+            if estimated_effort < 0:
+                raise ValueError("Estimated effort cannot be negative")
+            project.estimated_effort = estimated_effort
+
+        if difficulty is not None:
+            if difficulty < 1:
+                raise ValueError("Difficulty must be at least 1")
+            project.difficulty = difficulty
+
+        if description is not None:
+            project.description = description
+
+        return project
+
+    def delete_project(self, *, project_id: int, student_id: int) -> bool:
+        project = self.project_repo.get(project_id)
+        if not project:
+            return False
+
+        # Verify ownership
+        if project.student_id != student_id:
+            raise ValueError("Project does not belong to this user")
+
+        self.project_repo.delete(project)
+        return True

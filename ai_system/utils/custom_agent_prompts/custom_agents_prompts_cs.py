@@ -22,6 +22,7 @@ def get_practical_exam_example_cs():
         "Example JSON (for reference only — adapt details as needed):\n"
         "{\n"
         '  "summary": "Preparation for practical exam of medium difficulty (you can include also description info)",\n'
+        '  "subject_name/project_name": "Object-Oriented Programming",\n'
         '  "total_estimated_hours": 11,\n'
         '  "difficulty": 3,\n'
         '  "tasks": [\n'
@@ -57,6 +58,7 @@ def get_written_exam_example_cs():
         "Example JSON (for reference only — adapt details as needed):\n"
         "{\n"
         '  "summary": "Preparation for a medium-difficulty Data Structures written exam.",\n'
+        '  "subject_name/project_name": "Computer Architecture",\n'
         '  "total_estimated_hours": 14,\n'
         '  "difficulty": 3,\n'
         '  "tasks": [\n'
