@@ -1,6 +1,6 @@
-/* ===========================
-   GLOBAL RESET + LAYOUT FIX
-=========================== */
+/* ============================
+   GLOBAL RESET
+============================ */
 html, body {
   height: 100%;
   margin: 0;
@@ -11,11 +11,12 @@ html, body {
 
 main {
   height: 100%;
-  overflow: auto; /* Fix pentru bara neagră */
+  overflow: auto;
 }
-/* ================================================================
-   NAVIGATION BUTTONS (‹ Today ›)
-================================================================ */
+
+/* ============================
+   HEADER BUTTONS
+============================ */
 .nav-button {
   background: #fff7f2;
   border: 2px solid #d18a67;
@@ -26,7 +27,6 @@ main {
   color: #8b4a2a;
   cursor: pointer;
   transition: 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .nav-button:hover {
@@ -34,42 +34,14 @@ main {
   transform: scale(1.05);
 }
 
-.nav-button:active {
-  transform: scale(0.97);
+.nav-button.active-view {
+  background: #c27045;
+  color: white;
 }
 
-/* ================================================================
-   VIEW MODE BUTTONS (MONTH / WEEK / DAY)
-================================================================ */
-.view-button {
-  background: #fff7f2;
-  border: 2px solid #d18a67;
-  padding: 10px 22px;
-  border-radius: 16px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #8b4a2a;
-  cursor: pointer;
-  transition: 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.view-button:hover {
-  background: #ffe0d1;
-  transform: scale(1.05);
-}
-
-/* active state (the selected view) */
-.view-button.active-view {
-  background: #d87c45 !important;
-  color: white !important;
-  border-color: #b45b2a !important;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-}
-
-/* ===========================
-   HEADER + BUTTONS
-=========================== */
+/* ============================
+   ADD TASK
+============================ */
 .add-task-btn {
   padding: 10px 18px;
   background: #c27045;
@@ -78,36 +50,15 @@ main {
   color: white;
   font-weight: 700;
   cursor: pointer;
-  border: none;
-  transition: 0.2s;
 }
 
 .add-task-btn:hover {
   background: #a95d34;
 }
 
-.nav-button {
-  padding: 8px 14px;
-  background: #fff7f3;
-  border: 2px solid #d29b82;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.nav-button:hover {
-  background: #f2e0d9;
-}
-
-.nav-button.active-view {
-  background: #c27045;
-  color: white;
-}
-
-/* ===========================
+/* =======================================================
    MONTH VIEW CONTAINER
-=========================== */
+======================================================= */
 .calendar-container {
   width: 95%;
   margin: 10px auto;
@@ -128,26 +79,23 @@ main {
   padding-bottom: 10px;
 }
 
-/* ===========================
-   MONTH GRID
-=========================== */
 .calendar-grid-days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: 115px;
+  grid-auto-rows: 130px;
   gap: 0;
+  position: relative;
 }
 
+/* ---------------------------
+   DAY CELL
+---------------------------- */
 .calendar-day-cell {
   border: 1px solid #e8a598;
   position: relative;
   padding: 6px;
   background: #fff7f7;
-  transition: 0.1s;
-}
-
-.calendar-day-cell:hover {
-  background: #fff2f2;
+  overflow: visible;
 }
 
 .calendar-day-cell.out-month {
@@ -156,11 +104,10 @@ main {
 }
 
 .calendar-day-cell.selected {
-  border: 3px solid #c6614a !important;
+  border: 3px solid #c6614a;
   border-radius: 10px;
 }
 
-/* Day number */
 .day-number {
   position: absolute;
   top: 6px;
@@ -169,37 +116,35 @@ main {
   font-weight: 700;
 }
 
-/* ===========================
-   EVENTS
-=========================== */
-.event-wrapper {
+/* =======================================================
+   MONTH VIEW — MULTI-LANE CONTINUOUS BARS
+======================================================= */
+.event-lane-container {
+  position: relative;
   margin-top: 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  height: auto;
 }
 
-.event-pill {
-  padding: 8px 10px;
-  border-radius: 8px;
-  font-weight: 600;
-  color: #422b19;
-  font-size: 14px;
-  background: #ffd5d0;
-  border: 1px solid #c68172;
-  box-shadow: 0 2px 3px rgba(0,0,0,0.2);
+.event-bar-multi {
+  position: absolute;
+  left: 0;
+  height: 20px;
+  border-radius: 6px;
+  padding-left: 6px;
+  font-size: 13px;
+  color: #4b2e1a;
+  border: 1px solid rgba(0,0,0,0.12);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
   cursor: pointer;
-  transition: 0.15s;
+  z-index: 10;
 }
 
-.event-pill:hover {
-  transform: scale(1.05);
-}
-
-/* ===========================
-   WEEK VIEW (compact version)
-=========================== */
-
+/* =======================================================
+   WEEK VIEW BASE
+======================================================= */
 .week-view-container {
   width: 95%;
   height: calc(100vh - 200px);
@@ -214,7 +159,7 @@ main {
 
 .week-header {
   display: grid;
-  grid-template-columns: 60px repeat(7, 1fr);
+  grid-template-columns: 80px repeat(7, 1fr);
   font-size: 14px;
   font-weight: 700;
   color: #b1462e;
@@ -222,20 +167,57 @@ main {
   text-align: center;
 }
 
+/* =======================================================
+   WEEK — ALL-DAY SECTION
+======================================================= */
+.week-all-day-row {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  height: 30px;
+  margin-bottom: 8px;
+}
+
+.week-all-day-cell {
+  position: relative;
+  border-left: 1px solid #e5b0a8;
+}
+
+.week-all-day-bar {
+  position: absolute;
+  height: 20px;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 12px;
+  color: #4b2e1a;
+  border: 1px solid rgba(0,0,0,0.12);
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+/* =======================================================
+   WEEK HOURLY GRID
+======================================================= */
 .week-grid {
   flex: 1;
   display: grid;
-  grid-template-columns: 60px repeat(7, 1fr);
+  grid-template-columns: 80px repeat(7, 1fr);
   background: #fff7f7;
   border-radius: 12px;
-  overflow-y: auto;
-  height: 100%;
-  padding-right: 6px;
+  overflow-y: auto;   /* container scrollabil */
 }
 
-/* orele (compactate) */
-.week-grid .hour-cell {
-  height: 32px;              /* înainte 60px */
+/* HOURS COLUMN */
+.hour-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.hour-cell {
+  height: 32px;
   font-size: 12px;
   padding-right: 6px;
   color: #a67863;
@@ -244,40 +226,44 @@ main {
   justify-content: flex-end;
 }
 
-/* celulele goale din zile */
 .week-hour-cell {
-  height: 32px;              /* înainte 60px */
+  height: 32px;
   border-bottom: 1px solid #f1cfc9;
 }
 
-/* coloanele din fiecare zi */
+/* COLUMNS (NO FIXED HEIGHT!) */
 .week-day-column {
   position: relative;
   border-left: 1px solid #e5b0a8;
+  overflow: visible;
+  pointer-events: auto;
 }
 
-/* TASK — mai compact */
+/* =======================================================
+   WEEK TASKS
+======================================================= */
 .week-task {
   position: absolute;
-  left: 8px;
-  right: 8px;
-  height: 28px;              /* mai mic */
-  padding: 5px;
-  border-radius: 6px;
-  font-size: 13px;
-  background: #ffd9ce;
-  border: 1px solid #e0a799;
+  left: 4px;
+  right: 4px;
+  border-radius: 8px;
+  padding: 4px 6px;
+  font-size: 12px;
   color: #4b2e1a;
-  box-shadow: 0 2px 3px rgba(0,0,0,0.25);
+  border: 1px solid rgba(0,0,0,0.15);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  z-index: 5;
+
+  -webkit-mask-image: radial-gradient(white 99%, transparent 100%);
+  mask-image: radial-gradient(white 99%, transparent 100%);
 }
 
-/* ===========================
-   DAY VIEW (compact version)
-=========================== */
-
+/* =======================================================
+   DAY VIEW
+======================================================= */
 .day-view-container {
   width: 95%;
   height: calc(100vh - 200px);
@@ -298,114 +284,37 @@ main {
   margin-bottom: 8px;
 }
 
-/* zona grilă, cu scroll doar aici */
 .day-grid {
   display: grid;
-  grid-template-columns: 60px 1fr;
+  grid-template-columns: 80px 1fr;
   background: #fff7f7;
   border-radius: 12px;
   overflow-y: auto;
   height: 100%;
-  padding-right: 6px;
 }
 
-/* orele (compactate) */
-.hour-cell {
-  height: 32px;           /* înainte era 60px */
-  font-size: 12px;
-  padding-right: 6px;
-  color: #a67863;
+.day-hour-column {
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  flex-direction: column;
 }
 
-/* coloana mare (ziua) */
 .day-hour-cell {
   height: 32px;
   border-bottom: 1px solid #f1cfc9;
-}
-
-/* task */
-.day-task {
-  position: absolute;
-  left: 10px;
-  right: 10px;
-  height: 28px;           /* mai mic */
-  padding: 5px;
-  border-radius: 6px;
-  font-size: 13px;
-  background: #ffd9ce;
-  border: 1px solid #e0a799;
-  color: #4b2e1a;
-  box-shadow: 0 2px 3px rgba(0,0,0,0.25);
 }
 
 .day-events-column {
   position: relative;
 }
 
-/* Mini Calendar */
-.mini-day {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 3px auto;
-  border-radius: 8px;
-  transition: 0.15s;
-  font-weight: 600;
-}
-
-/* Ziua de azi (bulina portocaliu închis) */
-.mini-day.today {
-  background: #c27045;
-  color: white;
-  border-radius: 10px;
-}
-
-/* Ziua selectată (contur portocaliu) */
-.mini-day.selected {
-  outline: 2px solid #c27045;
-  color: #c27045;
-  border-radius: 10px;
-  background: #fff3ea;
-}
-
-/* ============================
-   MULTI-DAY EVENT BARS
-============================ */
-
-.month-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  position: relative;
-}
-
-/* bara întinsă */
-.event-bar {
-  position: relative;
-  height: 28px;
-  margin-top: 32px;
-  border-radius: 8px;
-  padding: 4px 10px;
+.day-task {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  border-radius: 6px;
+  padding: 5px 6px;
+  font-size: 13px;
   color: #4b2e1a;
-  font-weight: 600;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
-  cursor: pointer;
-  z-index: 10;
-  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.15);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
 }
-
-/* indicator continuare */
-.event-bar::after {
-  content: "→";
-  margin-left: 8px;
-  font-weight: 900;
-  opacity: 0.6;
-}
-
