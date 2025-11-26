@@ -21,8 +21,10 @@ class AITask(Base):
     difficulty: Mapped[int] = mapped_column(Integer, nullable=False)
     priority: Mapped[int] = mapped_column(Integer, nullable=False)
     
-    subject_id: Mapped[int] = mapped_column(ForeignKey("subjects.id", ondelete="CASCADE"), nullable=False)
+    plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id", ondelete="CASCADE"), nullable=False)
+    task_id: Mapped[int] = mapped_column(ForeignKey("subjects.id", ondelete="CASCADE"), nullable=False)
 
+    plan: Mapped["Plan"] = relationship(back_populates="ai_tasks")
     subject: Mapped["Subject"] = relationship(back_populates="ai_tasks")
 
     def __repr__(self) -> str:

@@ -4,7 +4,7 @@ from typing import List, Optional
 from backend.domain.feedback import Feedback
 from backend.repository.feedback_repository import FeedbackRepository
 from backend.repository.user_repository import UserRepository
-from backend.repository.ai_task_repository import AITaskRepository
+from backend.repository.plan_repository import PlanRepository
 
 
 class FeedbackService:
@@ -12,19 +12,19 @@ class FeedbackService:
         self,
         feedback_repo: FeedbackRepository,
         user_repo: UserRepository,
-        ai_task_repo: AITaskRepository,
+        plan_repo: PlanRepository,
     ):
         self.feedback_repo = feedback_repo
         self.user_repo = user_repo
-        self.ai_task_repo = ai_task_repo
+        self.plan_repo = plan_repo
 
     def create_feedback(
         self,
         *,
         user_id: int,
+        plan_id: int,
         rating: int,
         comments: Optional[str] = None,
-        ai_task_id: Optional[int] = None,
     ) -> Feedback:
         if rating < 1 or rating > 5:
             raise ValueError("Rating must be between 1 and 5")
@@ -32,15 +32,19 @@ class FeedbackService:
         if not self.user_repo.get(user_id):
             raise ValueError("User does not exist")
 
-        if ai_task_id is not None:
-            if not self.ai_task_repo.get(ai_task_id):
-                raise ValueError("AI Task does not exist")
+        if not self.plan_repo.get(plan_id):
+            raise ValueError("Plan does not exist")
+
+        # Check if feedback already exists for this plan
+        existing = self.feedback_repo.get_by_plan(plan_id)
+        if existing:
+            raise ValueError("Feedback already exists for this plan")
 
         feedback = Feedback()
         feedback.user_id = user_id
+        feedback.plan_id = plan_id
         feedback.rating = rating
         feedback.comments = comments
-        feedback.ai_task_id = ai_task_id
         
         self.feedback_repo.add(feedback)
         return feedback
@@ -48,6 +52,5 @@ class FeedbackService:
     def list_feedback_for_user(self, user_id: int, *, offset: int = 0, limit: int = 100) -> List[Feedback]:
         return self.feedback_repo.list_for_user(user_id, offset=offset, limit=limit)
 
-    def get_latest_feedback_for_user(self, user_id: int) -> Optional[Feedback]:
-        feedbacks = self.feedback_repo.list_for_user(user_id, offset=0, limit=1)
-        return feedbacks[0] if feedbacks else None
+    def get_latest_feedback_for_user(self, user_id: int, limit: int = 2) -> List[Feedback]:
+        return self.feedback_repo.list_for_user(user_id, offset=0, limit=limit)

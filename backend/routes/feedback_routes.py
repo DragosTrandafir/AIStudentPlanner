@@ -5,16 +5,16 @@ from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
 
 from backend.config.database import get_session
-from backend.repository.ai_task_repository import AITaskRepository
 from backend.repository.feedback_repository import FeedbackRepository
 from backend.repository.user_repository import UserRepository
+from backend.repository.plan_repository import PlanRepository
 from backend.service.feedback_service import FeedbackService
 
 router = APIRouter(prefix="/users/{user_id}/feedback", tags=["feedback"])
 
 
 class FeedbackCreateRequest(BaseModel):
-    ai_task_id: Optional[int] = None
+    plan_id: int
     rating: int
     comments: Optional[str] = None
 
@@ -22,7 +22,7 @@ class FeedbackCreateRequest(BaseModel):
 class FeedbackResponse(BaseModel):
     id: int
     user_id: int
-    ai_task_id: Optional[int]
+    plan_id: int
     rating: int
     comments: Optional[str]
     created_at: datetime
@@ -31,48 +31,44 @@ class FeedbackResponse(BaseModel):
         from_attributes = True
 
 
-# TODO: Temporarily disabled
-# @router.get("/history", response_model=List[FeedbackResponse])
-# def list_user_feedback(user_id: int):
-#     """List all feedbacks for a specific user."""
-#     with get_session() as session:
-#         feedback_repo = FeedbackRepository(session)
-#         user_repo = UserRepository(session)
-#         ai_task_repo = AITaskRepository(session)
-#         service = FeedbackService(feedback_repo, user_repo, ai_task_repo)
-#         return service.list_feedback_for_user(user_id=user_id)
+@router.get("/history", response_model=List[FeedbackResponse])
+def list_user_feedback(user_id: int):
+    """List all feedbacks for a specific user."""
+    with get_session() as session:
+        feedback_repo = FeedbackRepository(session)
+        user_repo = UserRepository(session)
+        plan_repo = PlanRepository(session)
+        service = FeedbackService(feedback_repo, user_repo, plan_repo)
+        return service.list_feedback_for_user(user_id=user_id)
 
 
-# TODO: Temporarily disabled
-# @router.get("/latest", response_model=FeedbackResponse)
-# def list_user_feedback_latest(user_id: int):
-#     """Get the latest feedback for a specific user."""
-#     with get_session() as session:
-#         feedback_repo = FeedbackRepository(session)
-#         user_repo = UserRepository(session)
-#         ai_task_repo = AITaskRepository(session)
-#         service = FeedbackService(feedback_repo, user_repo, ai_task_repo)
+@router.get("/latest", response_model=List[FeedbackResponse])
+def list_user_feedback_latest(user_id: int):
+    """Get the last 2 feedbacks for a specific user."""
+    with get_session() as session:
+        feedback_repo = FeedbackRepository(session)
+        user_repo = UserRepository(session)
+        plan_repo = PlanRepository(session)
+        service = FeedbackService(feedback_repo, user_repo, plan_repo)
 
-#         latest = service.get_latest_feedback_for_user(user_id)
-#         if not latest:
-#             raise HTTPException(status_code=404, detail="No feedback found for this user")
-#         return latest
+        latest = service.get_latest_feedback_for_user(user_id, limit=2)
+        return latest
 
 
 @router.post("/", response_model=FeedbackResponse, status_code=status.HTTP_201_CREATED)
 def add_feedback(user_id: int, payload: FeedbackCreateRequest):
-    """Add a new feedback for a specific user."""
+    """Add a new feedback for a specific plan."""
     with get_session() as session:
         feedback_repo = FeedbackRepository(session)
         user_repo = UserRepository(session)
-        ai_task_repo = AITaskRepository(session)
-        service = FeedbackService(feedback_repo, user_repo, ai_task_repo)
+        plan_repo = PlanRepository(session)
+        service = FeedbackService(feedback_repo, user_repo, plan_repo)
         try:
             feedback = service.create_feedback(
-                user_id=user_id, 
+                user_id=user_id,
+                plan_id=payload.plan_id,
                 rating=payload.rating, 
-                comments=payload.comments, 
-                ai_task_id=payload.ai_task_id
+                comments=payload.comments
             )
             return feedback
         except ValueError as e:
