@@ -68,8 +68,7 @@ class AiOrchestrator:
         self.cs_agent = CSAgent(self.hf_token_1, self.custom_model_name)
         self.general_agent = CalendarAgent(self.hf_token_2, self.calendar_model_name, datetime.now())
 
-
-    def generate_plan_for_user(self, user_id: str, save_to_backend: bool = True) -> Dict[str, Any]:
+    def generate_plan_for_user(self, user_id, save_to_backend: bool = True) -> Dict[str, Any]:
         """
         Flux principal:
         1) cere la backend toate task-urile pentru user
@@ -79,9 +78,8 @@ class AiOrchestrator:
         5) opțional, salvează planul în backend
         """
 
-        #feedback = self.backend.get_feedback(user_id)
         try:
-            user_data = self.backend.get_user_data(user_id) # !!!! implement this
+            user_data = self.backend.get_user_data(user_id)
         except Exception as e:
             print(f"[AiOrchestrator] Backend unavailable, using mock data. ({e})")
             user_data = {
@@ -120,17 +118,17 @@ class AiOrchestrator:
                         "status": "Pending"
                     },
 
-                {
-                    "id": 4,
-                    "title": "PDE Project",
-                    "subject_name/project_name": "Partial Differential Equations",
-                    "start_datetime": "2025-12-20T10:00:00",
-                    "end_datetime": "2025-12-22T12:00:00",
-                    "type": "Project",
-                    "difficulty": 3,
-                    "description": "Short mathematics project on PDEs with a few problems and a small report.",
-                    "status": "Pending"
-                }
+                    {
+                        "id": 4,
+                        "title": "PDE Project",
+                        "subject_name/project_name": "Partial Differential Equations",
+                        "start_datetime": "2025-12-20T10:00:00",
+                        "end_datetime": "2025-12-22T12:00:00",
+                        "type": "Project",
+                        "difficulty": 3,
+                        "description": "Short mathematics project on PDEs with a few problems and a small report.",
+                        "status": "Pending"
+                    }
                 ]
             }
 
@@ -218,7 +216,6 @@ class AiOrchestrator:
 # -----------------------------------------------------------
 
 if __name__ == "__main__":
-
     test_user_id = os.getenv("TEST_USER_ID", "demo_user")
 
     orchestrator = AiOrchestrator()

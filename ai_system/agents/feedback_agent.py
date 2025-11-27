@@ -8,17 +8,21 @@ from ai_system.utils.propose_feedback_reschule_logic import propose_feedback_res
 
 
 class FeedbackAgent(BaseAgent):
-    def __init__(self, token, model, date,current_feedback,last_feedback,last_schedule):
+    def __init__(self, token, model, date):
         super().__init__(token, model)
         self.date=date
-        self.current_feedback=current_feedback
-        self.last_feedback=last_feedback
-        self.last_schedule=last_schedule
 
-    def propose_agent_plan(self, plans):
+    def propose_agent_plan(self, context):
 
         client = InferenceClient(model=self.model, token=self.token)
-        response = propose_feedback_reschedule(plans, self.date, client,self.current_feedback,self.last_feedback,self.last_schedule)
+
+        current_feedback=context['current_feedback']
+        last_feedback=context[
+            'last_feedback'
+        ]
+        last_schedule=context['last_schedule']
+
+        response = propose_feedback_reschedule(self.date, client,current_feedback,last_feedback,last_schedule)
 
         try:
             return json.loads(response)  # parse right here
