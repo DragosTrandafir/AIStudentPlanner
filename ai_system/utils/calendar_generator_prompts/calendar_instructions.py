@@ -41,7 +41,7 @@ def generate_calendar_instructions(plans_array, date):
     rules = (
         "Each exam has a deadline (date + time).\n",
 
-        "EXAM BOUNDARY RULE: Never schedule tasks for an exam after its deadline. "
+        "EXAM BOUNDARY RULE: NEVER schedule tasks for an exam after its deadline. "
         "All tasks must finish AT LEAST 2 hours before the exam starts — NO EXCEPTIONS.\n",
 
         "FINAL BUFFER: The last 60–90 minutes before an exam must remain completely empty.\n",
