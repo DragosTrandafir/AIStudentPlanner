@@ -52,14 +52,16 @@ class SubjectResponse(BaseModel):
 
 
 @router.post("/", response_model=SubjectResponse, status_code=status.HTTP_201_CREATED)
-def add_subject(
-    user_id: int,
-    payload: SubjectCreateRequest,
-):
+def add_subject(user_id: int, payload: SubjectCreateRequest):
     """Add a new subject to a specific user."""
     with get_session() as session:
-        subject_repo = SubjectRepository(session)
         user_repo = UserRepository(session)
+        
+        # Check if user exists
+        if not user_repo.get(user_id):
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        subject_repo = SubjectRepository(session)
         service = SubjectService(subject_repo, user_repo)
         try:
             subject = service.create_subject(
@@ -81,46 +83,63 @@ def add_subject(
 
 
 @router.get("/", response_model=List[SubjectResponse])
-def list_user_subjects(
-    user_id: int,
-):
+def list_user_subjects(user_id: int):
     """List all subjects for a specific user."""
     with get_session() as session:
-        subject_repo = SubjectRepository(session)
         user_repo = UserRepository(session)
+        
+        # Check if user exists
+        if not user_repo.get(user_id):
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        subject_repo = SubjectRepository(session)
         service = SubjectService(subject_repo, user_repo)
         return service.list_subjects_for_user(user_id)
 
 
 @router.get("/{subject_id}", response_model=SubjectResponse)
-def get_subject(
-    user_id: int,
-    subject_id: int,
-):
+def get_subject(user_id: int, subject_id: int):
     """Get a specific subject for a user."""
     with get_session() as session:
-        subject_repo = SubjectRepository(session)
         user_repo = UserRepository(session)
+        
+        # Check if user exists
+        if not user_repo.get(user_id):
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        subject_repo = SubjectRepository(session)
         service = SubjectService(subject_repo, user_repo)
         subject = service.get_subject(subject_id)
         if not subject:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found")
+        
+        # Check ownership
         if subject.student_id != user_id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Subject does not belong to this user")
+        
         return subject
 
 
 @router.put("/{subject_id}", response_model=SubjectResponse)
-def update_subject(
-    user_id: int,
-    subject_id: int,
-    payload: SubjectUpdateRequest,
-):
+def update_subject(user_id: int, subject_id: int, payload: SubjectUpdateRequest):
     """Update a subject for a specific user."""
     with get_session() as session:
-        subject_repo = SubjectRepository(session)
         user_repo = UserRepository(session)
+        
+        # Check if user exists
+        if not user_repo.get(user_id):
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        subject_repo = SubjectRepository(session)
         service = SubjectService(subject_repo, user_repo)
+        
+        # Check if subject exists and belongs to user
+        subject = service.get_subject(subject_id)
+        if not subject:
+            raise HTTPException(status_code=404, detail="Subject not found")
+        if subject.student_id != user_id:
+            raise HTTPException(status_code=403, detail="Subject does not belong to this user")
+        
         try:
             updated = service.update_subject(
                 subject_id=subject_id,
@@ -142,19 +161,28 @@ def update_subject(
 
 
 @router.delete("/{subject_id}", status_code=status.HTTP_204_NO_CONTENT)
-def remove_subject(
-    user_id: int,
-    subject_id: int,
-):
+def remove_subject(user_id: int, subject_id: int):
     """Remove a subject from a specific user."""
     with get_session() as session:
-        subject_repo = SubjectRepository(session)
         user_repo = UserRepository(session)
+        
+        # Check if user exists
+        if not user_repo.get(user_id):
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        subject_repo = SubjectRepository(session)
         service = SubjectService(subject_repo, user_repo)
+        
+        # Check if subject exists and belongs to user
+        subject = service.get_subject(subject_id)
+        if not subject:
+            raise HTTPException(status_code=404, detail="Subject not found")
+        if subject.student_id != user_id:
+            raise HTTPException(status_code=403, detail="Subject does not belong to this user")
+        
         try:
             success = service.delete_subject(subject_id=subject_id, student_id=user_id)
             if not success:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found")
         except ValueError as e:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-

@@ -1,56 +1,31 @@
 from __future__ import annotations
-from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import String, Integer, DateTime, ForeignKey, Text, CheckConstraint
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.types import JSON
+from sqlalchemy import String, Integer, ForeignKey, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.config.database import Base
 
 
-class AITaskStatus:
-    PENDING = "PENDING"
-    SCHEDULED = "SCHEDULED"
-    IN_PROGRESS = "IN_PROGRESS"
-    DONE = "DONE"
-    CANCELLED = "CANCELLED"
-
-    ALL = {PENDING, SCHEDULED, IN_PROGRESS, DONE, CANCELLED}
-
-
-# Use JSONB when on Postgres, fallback to JSON otherwise
-JSONType = JSONB().with_variant(JSON(), "sqlite")
-
-
 class AITask(Base):
     __tablename__ = "ai_tasks"
     __table_args__ = (
-        CheckConstraint("estimated_hours >= 0", name="ck_aitasks_hours_nonneg"),
+        CheckConstraint("difficulty >= 1 AND difficulty <= 5", name="ck_aitasks_difficulty_range"),
+        CheckConstraint("priority >= 1 AND priority <= 10", name="ck_aitasks_priority_range"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    title: Mapped[str] = mapped_column(String(255), nullable=False)
-    estimated_hours: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    
+    time_allotted: Mapped[str] = mapped_column(String(50), nullable=False)
+    ai_task_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    difficulty: Mapped[int] = mapped_column(Integer, nullable=False)
+    priority: Mapped[int] = mapped_column(Integer, nullable=False)
+    
+    plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id", ondelete="CASCADE"), nullable=False)
+    task_id: Mapped[int] = mapped_column(ForeignKey("subjects.id", ondelete="CASCADE"), nullable=False)
 
-    subject_id: Mapped[Optional[int]] = mapped_column(ForeignKey("subjects.id", ondelete="SET NULL"), nullable=True)
-    project_id: Mapped[Optional[int]] = mapped_column(ForeignKey("projects.id", ondelete="SET NULL"), nullable=True)
-
-    status: Mapped[str] = mapped_column(String(32), nullable=False, default=AITaskStatus.PENDING)
-
-    scheduled_start: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
-    scheduled_end: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
-
-    mini_plan: Mapped[Optional[dict]] = mapped_column(JSONType, nullable=True)
-    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-
-    subject: Mapped[Optional["Subject"]] = relationship(back_populates="ai_tasks")
-    project: Mapped[Optional["Project"]] = relationship(back_populates="ai_tasks")
-    feedback: Mapped[Optional["Feedback"]] = relationship(back_populates="ai_task", uselist=False, cascade="all, delete-orphan")
+    plan: Mapped["Plan"] = relationship(back_populates="ai_tasks")
+    subject: Mapped["Subject"] = relationship(back_populates="ai_tasks")
 
     def __repr__(self) -> str:
-        return f"AITask(id={self.id!r}, title={self.title!r}, status={self.status!r})"
+        return f"AITask(id={self.id!r}, ai_task_name={self.ai_task_name!r}, difficulty={self.difficulty!r}, priority={self.priority!r})"
