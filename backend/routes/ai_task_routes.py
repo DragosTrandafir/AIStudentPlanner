@@ -32,7 +32,7 @@ class AiTaskUpdateRequest(BaseModel):
 class AiTaskResponse(BaseModel):
     id: int
     ai_task_name: str
-    task_name: str
+    task_name: str  # From Subject.name
     time_allotted: str
     difficulty: int
     priority: int
@@ -48,7 +48,7 @@ class AiTaskResponse(BaseModel):
         return cls(
             id=ai_task.id,
             ai_task_name=ai_task.ai_task_name,
-            task_name=ai_task.subject.name,
+            task_name=ai_task.subject.name,  # Get name from Subject
             time_allotted=ai_task.time_allotted,
             difficulty=ai_task.difficulty,
             priority=ai_task.priority,
@@ -61,10 +61,16 @@ class AiTaskResponse(BaseModel):
 def list_ai_tasks_for_plan(plan_id: int):
     """List all AI tasks for a specific plan."""
     with get_session() as session:
+        plan_repo = PlanRepository(session)
+        
+        # Check if plan exists
+        if not plan_repo.get(plan_id):
+            raise HTTPException(status_code=404, detail="Plan not found")
+        
         service = AITaskService(
             AITaskRepository(session),
             SubjectRepository(session),
-            PlanRepository(session)
+            plan_repo
         )
         tasks = service.list_for_plan(plan_id)
         return [AiTaskResponse.from_ai_task(task) for task in tasks]
@@ -74,10 +80,16 @@ def list_ai_tasks_for_plan(plan_id: int):
 def add_ai_task(plan_id: int, payload: AiTaskCreateRequest):
     """Add a new AI task to a plan."""
     with get_session() as session:
+        plan_repo = PlanRepository(session)
+        
+        # Check if plan exists
+        if not plan_repo.get(plan_id):
+            raise HTTPException(status_code=404, detail="Plan not found")
+        
         service = AITaskService(
             AITaskRepository(session),
             SubjectRepository(session),
-            PlanRepository(session)
+            plan_repo
         )
         try:
             task = service.create_task(
@@ -99,10 +111,16 @@ def add_ai_task(plan_id: int, payload: AiTaskCreateRequest):
 def get_ai_task(plan_id: int, ai_task_id: int):
     """Get a specific AI task."""
     with get_session() as session:
+        plan_repo = PlanRepository(session)
+        
+        # Check if plan exists
+        if not plan_repo.get(plan_id):
+            raise HTTPException(status_code=404, detail="Plan not found")
+        
         service = AITaskService(
             AITaskRepository(session),
             SubjectRepository(session),
-            PlanRepository(session)
+            plan_repo
         )
         task = service.get_task(ai_task_id)
         if not task:
@@ -116,11 +134,25 @@ def get_ai_task(plan_id: int, ai_task_id: int):
 def update_ai_task(plan_id: int, ai_task_id: int, payload: AiTaskUpdateRequest):
     """Update an AI task."""
     with get_session() as session:
+        plan_repo = PlanRepository(session)
+        
+        # Check if plan exists
+        if not plan_repo.get(plan_id):
+            raise HTTPException(status_code=404, detail="Plan not found")
+        
         service = AITaskService(
             AITaskRepository(session),
             SubjectRepository(session),
-            PlanRepository(session)
+            plan_repo
         )
+        
+        # Check if task exists and belongs to plan
+        task = service.get_task(ai_task_id)
+        if not task:
+            raise HTTPException(status_code=404, detail="AI Task not found")
+        if task.plan_id != plan_id:
+            raise HTTPException(status_code=403, detail="AI Task does not belong to this plan")
+        
         try:
             task = service.update_task(
                 ai_task_id=ai_task_id,
@@ -142,10 +174,16 @@ def update_ai_task(plan_id: int, ai_task_id: int, payload: AiTaskUpdateRequest):
 def delete_ai_task(plan_id: int, ai_task_id: int):
     """Delete an AI task."""
     with get_session() as session:
+        plan_repo = PlanRepository(session)
+        
+        # Check if plan exists
+        if not plan_repo.get(plan_id):
+            raise HTTPException(status_code=404, detail="Plan not found")
+        
         service = AITaskService(
             AITaskRepository(session),
             SubjectRepository(session),
-            PlanRepository(session)
+            plan_repo
         )
         task = service.get_task(ai_task_id)
         if not task:

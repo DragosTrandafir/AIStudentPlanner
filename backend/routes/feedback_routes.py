@@ -35,8 +35,13 @@ class FeedbackResponse(BaseModel):
 def list_user_feedback(user_id: int):
     """List all feedbacks for a specific user."""
     with get_session() as session:
-        feedback_repo = FeedbackRepository(session)
         user_repo = UserRepository(session)
+        
+        # Check if user exists
+        if not user_repo.get(user_id):
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        feedback_repo = FeedbackRepository(session)
         plan_repo = PlanRepository(session)
         service = FeedbackService(feedback_repo, user_repo, plan_repo)
         return service.list_feedback_for_user(user_id=user_id)
@@ -46,8 +51,13 @@ def list_user_feedback(user_id: int):
 def list_user_feedback_latest(user_id: int):
     """Get the last 2 feedbacks for a specific user."""
     with get_session() as session:
-        feedback_repo = FeedbackRepository(session)
         user_repo = UserRepository(session)
+        
+        # Check if user exists
+        if not user_repo.get(user_id):
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        feedback_repo = FeedbackRepository(session)
         plan_repo = PlanRepository(session)
         service = FeedbackService(feedback_repo, user_repo, plan_repo)
 
@@ -59,9 +69,23 @@ def list_user_feedback_latest(user_id: int):
 def add_feedback(user_id: int, payload: FeedbackCreateRequest):
     """Add a new feedback for a specific plan."""
     with get_session() as session:
-        feedback_repo = FeedbackRepository(session)
         user_repo = UserRepository(session)
         plan_repo = PlanRepository(session)
+        
+        # Check if user exists
+        if not user_repo.get(user_id):
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Check if plan exists
+        plan = plan_repo.get(payload.plan_id)
+        if not plan:
+            raise HTTPException(status_code=404, detail="Plan not found")
+        
+        # Check if plan belongs to user
+        if plan.user_id != user_id:
+            raise HTTPException(status_code=403, detail="Plan does not belong to this user")
+        
+        feedback_repo = FeedbackRepository(session)
         service = FeedbackService(feedback_repo, user_repo, plan_repo)
         try:
             feedback = service.create_feedback(
