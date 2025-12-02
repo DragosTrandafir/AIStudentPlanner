@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Task, TaskType, TaskStatus } from "@/types/Task";
+import "@/styles/date_picker.css";
 
 interface Props {
   existingTask?: Task | null;
@@ -12,11 +13,13 @@ interface Props {
 }
 
 export default function AddTaskModal({ existingTask, onClose, onSave }: Props) {
-  const now = new Date();
-  const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+  const [form, setForm] = useState<Task>(() => {
+    if (existingTask) return existingTask;
 
-  const [form, setForm] = useState<Task>(
-    existingTask || {
+    const now = new Date();
+    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+
+    return {
       id: Date.now(),
       title: "",
       subject: "",
@@ -27,220 +30,198 @@ export default function AddTaskModal({ existingTask, onClose, onSave }: Props) {
       startDate: now,
       endDate: oneHourLater,
       color: "#F4C2C2",
-    }
-  );
+    };
+  });
 
   function save() {
     if (!form.title.trim()) return alert("Please enter a task title");
     onSave({ ...form });
-    onClose(); // închide modalul după save
+    onClose();
   }
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center z-50"
-      style={{
-        background: "rgba(0,0,0,0.35)",
-        backdropFilter: "blur(3px)",
-      }}
+      className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex justify-end"
+      onClick={onClose}
     >
       <div
-        className="rounded-2xl shadow-xl p-8"
+        className="h-full w-[560px] shadow-2xl flex flex-col animate-slideIn"
         style={{
-          width: "600px",
-          maxHeight: "100vh",
-          overflowY: "auto",
-          background: "linear-gradient(to bottom, #ffe8d9, #fff4e7)",
-          border: "5px solid #e4b6a4",
+          background: "var(--surface-1)",
+          color: "var(--text-main)",
         }}
+        onClick={(e) => e.stopPropagation()}
       >
-        <h2
-          className="text-center mb-6 font-bold"
-          style={{ fontSize: "22px", color: "#7a3e25" }}
-        >
-          ✨ {existingTask ? "Edit Task" : "Add New Task"}
-        </h2>
-
-        {/* Title */}
-        <div className="mb-4">
-          <label className="text-sm font-semibold text-[#6b3b28]">
-            Task Title *
-          </label>
-          <input
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="w-full mt-1 px-3 py-2 rounded-lg text-black"
-            style={{
-              border: "2px solid #e0c4b3",
-              background: "white",
-            }}
-          />
-        </div>
-
-        {/* Subject */}
-        <div className="mb-4">
-          <label className="text-sm font-semibold text-[#6b3b28]">
-            Subject / Project
-          </label>
-          <input
-            value={form.subject}
-            onChange={(e) => setForm({ ...form, subject: e.target.value })}
-            className="w-full mt-1 px-3 py-2 rounded-lg text-black"
-            style={{
-              border: "2px solid #e0c4b3",
-              background: "white",
-            }}
-          />
-        </div>
-
-        {/* Task Type */}
-        <div className="mb-4">
-          <label className="text-sm font-semibold text-[#6b3b28]">
-            Task Type
-          </label>
-          <select
-            value={form.type}
-            onChange={(e) =>
-              setForm({ ...form, type: e.target.value as TaskType })
-            }
-            className="w-full mt-1 px-3 py-2 rounded-lg text-black"
-            style={{ border: "2px solid #e0c4b3", background: "white" }}
-          >
-            <option>Assignment</option>
-            <option>Project</option>
-            <option>Practical Exam</option>
-            <option>Written Exam</option>
-          </select>
-        </div>
-
-        {/* Schedule */}
+        {/* HEADER */}
         <div
-          className="rounded-2xl p-4 mb-4"
-          style={{
-            border: "2px solid #e4b6a4",
-            background: "#ffe1da",
-          }}
+          className="p-5 flex justify-between items-center"
+          style={{ borderBottom: "1px solid var(--border-main)" }}
         >
-          <p className="font-semibold mb-2 flex items-center gap-2 text-[#7a3e25]">
-            📅 Schedule
-          </p>
+          <h2 className="text-xl font-bold">{existingTask ? "Edit Task" : "Add New Task"}</h2>
 
-          <div className="grid grid-cols-2 gap-4">
-            {/* Start */}
+          <button
+            onClick={onClose}
+            className="text-xl font-bold opacity-60 hover:opacity-100"
+            style={{ color: "var(--text-main)" }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* CONTENT */}
+        <div className="p-6 overflow-y-auto space-y-6">
+
+          {/* TITLE & SUBJECT */}
+          <div className="space-y-4">
             <div>
-              <label className="text-xs font-semibold text-[#6b3b28]">
-                Start
-              </label>
-              <DatePicker
-                selected={form.startDate}
-                onChange={(date) =>
-                  setForm({
-                    ...form,
-                    startDate: date as Date,
-                    endDate:
-                      (date as Date) > form.endDate
-                        ? (date as Date)
-                        : form.endDate,
-                  })
-                }
-                showTimeSelect
-                dateFormat="MMM d, yyyy h:mm aa"
-                className="w-full mt-1 px-3 py-2 rounded-lg border-2 border-[#e0c4b3] bg-white text-black"
+              <label className="font-semibold mb-1 block">Task Title *</label>
+              <input
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                className="rounded-lg px-3 py-2 w-full"
+                style={{
+                  background: "var(--surface-2)",
+                  color: "var(--text-main)",
+                  border: "1px solid var(--border-main)",
+                }}
               />
             </div>
 
-            {/* End */}
             <div>
-              <label className="text-xs font-semibold text-[#6b3b28]">
-                End
-              </label>
+              <label className="font-semibold mb-1 block">Subject / Project</label>
+              <input
+                value={form.subject}
+                onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                className="rounded-lg px-3 py-2 w-full"
+                style={{
+                  background: "var(--surface-2)",
+                  color: "var(--text-main)",
+                  border: "1px solid var(--border-main)",
+                }}
+              />
+            </div>
+          </div>
+
+          {/* DESCRIPTION + PROPERTIES */}
+          <div className="grid grid-cols-2 gap-6">
+            {/* DESCRIPTION */}
+            <div>
+              <label className="font-semibold mb-1 block">Description</label>
+              <textarea
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                rows={10}
+                className="rounded-lg px-3 py-2 w-full"
+                style={{
+                  background: "var(--surface-2)",
+                  color: "var(--text-main)",
+                  border: "1px solid var(--border-main)",
+                }}
+              />
+            </div>
+
+            {/* PROPERTIES */}
+            <div className="space-y-4">
+
+              {/* TYPE */}
+              <div>
+                <label className="font-semibold mb-1 block">Task Type</label>
+                <select
+                  value={form.type}
+                  onChange={(e) => setForm({ ...form, type: e.target.value as TaskType })}
+                  className="rounded-lg px-3 py-2 w-full"
+                  style={{
+                    background: "var(--surface-2)",
+                    color: "var(--text-main)",
+                    border: "1px solid var(--border-main)",
+                  }}
+                >
+                  <option>Assignment</option>
+                  <option>Project</option>
+                  <option>Practical Exam</option>
+                  <option>Written Exam</option>
+                </select>
+              </div>
+
+              {/* STATUS */}
+              <div>
+                <label className="font-semibold mb-1 block">Status</label>
+                <select
+                  value={form.status}
+                  onChange={(e) => setForm({ ...form, status: e.target.value as TaskStatus })}
+                  className="rounded-lg px-3 py-2 w-full"
+                  style={{
+                    background: "var(--surface-2)",
+                    color: "var(--text-main)",
+                    border: "1px solid var(--border-main)",
+                  }}
+                >
+                  <option>Pending</option>
+                  <option>In Progress</option>
+                  <option>Completed</option>
+                </select>
+              </div>
+
+              {/* DIFFICULTY */}
+              <div>
+                <label className="font-semibold mb-1 block">Difficulty (1–5)</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={5}
+                  value={form.difficulty}
+                  onChange={(e) => setForm({ ...form, difficulty: Number(e.target.value) })}
+                  className="rounded-lg px-3 py-2 w-full"
+                  style={{
+                    background: "var(--surface-2)",
+                    color: "var(--text-main)",
+                    border: "1px solid var(--border-main)",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* DATES */}
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <label className="font-semibold mb-1 block">Start Date</label>
               <DatePicker
-                selected={form.endDate}
-                onChange={(date) =>
-                  setForm({
-                    ...form,
-                    endDate: date as Date,
-                  })
-                }
+                selected={form.startDate}
+                onChange={(date) => setForm({ ...form, startDate: date as Date })}
                 showTimeSelect
                 dateFormat="MMM d, yyyy h:mm aa"
-                className="w-full mt-1 px-3 py-2 rounded-lg border-2 border-[#e0c4b3] bg-white text-black"
+                className="datepicker-input"
               />
+
+            </div>
+
+            <div>
+              <label className="font-semibold mb-1 block">End Date</label>
+              <DatePicker
+                selected={form.endDate}
+                onChange={(date) => setForm({ ...form, endDate: date as Date })}
+                showTimeSelect
+                dateFormat="MMM d, yyyy h:mm aa"
+                className="datepicker-input"
+              />
+
             </div>
           </div>
         </div>
 
-        {/* Difficulty */}
-        <div className="mb-4">
-          <label className="text-sm font-semibold text-[#6b3b28]">
-            Difficulty (1–5)
-          </label>
-          <input
-            type="number"
-            min={1}
-            max={5}
-            value={form.difficulty}
-            onChange={(e) =>
-              setForm({ ...form, difficulty: Number(e.target.value) })
-            }
-            className="w-full mt-1 px-3 py-2 rounded-lg text-black"
-            style={{
-              border: "2px solid #e0c4b3",
-              background: "white",
-            }}
-          />
-        </div>
-
-        {/* Description */}
-        <div className="mb-4">
-          <label className="text-sm font-semibold text-[#6b3b28]">
-            Description
-          </label>
-          <textarea
-            value={form.description}
-            onChange={(e) =>
-              setForm({ ...form, description: e.target.value })
-            }
-            className="w-full mt-1 px-3 py-2 rounded-lg text-black"
-            rows={3}
-            style={{
-              border: "2px solid #e0c4b3",
-              background: "white",
-            }}
-          />
-        </div>
-
-        {/* Status */}
-        <div className="mb-6">
-          <label className="text-sm font-semibold text-[#6b3b28]">
-            Status
-          </label>
-          <select
-            value={form.status}
-            onChange={(e) =>
-              setForm({ ...form, status: e.target.value as TaskStatus })
-            }
-            className="w-full mt-1 px-3 py-2 rounded-lg text-black"
-            style={{
-              border: "2px solid #e0c4b3",
-              background: "white",
-            }}
-          >
-            <option>Pending</option>
-            <option>In Progress</option>
-            <option>Completed</option>
-          </select>
-        </div>
-
-        {/* Buttons */}
-        <div className="flex justify-end gap-3">
+        {/* FOOTER */}
+        <div
+          className="p-5 flex justify-end gap-3"
+          style={{ borderTop: "1px solid var(--border-main)" }}
+        >
           <button
             onClick={onClose}
-            className="px-5 py-2 rounded-lg font-semibold"
+            className="px-5 py-2 rounded-lg"
             style={{
-              background: "#fff",
-              border: "2px solid #caaea1",
-              color: "#7a3e25",
+              background: "var(--surface-2)",
+              color: "var(--text-main)",
+              border: "1px solid var(--border-main)",
             }}
           >
             Cancel
@@ -248,16 +229,30 @@ export default function AddTaskModal({ existingTask, onClose, onSave }: Props) {
 
           <button
             onClick={save}
-            className="px-5 py-2 rounded-lg font-semibold text-white"
+            className="px-5 py-2 rounded-lg"
             style={{
-              background: "#c05b74",
-              border: "2px solid #a5455c",
+              background: "var(--accent)",
+              color: "var(--text-on-accent)",
             }}
           >
             Save Task
           </button>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes slideIn {
+          from {
+            transform: translateX(100%);
+          }
+          to {
+            transform: translateX(0);
+          }
+        }
+        .animate-slideIn {
+          animation: slideIn 0.25s ease-out;
+        }
+      `}</style>
     </div>
   );
 }

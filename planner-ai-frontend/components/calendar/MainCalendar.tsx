@@ -8,9 +8,13 @@ import TaskDetailsModal from "@/components/modals/TaskDetailsModal";
 
 import WeekView from "@/components/calendar/WeekView";
 import DayView from "@/components/calendar/DayView";
+import CalendarHeader from "@/components/calendar/CalendarHeader";
+
 
 import { getMonthMatrix, isSameDay } from "@/utils/dateUtils";
 import { Task } from "@/types/Task";
+import { useTheme } from "@/components/context/ThemeContext";
+
 
 import "@/styles/calendar.css";
 
@@ -22,8 +26,6 @@ export default function MainCalendar() {
   const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [currentMonth, setCurrentMonth] = useState<Date>(today);
 
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [editTask, setEditTask] = useState<Task | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const [viewMode, setViewMode] = useState<"month" | "week" | "day">("month");
@@ -32,6 +34,11 @@ export default function MainCalendar() {
     () => getMonthMatrix(currentMonth),
     [currentMonth]
   );
+  const currentMonthLabel = currentMonth.toLocaleDateString("en-US", {
+  month: "long",
+  year: "numeric",
+});
+
 
   /* ---------------- COLORS ---------------- */
   const typeColors = {
@@ -120,10 +127,19 @@ export default function MainCalendar() {
     setSelectedTask(null);
   }
 
-  const monthLabel = currentMonth.toLocaleString("default", {
-    month: "long",
-    year: "numeric",
-  });
+/* ---------------- ADD / EDIT MODAL STATE ---------------- */
+const [showAddModal, setShowAddModal] = useState(false);
+const [editTask, setEditTask] = useState<Task | null>(null);
+
+/* Open modal to CREATE a new task */
+const openAddTaskModal = () => {
+  setEditTask(null);        // ensure it's a new task
+  setShowAddModal(true);    // open modal
+};
+
+
+
+
 
   /* =====================================================
      MAIN RENDER
@@ -142,56 +158,20 @@ export default function MainCalendar() {
       />
 
       {/* MAIN */}
-      <main className="flex-1 px-10 py-6 bg-gradient-to-b from-[#ffe5e5] to-[#fff0d6] overflow-hidden">
+      <main className="flex-1 px-10 py-6 bg-gradient-to-b from-[#ffe5e5] to-[#fff0d6] overflow-auto">
+        
 
-        {/* HEADER */}
-        <div className="flex items-start justify-between mb-6 header-controls">
-          <div>
-            <h1 className="text-4xl font-bold text-[#5d2a02]">{monthLabel}</h1>
+       <CalendarHeader
+        currentMonth={currentMonthLabel}
+        onPrev={prev}
+        onNext={next}
+        onToday={goToToday}
+        onAddTask={openAddTaskModal}   // ✅ FIXED
+        view={viewMode}
+        setView={setViewMode}
+      />
 
-            <button
-              onClick={() => {
-                setShowAddModal(true);
-                setEditTask(null);
-              }}
-              className="add-task-btn"
-            >
-              + Add Task
-            </button>
-          </div>
 
-          {/* NAV */}
-          <div className="flex flex-col gap-3 items-end">
-            <div className="flex gap-2 main-header-buttons">
-              <button className="nav-button" onClick={prev}>‹</button>
-              <button className="nav-button" onClick={goToToday}>Today</button>
-              <button className="nav-button" onClick={next}>›</button>
-            </div>
-
-            <div className="flex gap-2 main-header-buttons">
-              <button
-                className={`nav-button ${viewMode === "month" ? "active-view" : ""}`}
-                onClick={() => setViewMode("month")}
-              >
-                Month
-              </button>
-
-              <button
-                className={`nav-button ${viewMode === "week" ? "active-view" : ""}`}
-                onClick={() => setViewMode("week")}
-              >
-                Week
-              </button>
-
-              <button
-                className={`nav-button ${viewMode === "day" ? "active-view" : ""}`}
-                onClick={() => setViewMode("day")}
-              >
-                Day
-              </button>
-            </div>
-          </div>
-        </div>
 
         {/* ======================= MONTH VIEW ======================= */}
         {viewMode === "month" && (

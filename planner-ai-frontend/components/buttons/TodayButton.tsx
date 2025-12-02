@@ -3,13 +3,18 @@
 interface TodayButtonProps {
   onClick: () => void;
   children: React.ReactNode;
+  className?: string;
 }
 
-export default function TodayButton({ onClick, children }: TodayButtonProps) {
+export default function TodayButton({
+  onClick,
+  children,
+  className = "",
+}: TodayButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="
+      className={`
         px-4 py-1.5
         rounded-full
         bg-gradient-to-b from-[#fff3dd] to-[#ffe7c2]
@@ -19,7 +24,8 @@ export default function TodayButton({ onClick, children }: TodayButtonProps) {
         hover:shadow-md
         hover:-translate-y-[1px]
         transition-all duration-150
-      "
+        ${className}
+      `}
     >
       {children}
     </button>

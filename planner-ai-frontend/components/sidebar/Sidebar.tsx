@@ -1,6 +1,8 @@
 "use client";
 
 import MiniMonthView from "@/components/calendar/MiniMonthView";
+import { useTheme } from "@/components/context/ThemeContext";
+import "@/styles/sidebar.css";
 
 interface SidebarProps {
   currentMonth: Date;
@@ -13,43 +15,113 @@ export default function Sidebar({
   selectedDate,
   onSelectDate,
 }: SidebarProps) {
+  const { theme, setTheme } = useTheme();
+
   return (
-    <div
-      className="w-64 bg-[#f6ecd9] h-full p-6 flex flex-col justify-between"
-      style={{ borderRight: "1px solid #e0d4c2" }}
-    >
+    <div className="sidebar">
+      
       {/* TASK LEGEND */}
       <div>
-        <h2 className="text-2xl font-bold mb-6 text-[#5a3e2b]">Task Legend</h2>
+        <h2 className="legend-title">Feedback - Soon to be</h2>
 
-        <div className="flex flex-col gap-4 text-[#5a3e2b]">
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: "#F4C2C2" }}></span>
-            Assignment
+        <div className="legend-list">
+          <div className="legend-item">
+            <span className="legend-dot"></span>
+            
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: "#F3E5AB" }}></span>
-            Project
+          <div className="legend-item">
+            <span className="legend-dot"></span>
+            
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: "#bde0fe" }}></span>
-            Written Exam
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: "#c8f7c5" }}></span>
-            Practical Exam
+          <div className="legend-item">
+            <span className="legend-dot"></span>
+            
           </div>
         </div>
+      </div>
+
+      {/* THEME SWITCHER ICONS */}
+      <div className="theme-switcher">
+
+        {/* Light */}
+        <button
+          className={`theme-icon-btn ${theme === "light" ? "active" : ""}`}
+          onClick={() => setTheme("light")}
+          aria-label="Light Theme"
+        >
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="4" />
+            <line x1="12" y1="2" x2="12" y2="6" />
+            <line x1="12" y1="18" x2="12" y2="22" />
+            <line x1="4.93"         y1="4.93"  x2="7.76" y2="7.76" />
+            <line x1="16.24"        y1="16.24" x2="19.07" y2="19.07" />
+            <line x1="2"            y1="12"    x2="6"     y2="12" />
+            <line x1="18"           y1="12"    x2="22"    y2="12" />
+            <line x1="4.93"         y1="19.07" x2="7.76"  y2="16.24" />
+            <line x1="16.24"        y1="7.76"  x2="19.07" y2="4.93" />
+          </svg>
+        </button>
+
+        {/* Dark */}
+        <button
+          className={`theme-icon-btn ${theme === "dark" ? "active" : ""}`}
+          onClick={() => setTheme("dark")}
+          aria-label="Dark Theme"
+        >
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
+
+        {/* Pink */}
+<button
+  className={`theme-icon-btn ${theme === "pink" ? "active" : ""}`}
+  onClick={() => setTheme("pink")}
+  aria-label="Pink Theme"
+>
+  <svg
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z" />
+    <path d="M5 14l.8 2.2L8 17l-2.2.8L5 20l-.8-2.2L2 17l2.2-.8L5 14z" />
+    <path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14z" />
+  </svg>
+</button>
+
       </div>
 
       {/* MINI CALENDAR */}
       <MiniMonthView
         selectedMonth={currentMonth}
         selectedDate={selectedDate}
-        onSelect={(date) => onSelectDate(date)}  // ✔ numele corect
+        onSelect={(date) => onSelectDate(date)}
       />
     </div>
   );

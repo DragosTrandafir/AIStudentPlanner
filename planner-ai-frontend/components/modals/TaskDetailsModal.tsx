@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Task } from "@/types/Task";
-import { typeColors } from "@/utils/eventMapper";
+import "@/styles/task_details.css";
 
 interface Props {
   task: Task;
@@ -20,107 +20,91 @@ export default function TaskDetailsModal({
   if (!task) return null;
 
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center z-50"
-      style={{
-        background: "rgba(0,0,0,0.35)",
-        backdropFilter: "blur(3px)",
-      }}
-    >
-      <div
-        className="rounded-2xl shadow-xl p-8"
-        style={{
-          width: "550px",
-          maxHeight: "90vh",
-          overflowY: "auto",
-          background: "linear-gradient(to bottom, #ffe8d9, #fff4e7)",
-          border: "4px solid #e4b6a4",
-        }}
-      >
+    <div className="taskdetails-backdrop" onClick={onClose}>
+      <div className="taskdetails-panel" onClick={(e) => e.stopPropagation()}>
+        
         {/* HEADER */}
-        <h2
-          className="text-center mb-6 font-bold"
-          style={{ fontSize: "22px", color: "#7a3e25" }}
-        >
-          📋 Task Details
-        </h2>
+        <div className="taskdetails-header">
+          <h2 className="taskdetails-title">📋 Task Details</h2>
+          <button className="taskdetails-close" onClick={onClose}>✕</button>
+        </div>
 
         {/* CONTENT */}
-        <div className="space-y-3 text-[#5a3e2b] text-sm">
-          <p>
-            <strong>Title:</strong> {task.title}
-          </p>
+        <div className="taskdetails-content">
 
-          <p>
-            <strong>Subject:</strong> {task.subject || "—"}
-          </p>
+          <div className="taskdetails-row">
+            <span className="taskdetails-label">Title:</span>
+            <span className="taskdetails-value">{task.title}</span>
+          </div>
 
-          <p>
-            <strong>Type:</strong> {task.type}
-          </p>
+          <div className="taskdetails-row">
+            <span className="taskdetails-label">Subject:</span>
+            <span className="taskdetails-value">{task.subject || "—"}</span>
+          </div>
 
-          <p>
-            <strong>Status:</strong> {task.status}
-          </p>
+          <div className="taskdetails-row">
+            <span className="taskdetails-label">Type:</span>
+            <span className="taskdetails-tag">{task.type}</span>
+          </div>
 
-          <p>
-            <strong>Difficulty:</strong> {task.difficulty}/5
-          </p>
+          <div className="taskdetails-row">
+            <span className="taskdetails-label">Status:</span>
+            <span className="taskdetails-tag">{task.status}</span>
+          </div>
 
-          <p>
-            <strong>Start:</strong> {task.startDate.toLocaleString()}
-          </p>
+          <div className="taskdetails-row">
+            <span className="taskdetails-label">Difficulty:</span>
+            <span className="taskdetails-tag">{task.difficulty}/5</span>
+          </div>
 
-          <p>
-            <strong>End:</strong> {task.endDate.toLocaleString()}
-          </p>
+          <div className="taskdetails-divider"></div>
+
+          <div className="taskdetails-row">
+            <span className="taskdetails-label">Start:</span>
+            <span className="taskdetails-value">
+              {new Date(task.startDate).toLocaleString()}
+            </span>
+          </div>
+
+          <div className="taskdetails-row">
+            <span className="taskdetails-label">End:</span>
+            <span className="taskdetails-value">
+              {new Date(task.endDate).toLocaleString()}
+            </span>
+          </div>
 
           {task.description && (
-            <p>
-              <strong>Description:</strong> {task.description}
-            </p>
+            <div className="taskdetails-description">
+              <span className="taskdetails-label">Description:</span>
+              <p className="taskdetails-description-text">{task.description}</p>
+            </div>
           )}
         </div>
 
-        {/* BUTTONS */}
-        <div className="flex justify-end gap-3 mt-6">
+        {/* FOOTER BUTTONS */}
+        <div className="taskdetails-footer">
           <button
+            className="taskdetails-btn edit"
             onClick={() => {
-              onClose();        // închide detaliile
-              onEdit(task);     // deschide edit modal
-            }}
-            className="px-5 py-2 rounded-lg font-semibold text-white"
-            style={{
-              background: "#c27045",
-              border: "2px solid #a55a2b",
+              onClose();
+              onEdit(task);
             }}
           >
             ✏ Edit
           </button>
 
           <button
+            className="taskdetails-btn delete"
             onClick={() => onDelete(task.id)}
-            className="px-5 py-2 rounded-lg font-semibold text-white"
-            style={{
-              background: "#c24848",
-              border: "2px solid #a33636",
-            }}
           >
             🗑 Delete
           </button>
 
-          <button
-            onClick={onClose}
-            className="px-5 py-2 rounded-lg font-semibold"
-            style={{
-              background: "#fff",
-              border: "2px solid #caaea1",
-              color: "#7a3e25",
-            }}
-          >
+          <button className="taskdetails-btn close" onClick={onClose}>
             Close
           </button>
         </div>
+
       </div>
     </div>
   );

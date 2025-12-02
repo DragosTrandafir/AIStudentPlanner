@@ -16,7 +16,6 @@ export default function MiniMonthView({
 
   const jsFirstDay = new Date(year, month, 1).getDay();
   const firstDay = (jsFirstDay + 6) % 7;
-
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   const cells: Array<number | null> = [];
@@ -45,22 +44,38 @@ export default function MiniMonthView({
 
   return (
     <div
-      className="p-4 rounded-xl shadow-md"
+      className="p-4 rounded-xl shadow-md mini-calendar-container"
       style={{
-        width: "240px",
-        background: "#ffffff",
-        border: "1px solid #dcdcdc",
+        width: "220px",
+        background: "var(--mini-bg)",
+        border: "1px solid var(--mini-border)",
       }}
     >
       {/* HEADER */}
-      <div className="flex justify-between items-center mb-2 text-[#444] font-semibold">
-        <button onClick={() => onSelect(new Date(year, month - 1, 1))}>‹</button>
+      <div
+        className="flex justify-between items-center mb-2 font-semibold"
+        style={{ color: "var(--text-main)" }}
+      >
+        <button
+          onClick={() => onSelect(new Date(year, month - 1, 1))}
+          style={{ color: "var(--text-main)" }}
+        >
+          ‹
+        </button>
         <span>{monthLabel}</span>
-        <button onClick={() => onSelect(new Date(year, month + 1, 1))}>›</button>
+        <button
+          onClick={() => onSelect(new Date(year, month + 1, 1))}
+          style={{ color: "var(--text-main)" }}
+        >
+          ›
+        </button>
       </div>
 
       {/* WEEKDAYS */}
-      <div className="grid grid-cols-7 text-center text-xs font-semibold text-gray-600 mb-1">
+      <div
+        className="grid grid-cols-7 text-center text-xs font-semibold mb-1"
+        style={{ color: "var(--text-secondary)" }}
+      >
         {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
           <div key={i}>{d}</div>
         ))}
@@ -73,16 +88,16 @@ export default function MiniMonthView({
           const selected = isSelected(day);
 
           let bg = "transparent";
-          let color = "#444";
+          let color = "var(--text-main)";
 
           if (isCurrent) {
-            bg = "#d45741"; // 🔥 roșu pentru azi
-            color = "white";
+            bg = "var(--accent)"; // today
+            color = "var(--text-on-accent)";
           }
 
           if (selected) {
-            bg = "#4d7cff"; // 🔵 albastru pentru zi selectată
-            color = "white";
+            bg = "var(--mini-selected)"; // selected
+            color = "var(--text-on-accent)";
           }
 
           return (
@@ -91,7 +106,7 @@ export default function MiniMonthView({
               onClick={() => day && onSelect(new Date(year, month, day))}
               className="mini-day"
               style={{
-                opacity: day ? 1 : 0.2,
+                opacity: day ? 1 : 0.25,
                 background: bg,
                 color,
                 fontWeight: isCurrent || selected ? "700" : "500",

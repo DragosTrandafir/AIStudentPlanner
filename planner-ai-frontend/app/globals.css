@@ -1,8 +1,7 @@
 @import "tailwindcss";
 
-/* 🎨 Base color variables */
 :root {
-  --background: #faebd7; /* Antique White main background */
+  --background: #faebd7;
   --foreground: #171717;
 }
 html, body {
@@ -97,4 +96,15 @@ body {
 body {
   background: var(--bg);
   color: var(--fg);
+}
+/* =============================
+   FIX: Prevent global styles from overriding calendar buttons
+============================= */
+
+button.calendar-btn {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }

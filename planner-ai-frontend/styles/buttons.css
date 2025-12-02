@@ -1,52 +1,63 @@
-/* === Primary Add Task Button === */
+/* ================================================
+   TODAY + ARROWS: Linear-style square buttons
+================================================ */
+
+/* Shared style for Today + Arrow buttons */
+.arrow-button,
+.today-button {
+  background: var(--surface-3);
+  border: 1px solid var(--border-light);
+  padding: 6px 14px;          /* equal padding for consistent height */
+  font-size: 0.9rem;
+  border-radius: 6px;         /* squared, not rounded */
+  cursor: pointer;
+  transition: 0.12s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hover effect (keep your color variables) */
+.arrow-button:hover,
+.today-button:hover {
+  background: var(--surface-1);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Tight grouping: ← Today → look like one component */
+.group-nav > * {
+  border-radius: 0;
+  margin-left: -1px;          /* borders overlap, looks like one piece */
+}
+
+.group-nav > *:first-child {
+  border-radius: 6px 0 0 6px;
+  margin-left: 0;
+}
+
+.group-nav > *:last-child {
+  border-radius: 0 6px 6px 0;
+}
+
+
+/* ================================================
+   ADD TASK BUTTON (unchanged colors, new shape)
+================================================ */
 
 .addtask-button {
   background: var(--accent);
-  color: #fff;
+  color: var(--text-on-accent, #ffffff);
   padding: 8px 14px;
-  border-radius: var(--radius-md);
-  border: none;
+  border-radius: 6px;          /* squared */
+  border: 2px solid var(--accent);
   cursor: pointer;
   font-weight: 600;
   box-shadow: var(--shadow-sm);
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
 
 .addtask-button:hover {
-  background: var(--accent-light);
-}
-
-/* === Today Button === */
-
-.today-button {
-  background: var(--accent-bg);
-  color: var(--accent);
-  padding: 6px 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--accent);
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: 0.12s ease;
-}
-
-.today-button:hover {
-  background: var(--accent);
-  color: #fff;
-}
-
-/* === Arrow Buttons === */
-
-.arrow-button {
-  background: var(--bg-muted);
-  padding: 6px 10px;
-  border-radius: var(--radius-md);
-  border: 1px solid #ccc;
-  cursor: pointer;
-  font-size: 0.85rem;
-  transition: 0.15s ease;
-}
-
-.arrow-button:hover {
-  background: var(--accent-bg);
-  border-color: var(--accent);
+  background: var(--accent-hover);
+  transform: scale(1.05);
 }

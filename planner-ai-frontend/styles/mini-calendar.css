@@ -29,12 +29,20 @@
   font-size: 0.75rem;
   color: var(--text-primary);
 }
+/* Mini Calendar Theme-aware */
+
+.mini-calendar-container {
+  background: var(--mini-bg);
+  border: 1px solid var(--mini-border);
+}
 
 .mini-day:hover {
-  background: var(--accent-bg);
+  background: var(--accent-hover);
+  color: var(--text-on-accent);
 }
 
 .mini-day.selected {
-  background: var(--accent);
-  color: #fff;
+  background: var(--mini-selected);
+  color: var(--text-on-accent);
 }
+

@@ -1,48 +1,68 @@
+/* --------------------------------------------------
+   THEME SWITCHER BUTTONS (safe to paste)
+   -------------------------------------------------- */
+
+/* ------------------------------------
+   SIDEBAR BASE (THEME-AWARE)
+------------------------------------ */
 .sidebar {
+  background: var(--surface-1);
+  border-right: 1px solid var(--border-main);
+
   width: 260px;
-  background: #f6ecd9;
-  padding: 24px;
+  padding: 20px;
+
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  border-right: 1px solid #e0d4c2;
+  gap: 24px;
 
-  /* Makes the sidebar fill the entire screen height */
-  height: 100vh;
+  /* OPTIONAL: remove if you don’t want it */
+  box-shadow: 2px 0 6px rgba(0,0,0,0.05);
 }
 
-/* ===== Legend Section ===== */
 
-.legend-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: #5a3e2b;
-  margin-bottom: 16px;
-}
 
-.legend-list {
+.theme-switcher {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
-  color: #5a3e2b;
+  gap: 12px;
+  margin: 18px 0;
 }
 
-.legend-item {
-  display: flex;
+.theme-icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  background: var(--surface-2);
+  color: var(--text-main);
+
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
 }
 
-.legend-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
+.theme-icon-btn:hover {
+  background: var(--surface-3);
+  transform: translateY(-2px);
 }
 
-/* ===== Mini Calendar Section ===== */
+/* Active/selected theme */
+.theme-icon-btn.active {
+  border-color: var(--accent);
+  background: var(--surface-3);
+  color: var(--accent);
+  transform: scale(1.03);
+}
 
-.sidebar-mini {
-  margin-top: 20px;
-  padding-top: 14px;
-  border-top: 1px solid #e0d4c2;
+.theme-icon-btn svg {
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
 }

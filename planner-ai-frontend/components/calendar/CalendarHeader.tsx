@@ -1,14 +1,13 @@
-"use client";
+import React from "react";
 
-import ArrowCalendarButton from "@/components/buttons/ArrowCalendarButton";
-import TodayButton from "@/components/buttons/TodayButton";
-import AddTaskButton from "@/components/buttons/AddTaskButton";
-
-interface CalendarHeaderProps {
-  currentMonth: Date;
+interface Props {
+  currentMonth: string;
   onPrev: () => void;
   onNext: () => void;
   onToday: () => void;
+  onAddTask: () => void;
+  view: "month" | "week" | "day";
+  setView: (v: "month" | "week" | "day") => void;
 }
 
 export default function CalendarHeader({
@@ -16,23 +15,59 @@ export default function CalendarHeader({
   onPrev,
   onNext,
   onToday,
-}: CalendarHeaderProps) {
-  const monthName = currentMonth.toLocaleString("default", { month: "long" });
-  const year = currentMonth.getFullYear();
-
+  onAddTask,
+  view,
+  setView,
+}: Props) {
   return (
-    <div className="calendar-header">
-      <div className="header-left">
-        <h2>{monthName} {year}</h2>
-        <AddTaskButton onClick={() => console.log("open modal")}>
-          + Add Task
-        </AddTaskButton>
-      </div>
+    <div className="flex items-center justify-between mb-6 header-controls">
+
+      {/* LEFT — MONTH LABEL */}
+      <h1 className="text-4xl font-bold month-title">
+        {currentMonth}
+      </h1>
 
       <div className="header-right">
-        <ArrowCalendarButton direction="left" onClick={onPrev} />
-        <TodayButton onClick={onToday}>Today</TodayButton>
-        <ArrowCalendarButton direction="right" onClick={onNext} />
+      {/* CENTER — TOOLBAR */}
+      <div className="toolbar">
+
+        {/* GROUP 1 : ← Today → */}
+        <div className="nav-group">
+          <button className="nav-segment" onClick={onPrev}>←</button>
+          <button className="nav-segment" onClick={onToday}>Today</button>
+          <button className="nav-segment" onClick={onNext}>→</button>
+        </div>
+
+        {/* GROUP 2 : Month / Week / Day */}
+        <div className="view-group">
+          <button
+            className={`nav-button ${view === "month" ? "active-view" : ""}`}
+            onClick={() => setView("month")}
+          >
+            Month
+          </button>
+
+          <button
+            className={`nav-button ${view === "week" ? "active-view" : ""}`}
+            onClick={() => setView("week")}
+          >
+            Week
+          </button>
+
+          <button
+            className={`nav-button ${view === "day" ? "active-view" : ""}`}
+            onClick={() => setView("day")}
+          >
+            Day
+          </button>
+        </div>
+
+      </div>
+
+      {/* RIGHT — ADD TASK */}
+      <button className="add-task-btn" onClick={onAddTask}>
+        + Add Task
+      </button>
       </div>
     </div>
   );
