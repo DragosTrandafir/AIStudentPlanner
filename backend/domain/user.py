@@ -25,12 +25,12 @@ class User(Base):
     subjects: Mapped[List["Subject"]] = relationship(
         back_populates="student", cascade="all, delete-orphan"
     )
-    projects: Mapped[List["Project"]] = relationship(
-        back_populates="student", cascade="all, delete-orphan"
+    plans: Mapped[List["Plan"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
     )
     feedbacks: Mapped[List["Feedback"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:
-        return f"User(id={self.id!r}, email={self.email!r})"
+        return f"User(id={self.id!r}, name={self.name!r}, email={self.email!r})"
