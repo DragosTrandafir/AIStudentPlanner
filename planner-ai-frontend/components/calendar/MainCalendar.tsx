@@ -137,6 +137,21 @@ const openAddTaskModal = () => {
   setShowAddModal(true);    // open modal
 };
 
+// --- AI PLAN GENERATION PLACEHOLDERS ---
+function generateAIPlan() {
+  console.log("AI Generate Plan triggered!");
+
+  // TODO: call your backend later, example:
+  // fetch("/api/ai/generate-plan", { method: "POST" });
+
+  alert("AI plan generation will be added later!");
+}
+
+function regenerateAIPlan(feedback: string) {
+  console.log("Regenerating plan with feedback:", feedback);
+  alert("Regeneration with feedback will be added later!");
+}
+
 
 
 
@@ -155,7 +170,8 @@ const openAddTaskModal = () => {
           setSelectedDate(d);
           setCurrentMonth(new Date(d.getFullYear(), d.getMonth(), 1));
         }}
-      />
+        onGeneratePlan={generateAIPlan}
+        onRegeneratePlan={(feedback) => regenerateAIPlan(feedback)}      />
 
       {/* MAIN */}
       <main className="flex-1 px-10 py-6 bg-gradient-to-b from-[#ffe5e5] to-[#fff0d6] overflow-auto">

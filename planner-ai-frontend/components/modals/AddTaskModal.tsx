@@ -136,7 +136,6 @@ export default function AddTaskModal({ existingTask, onClose, onSave }: Props) {
                     border: "1px solid var(--border-main)",
                   }}
                 >
-                  <option>Assignment</option>
                   <option>Project</option>
                   <option>Practical Exam</option>
                   <option>Written Exam</option>
