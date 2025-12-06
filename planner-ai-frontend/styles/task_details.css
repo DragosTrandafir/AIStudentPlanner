@@ -1,0 +1,132 @@
+/* BACKDROP */
+.taskdetails-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* PANEL */
+.taskdetails-panel {
+  background: var(--surface-1);
+  color: var(--text-main);
+  width: 450px;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  animation: fadeIn 0.18s ease-out;
+}
+
+/* HEADER */
+.taskdetails-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.taskdetails-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.taskdetails-close {
+  background: none;
+  color: var(--text-main);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+/* CONTENT */
+.taskdetails-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.taskdetails-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.taskdetails-label {
+  width: 110px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.taskdetails-value {
+  color: var(--text-main);
+}
+
+/* TAGS (Type, Status, Difficulty) */
+.taskdetails-tag {
+  background: var(--accent);
+  color: var(--text-on-accent);
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* DIVIDER */
+.taskdetails-divider {
+  border-top: 1px solid var(--border-main);
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+/* DESCRIPTION */
+.taskdetails-description {
+  display: flex;
+  flex-direction: column;
+}
+
+.taskdetails-description-text {
+  background: var(--surface-2);
+  padding: 8px;
+  border-radius: 8px;
+  color: var(--text-main);
+  min-height: 40px;
+  margin-top: 4px;
+}
+
+/* FOOTER BUTTONS */
+.taskdetails-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.taskdetails-btn {
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.taskdetails-btn.edit {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.taskdetails-btn.delete {
+  background: #d9534f;
+  color: white;
+}
+
+.taskdetails-btn.close {
+  background: var(--surface-3);
+  color: var(--text-main);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
