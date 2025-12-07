@@ -1,6 +1,4 @@
 "use client";
-
-import React, { useState, useMemo } from "react";
 import Sidebar from "@/components/sidebar/Sidebar";
 
 import AddTaskModal from "@/components/modals/AddTaskModal";
@@ -9,6 +7,8 @@ import TaskDetailsModal from "@/components/modals/TaskDetailsModal";
 import WeekView from "@/components/calendar/WeekView";
 import DayView from "@/components/calendar/DayView";
 import CalendarHeader from "@/components/calendar/CalendarHeader";
+import React, { useState, useMemo, useEffect } from "react";
+
 
 
 import { getMonthMatrix, isSameDay } from "@/utils/dateUtils";
@@ -17,12 +17,32 @@ import { Task } from "@/types/Task";
 
 
 import "@/styles/calendar.css";
+import { getSubjects, deleteSubject } from "@/lib/apiSubjects";
+import { mapSubjectToTask } from "@/utils/subjectMapper";
+
+
 
 export default function MainCalendar() {
   const today = new Date();
+  // ---------------- LOAD TASKS FROM BACKEND ----------------
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const subjects = await getSubjects();
+        const mapped = subjects.map(mapSubjectToTask);
+        setTasks(mapped);
+      } catch (err) {
+        console.error("Failed loading subjects", err);
+      }
+    }
+
+    load();
+  }, []);
+
 
   /* ---------------- STATE ---------------- */
-  const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [currentMonth, setCurrentMonth] = useState<Date>(today);
 
@@ -40,12 +60,15 @@ export default function MainCalendar() {
 });
 
 
+
+
+
   /* ---------------- COLORS ---------------- */
   const typeColors = {
     Assignment: "#F4C2C2",
-    Project: "#F3E5AB",
-    "Written Exam": "#bde0fe",
-    "Practical Exam": "#c8f7c5",
+    Project: "#90EE90",
+    "Written Exam": "#87CEFA",
+    "Practical Exam": "#FFB6C1",
   };
 
   /* ---------------- MONTH EVENT MAP ---------------- */
@@ -107,25 +130,31 @@ export default function MainCalendar() {
 
   /* ---------------- SAVE TASK ---------------- */
   function handleSaveTask(task: Task) {
-    setTasks((prev) => {
-      const idx = prev.findIndex((t) => t.id === task.id);
-      if (idx >= 0) {
-        const copy = [...prev];
-        copy[idx] = task;
-        return copy;
-      }
-      return [...prev, task];
-    });
+  setTasks(prev => {
+    const idx = prev.findIndex(t => t.id === task.id);
+    if (idx >= 0) {
+      const copy = [...prev];
+      copy[idx] = task;   // 🔥 UPDATE in place
+      return copy;
+    }
+    return [...prev, task]; // 🔥 NEW
+  });
+}
 
-    setEditTask(null);
-    setShowAddModal(false);
-  }
+
 
   /* ---------------- DELETE TASK ---------------- */
-  function handleDelete(id: number) {
+  async function handleDelete(id: number) {
+  try {
+    await deleteSubject(id);
+
     setTasks((prev) => prev.filter((t) => t.id !== id));
     setSelectedTask(null);
+  } catch (err) {
+    console.error(err);
+    alert("Failed to delete task.");
   }
+}
 
 /* ---------------- ADD / EDIT MODAL STATE ---------------- */
 const [showAddModal, setShowAddModal] = useState(false);
@@ -133,16 +162,15 @@ const [editTask, setEditTask] = useState<Task | null>(null);
 
 /* Open modal to CREATE a new task */
 const openAddTaskModal = () => {
-  setEditTask(null);        // ensure it's a new task
-  setShowAddModal(true);    // open modal
+  setEditTask(null);        
+  setShowAddModal(true); 
 };
 
 // --- AI PLAN GENERATION PLACEHOLDERS ---
 function generateAIPlan() {
   console.log("AI Generate Plan triggered!");
 
-  // TODO: call your backend later, example:
-  // fetch("/api/ai/generate-plan", { method: "POST" });
+
 
   alert("AI plan generation will be added later!");
 }

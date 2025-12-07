@@ -5,6 +5,14 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Task, TaskType, TaskStatus } from "@/types/Task";
 import "@/styles/date_picker.css";
+import {
+  createSubject,
+  updateSubject,
+  SubjectCreatePayload
+} from "@/lib/apiSubjects";
+import { mapSubjectToTask } from "@/utils/subjectMapper";
+
+
 
 interface Props {
   existingTask?: Task | null;
@@ -19,11 +27,12 @@ export default function AddTaskModal({ existingTask, onClose, onSave }: Props) {
     const now = new Date();
     const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
 
+
     return {
       id: Date.now(),
       title: "",
       subject: "",
-      type: "Assignment",
+      type: "Project",
       difficulty: 1,
       description: "",
       status: "Pending",
@@ -31,13 +40,53 @@ export default function AddTaskModal({ existingTask, onClose, onSave }: Props) {
       endDate: oneHourLater,
       color: "#F4C2C2",
     };
-  });
 
-  function save() {
-    if (!form.title.trim()) return alert("Please enter a task title");
-    onSave({ ...form });
-    onClose();
+  });
+  
+   async function save() {
+    if (!form.title.trim()) {
+      alert("Please enter a task title");
+      return;
+    }
+
+    let mappedType: SubjectCreatePayload["type"];
+    if (form.type === "Written Exam") mappedType = "written";
+    else if (form.type === "Practical Exam") mappedType = "practical";
+    else mappedType = "project";
+
+    let mappedStatus: SubjectCreatePayload["status"];
+    if (form.status === "In Progress") mappedStatus = "in_progress";
+    else if (form.status === "Completed") mappedStatus = "completed";
+    else mappedStatus = "not_started";
+
+    const payload: SubjectCreatePayload = {
+      title: form.title,
+      name: form.subject || "",
+      type: mappedType,
+      status: mappedStatus,
+      difficulty: form.difficulty,
+      start_date: form.startDate.toISOString(),
+      end_date: form.endDate.toISOString(),
+      description: form.description || "",
+    };
+
+    try {
+      const backendSubject = existingTask
+        ? await updateSubject(existingTask.id, payload)
+        : await createSubject(payload);
+
+      const updatedTask = mapSubjectToTask(backendSubject);
+
+      onSave(updatedTask);
+      onClose();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save task.");
+    }
   }
+
+
+
 
   return (
     <div
@@ -74,7 +123,7 @@ export default function AddTaskModal({ existingTask, onClose, onSave }: Props) {
           {/* TITLE & SUBJECT */}
           <div className="space-y-4">
             <div>
-              <label className="font-semibold mb-1 block">Task Title *</label>
+              <label className="font-semibold mb-1 block">Title *</label>
               <input
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -88,7 +137,7 @@ export default function AddTaskModal({ existingTask, onClose, onSave }: Props) {
             </div>
 
             <div>
-              <label className="font-semibold mb-1 block">Subject / Project</label>
+              <label className="font-semibold mb-1 block">Subject</label>
               <input
                 value={form.subject}
                 onChange={(e) => setForm({ ...form, subject: e.target.value })}
@@ -125,7 +174,7 @@ export default function AddTaskModal({ existingTask, onClose, onSave }: Props) {
 
               {/* TYPE */}
               <div>
-                <label className="font-semibold mb-1 block">Task Type</label>
+                <label className="font-semibold mb-1 block">Subject Type</label>
                 <select
                   value={form.type}
                   onChange={(e) => setForm({ ...form, type: e.target.value as TaskType })}

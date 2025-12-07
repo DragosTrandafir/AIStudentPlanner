@@ -9,7 +9,7 @@
   /* TEXT */
   --text-main: #242a35;
   --text-secondary: #09325b;
-  --text-on-accent: #eeeeee;
+  --text-on-accent: #e4e4e4;
 
   /* SURFACES */
   --surface-1: #F5FFFA;
@@ -93,7 +93,7 @@
 
   --mini-bg: #ffecec;
   --mini-border: #e8a4a4;
-  --mini-selected: #585034;
+  --mini-selected: #c69585;
 
   --task-text: #4b2e1a;
   --task-border: rgba(0,0,0,0.12);

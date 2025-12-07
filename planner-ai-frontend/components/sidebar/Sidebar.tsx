@@ -13,7 +13,7 @@ interface SidebarProps {
 
 
   
-  onGeneratePlan?: () => void;     // AI generate handler
+  onGeneratePlan?: () => void;
   onRegeneratePlan?: (feedback: string) => void;
   canRegenerate?: boolean;
 }
@@ -122,7 +122,7 @@ export default function Sidebar({
     setShowFeedback(false);
 
     if (onRegeneratePlan) {
-      onRegeneratePlan(message);   // 🔥 Use feedback to regenerate the plan
+      onRegeneratePlan(message); 
     }
   }}
 />

@@ -76,7 +76,6 @@
   font-weight: 600;
   cursor: pointer;
   transition: 0.2s;
-  border: 1px solid var(--accent);
 }
 
 .feedback-sidebar-btn:hover {

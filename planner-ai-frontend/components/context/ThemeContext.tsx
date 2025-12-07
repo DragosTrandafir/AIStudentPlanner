@@ -21,27 +21,32 @@ const THEME_KEY = "app:theme";
 const FALLBACK: Theme = "pink";
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === "undefined") return FALLBACK;
+  const [theme, setTheme] = useState<Theme>(FALLBACK);
+  const [mounted, setMounted] = useState(false);
 
-    const saved = localStorage.getItem(THEME_KEY) as Theme | null;
-    if (saved === "light" || saved === "dark" || saved === "pink") {
-      return saved;
-    }
-
-    // detect system theme
-    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      return "dark";
-    }
-
-    return FALLBACK;
-  });
-
-  // 2️⃣ Sync theme to DOM + localStorage
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
+    const saved = localStorage.getItem(THEME_KEY) as Theme | null;
+    let initial = FALLBACK;
+
+    if (saved === "light" || saved === "dark" || saved === "pink") {
+      initial = saved;
+    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      initial = "dark";
+    }
+
+    setTheme(initial);
+    setMounted(true);
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  useEffect(() => {
+    if (!mounted) return;
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem(THEME_KEY, theme);
-  }, [theme]);
+  }, [mounted, theme]);
+
+  if (!mounted) return null;
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
