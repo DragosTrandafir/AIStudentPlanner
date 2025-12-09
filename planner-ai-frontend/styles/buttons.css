@@ -1,0 +1,64 @@
+/* ================================================
+   TODAY + ARROWS: Linear-style square buttons
+================================================ */
+
+/* Shared style for Today + Arrow buttons */
+.arrow-button,
+.today-button {
+  background: var(--surface-3);
+  border: 1px solid var(--border-light);
+  padding: 6px 14px;          /* equal padding for consistent height */
+  font-size: 0.9rem;
+  border-radius: 6px;         /* squared, not rounded */
+  cursor: pointer;
+  transition: 0.12s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hover effect (keep your color variables) */
+.arrow-button:hover,
+.today-button:hover {
+  background: var(--surface-1);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Tight grouping: ← Today → look like one component */
+.group-nav > * {
+  border-radius: 0;
+  margin-left: -1px;          /* borders overlap, looks like one piece */
+}
+
+.group-nav > *:first-child {
+  border-radius: 6px 0 0 6px;
+  margin-left: 0;
+}
+
+.group-nav > *:last-child {
+  border-radius: 0 6px 6px 0;
+}
+
+
+/* ================================================
+   ADD TASK BUTTON (unchanged colors, new shape)
+================================================ */
+
+.addtask-button {
+  background: var(--accent);
+  color: var(--text-on-accent, #ffffff);
+  padding: 8px 14px;
+  border-radius: 6px;          /* squared */
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s ease, transform 0.15s ease;
+   border: none !important;      /* 🔥 REMOVE BORDER */
+  outline: none !important;  
+}
+
+.addtask-button:hover {
+  background: var(--accent-hover);
+  transform: scale(1.05);
+}

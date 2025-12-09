@@ -16,15 +16,15 @@ class Feedback(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    ai_task_id: Mapped[Optional[int]] = mapped_column(ForeignKey("ai_tasks.id", ondelete="SET NULL"), nullable=True)
+    plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id", ondelete="CASCADE"), nullable=False)
 
-    rating: Mapped[int] = mapped_column(Integer, nullable=False, default=5)
+    rating: Mapped[int] = mapped_column(Integer, nullable=False)
     comments: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
 
     user: Mapped["User"] = relationship(back_populates="feedbacks")
-    ai_task: Mapped[Optional["AITask"]] = relationship(back_populates="feedback")
+    plan: Mapped["Plan"] = relationship(back_populates="feedback")
 
     def __repr__(self) -> str:
-        return f"Feedback(id={self.id!r}, rating={self.rating!r}, user_id={self.user_id!r})"
+        return f"Feedback(id={self.id!r}, rating={self.rating!r}, user_id={self.user_id!r}, plan_id={self.plan_id!r})"

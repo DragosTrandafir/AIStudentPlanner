@@ -1,9 +1,14 @@
 @import "tailwindcss";
 
-/* 🎨 Base color variables */
 :root {
-  --background: #faebd7; /* Antique White main background */
+  --background: #faebd7;
   --foreground: #171717;
+}
+html, body {
+  height: 100%;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 @theme inline {
@@ -74,4 +79,32 @@ body {
 .fc-timegrid-slot-label {
   color: #312E81 !important;
   font-weight: 500;
+}
+
+:root {
+  --bg: #fff4e7;
+  --fg: #000;
+  --modal-bg: #ffe8d9;
+}
+
+.dark {
+  --bg: #1a1a1a;
+  --fg: #fff;
+  --modal-bg: #2a2a2a;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+/* =============================
+   FIX: Prevent global styles from overriding calendar buttons
+============================= */
+
+button.calendar-btn {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
