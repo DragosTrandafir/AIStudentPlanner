@@ -3,6 +3,7 @@ import { USER_ID } from "./apiSubjects";
 const BASE_URL = "http://localhost:8000";
 
 export interface AITaskEntry {
+  id?: number;  // AI task database ID
   time_allotted: string;
   ai_task_name: string;
   task_name: string;  // subject name
@@ -11,6 +12,7 @@ export interface AITaskEntry {
 }
 
 export interface PlanResponse {
+  id?: number;  // Plan database ID
   plan_date: string;
   entries: AITaskEntry[];
   notes: string | null;
@@ -76,5 +78,33 @@ export async function getPlanHistory(): Promise<PlanResponse[]> {
   }
 
   return res.json();
+}
+
+/**
+ * Delete an AI task from a plan.
+ */
+export async function deleteAiTask(planId: number, aiTaskId: number): Promise<void> {
+  const res = await fetch(`${BASE_URL}/plans/${planId}/ai-tasks/${aiTaskId}`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) {
+    const msg = await res.text();
+    throw new Error("Failed to delete AI task: " + msg);
+  }
+}
+
+/**
+ * Delete an entire plan.
+ */
+export async function deletePlan(planId: number): Promise<void> {
+  const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans/${planId}`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) {
+    const msg = await res.text();
+    throw new Error("Failed to delete plan: " + msg);
+  }
 }
 

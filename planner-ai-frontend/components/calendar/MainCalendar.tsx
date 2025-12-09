@@ -20,7 +20,7 @@ import { AITask } from "@/types/AITask";
 import "@/styles/calendar.css";
 import { getSubjects, deleteSubject } from "@/lib/apiSubjects";
 import { mapSubjectToTask } from "@/utils/subjectMapper";
-import { generatePlan, getPlans, PlanResponse } from "@/lib/apiPlans";
+import { generatePlan, getPlans, PlanResponse, deleteAiTask } from "@/lib/apiPlans";
 
 
 
@@ -209,15 +209,15 @@ function mapPlansToAiTasks(plans: PlanResponse[]): AITask[] {
   };
 
   const mapped: AITask[] = [];
-  let idCounter = 0;
 
   for (const plan of plans) {
     const planDate = new Date(plan.plan_date);
 
     for (const entry of plan.entries) {
-      idCounter++;
       mapped.push({
-        id: `ai-task-${idCounter}`,
+        id: `ai-task-${plan.id}-${entry.id}`,
+        db_id: entry.id,  // Database ID for deletion
+        plan_id: plan.id,  // Plan ID for deletion
         time_allotted: entry.time_allotted,
         ai_task_name: entry.ai_task_name,
         subject_name: entry.task_name, // task_name is the subject name from backend
@@ -259,8 +259,25 @@ function regenerateAIPlan(feedback: string) {
   alert("Regeneration with feedback will be added later!");
 }
 
+// Delete an AI task
+async function handleDeleteAiTask(aiTask: AITask) {
+  if (!aiTask.plan_id || !aiTask.db_id) {
+    alert("Cannot delete this AI task - missing ID information");
+    return;
+  }
 
+  if (!confirm(`Delete "${aiTask.ai_task_name}"?`)) {
+    return;
+  }
 
+  try {
+    await deleteAiTask(aiTask.plan_id, aiTask.db_id);
+    setAiTasks((prev) => prev.filter((t) => t.id !== aiTask.id));
+  } catch (err) {
+    console.error("Failed to delete AI task:", err);
+    alert("Failed to delete AI task.");
+  }
+}
 
 
   /* =====================================================
@@ -438,10 +455,21 @@ function regenerateAIPlan(feedback: string) {
                             style={{
                               backgroundColor: aiTask.color || "#95E1D3",
                             }}
-                            title={`${aiTask.ai_task_name} (${aiTask.time_allotted}) - ${aiTask.subject_name}`}
+                            title={`${aiTask.ai_task_name} (${aiTask.time_allotted}) - ${aiTask.subject_name}\nClick × to delete`}
+                            onClick={(e) => e.stopPropagation()}
                           >
                             <span className="ai-task-time">{aiTask.time_allotted.split("–")[0]}</span>
                             <span className="ai-task-name">{aiTask.ai_task_name}</span>
+                            <button
+                              className="ai-task-delete-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteAiTask(aiTask);
+                              }}
+                              title="Delete this AI task"
+                            >
+                              ×
+                            </button>
                           </div>
                         ))}
                       </div>

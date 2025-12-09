@@ -1,5 +1,7 @@
 export interface AITask {
   id: string;
+  db_id?: number;  // Database ID for deletion
+  plan_id?: number;  // Plan ID for deletion
   time_allotted: string;
   ai_task_name: string;
   subject_name: string;

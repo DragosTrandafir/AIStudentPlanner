@@ -29,6 +29,7 @@ class PlanUpdateRequest(BaseModel):
 
 class AITaskEntry(BaseModel):
     """Represents an AI Task entry in a plan."""
+    id: int  # AI task database ID
     time_allotted: str
     ai_task_name: str
     task_name: str
@@ -38,6 +39,7 @@ class AITaskEntry(BaseModel):
     @classmethod
     def from_ai_task(cls, ai_task):
         return cls(
+            id=ai_task.id,
             time_allotted=ai_task.time_allotted,
             ai_task_name=ai_task.ai_task_name,
             task_name=ai_task.subject.name,
@@ -48,6 +50,7 @@ class AITaskEntry(BaseModel):
 
 class PlanResponse(BaseModel):
     """Plan response with date, entries, and notes only (no IDs)."""
+    id: int  # Plan database ID
     plan_date: date
     entries: List[AITaskEntry]
     notes: Optional[str]
@@ -59,6 +62,7 @@ class PlanResponse(BaseModel):
     def from_plan(cls, plan):
         """Custom constructor to include entries from ai_tasks."""
         return cls(
+            id=plan.id,
             plan_date=plan.plan_date,
             entries=[AITaskEntry.from_ai_task(task) for task in plan.ai_tasks],
             notes=plan.notes,
