@@ -73,25 +73,43 @@ export default function TaskDetailsModal({
             </span>
           </div>
 
+          {/* Show priority for AI tasks */}
+          {task.isAiTask && task.priority && (
+            <div className="taskdetails-row">
+              <span className="taskdetails-label">Priority:</span>
+              <span className="taskdetails-tag">{task.priority}/10</span>
+            </div>
+          )}
+
           {task.description && (
             <div className="taskdetails-description">
               <span className="taskdetails-label">Description:</span>
               <p className="taskdetails-description-text">{task.description}</p>
             </div>
           )}
+
+          {/* AI Task indicator */}
+          {task.isAiTask && (
+            <div className="taskdetails-ai-badge">
+              🤖 AI Generated Study Task
+            </div>
+          )}
         </div>
 
         {/* FOOTER BUTTONS */}
         <div className="taskdetails-footer">
-          <button
-            className="taskdetails-btn edit"
-            onClick={() => {
-              onClose();
-              onEdit(task);
-            }}
-          >
-            ✏ Edit
-          </button>
+          {/* Only show Edit button for non-AI tasks */}
+          {!task.isAiTask && (
+            <button
+              className="taskdetails-btn edit"
+              onClick={() => {
+                onClose();
+                onEdit(task);
+              }}
+            >
+              ✏ Edit
+            </button>
+          )}
 
           <button
             className="taskdetails-btn delete"

@@ -13,30 +13,33 @@ import React, { useState, useMemo, useEffect } from "react";
 
 import { getMonthMatrix, isSameDay } from "@/utils/dateUtils";
 import { Task } from "@/types/Task";
-import { AITask } from "@/types/AITask";
 //import { useTheme } from "@/components/context/ThemeContext";
 
 
 import "@/styles/calendar.css";
 import { getSubjects, deleteSubject } from "@/lib/apiSubjects";
 import { mapSubjectToTask } from "@/utils/subjectMapper";
-import { generatePlan, getPlans, PlanResponse, deleteAiTask } from "@/lib/apiPlans";
+import { generatePlan, getPlans, deleteAiTask } from "@/lib/apiPlans";
+import { mapPlansToTasks } from "@/utils/aiTaskMapper";
 
 
 
 export default function MainCalendar() {
   const today = new Date();
   // ---------------- LOAD TASKS FROM BACKEND ----------------
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [aiTasks, setAiTasks] = useState<AITask[]>([]);
+  const [subjectTasks, setSubjectTasks] = useState<Task[]>([]);
+  const [aiTasks, setAiTasks] = useState<Task[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Combined tasks for display
+  const tasks = useMemo(() => [...subjectTasks, ...aiTasks], [subjectTasks, aiTasks]);
 
   useEffect(() => {
     async function load() {
       try {
         const subjects = await getSubjects();
         const mapped = subjects.map(mapSubjectToTask);
-        setTasks(mapped);
+        setSubjectTasks(mapped);
       } catch (err) {
         console.error("Failed loading subjects", err);
       }
@@ -50,7 +53,7 @@ export default function MainCalendar() {
     async function loadPlans() {
       try {
         const plans = await getPlans();
-        const mappedAiTasks = mapPlansToAiTasks(plans);
+        const mappedAiTasks = mapPlansToTasks(plans);
         setAiTasks(mappedAiTasks);
       } catch (err) {
         console.error("Failed loading plans", err);
@@ -82,11 +85,12 @@ export default function MainCalendar() {
 
 
   /* ---------------- COLORS ---------------- */
-  const typeColors = {
+  const typeColors: Record<string, string> = {
     Assignment: "#F4C2C2",
     Project: "#90EE90",
     "Written Exam": "#87CEFA",
     "Practical Exam": "#FFB6C1",
+    "AI Study Task": "#95E1D3",
   };
 
   /* ---------------- MONTH EVENT MAP ---------------- */
@@ -108,19 +112,6 @@ export default function MainCalendar() {
     return map;
   }, [tasks]);
 
-  /* ---------------- AI TASKS EVENT MAP ---------------- */
-  const aiTasksMap = useMemo(() => {
-    const map = new Map<string, AITask[]>();
-
-    for (const t of aiTasks) {
-      const d = new Date(t.date);
-      const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(t);
-    }
-
-    return map;
-  }, [aiTasks]);
 
   /* ---------------- NAVIGATION ---------------- */
   const next = () => {
@@ -162,31 +153,50 @@ export default function MainCalendar() {
 
   /* ---------------- SAVE TASK ---------------- */
   function handleSaveTask(task: Task) {
-  setTasks(prev => {
-    const idx = prev.findIndex(t => t.id === task.id);
-    if (idx >= 0) {
-      const copy = [...prev];
-      copy[idx] = task;   // 🔥 UPDATE in place
-      return copy;
+    // Only save subject tasks (not AI tasks)
+    if (task.isAiTask) {
+      // For now, AI tasks are read-only from the generation
+      return;
     }
-    return [...prev, task]; // 🔥 NEW
-  });
-}
 
-
+    setSubjectTasks(prev => {
+      const idx = prev.findIndex(t => t.id === task.id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = task;
+        return copy;
+      }
+      return [...prev, task];
+    });
+  }
 
   /* ---------------- DELETE TASK ---------------- */
   async function handleDelete(id: number) {
-  try {
-    await deleteSubject(id);
+    // Find the task to check if it's an AI task
+    const task = tasks.find(t => t.id === id);
 
-    setTasks((prev) => prev.filter((t) => t.id !== id));
-    setSelectedTask(null);
-  } catch (err) {
-    console.error(err);
-    alert("Failed to delete task.");
+    if (task?.isAiTask && task.planId && task.aiTaskId) {
+      // Delete AI task
+      try {
+        await deleteAiTask(task.planId, task.aiTaskId);
+        setAiTasks((prev) => prev.filter((t) => t.id !== id));
+        setSelectedTask(null);
+      } catch (err) {
+        console.error(err);
+        alert("Failed to delete AI task.");
+      }
+    } else {
+      // Delete subject task
+      try {
+        await deleteSubject(id);
+        setSubjectTasks((prev) => prev.filter((t) => t.id !== id));
+        setSelectedTask(null);
+      } catch (err) {
+        console.error(err);
+        alert("Failed to delete task.");
+      }
+    }
   }
-}
 
 /* ---------------- ADD / EDIT MODAL STATE ---------------- */
 const [showAddModal, setShowAddModal] = useState(false);
@@ -198,40 +208,6 @@ const openAddTaskModal = () => {
   setShowAddModal(true); 
 };
 
-// Helper function to map plans to AI tasks for calendar display
-function mapPlansToAiTasks(plans: PlanResponse[]): AITask[] {
-  const aiTaskColors: Record<number, string> = {
-    1: "#FF6B6B", // High priority - red
-    2: "#FFB84D", // orange
-    3: "#FFE66D", // yellow
-    4: "#4ECDC4", // teal
-    5: "#95E1D3", // light green
-  };
-
-  const mapped: AITask[] = [];
-
-  for (const plan of plans) {
-    const planDate = new Date(plan.plan_date);
-
-    for (const entry of plan.entries) {
-      mapped.push({
-        id: `ai-task-${plan.id}-${entry.id}`,
-        db_id: entry.id,  // Database ID for deletion
-        plan_id: plan.id,  // Plan ID for deletion
-        time_allotted: entry.time_allotted,
-        ai_task_name: entry.ai_task_name,
-        subject_name: entry.task_name, // task_name is the subject name from backend
-        difficulty: entry.difficulty,
-        priority: entry.priority,
-        date: planDate,
-        color: aiTaskColors[Math.min(entry.priority, 5)] || "#95E1D3",
-      });
-    }
-  }
-
-  return mapped;
-}
-
 // --- AI PLAN GENERATION ---
 async function generateAIPlan() {
   console.log("AI Generate Plan triggered!");
@@ -241,8 +217,8 @@ async function generateAIPlan() {
     const response = await generatePlan();
     console.log("Generated plan:", response);
 
-    // Map the generated plans to AI tasks for display
-    const mappedAiTasks = mapPlansToAiTasks(response.plans);
+    // Map the generated plans to Task objects for display
+    const mappedAiTasks = mapPlansToTasks(response.plans);
     setAiTasks(mappedAiTasks);
 
     alert(`${response.message}`);
@@ -259,25 +235,6 @@ function regenerateAIPlan(feedback: string) {
   alert("Regeneration with feedback will be added later!");
 }
 
-// Delete an AI task
-async function handleDeleteAiTask(aiTask: AITask) {
-  if (!aiTask.plan_id || !aiTask.db_id) {
-    alert("Cannot delete this AI task - missing ID information");
-    return;
-  }
-
-  if (!confirm(`Delete "${aiTask.ai_task_name}"?`)) {
-    return;
-  }
-
-  try {
-    await deleteAiTask(aiTask.plan_id, aiTask.db_id);
-    setAiTasks((prev) => prev.filter((t) => t.id !== aiTask.id));
-  } catch (err) {
-    console.error("Failed to delete AI task:", err);
-    alert("Failed to delete AI task.");
-  }
-}
 
 
   /* =====================================================
@@ -332,7 +289,6 @@ async function handleDeleteAiTask(aiTask: AITask) {
                 week.map((day, di) => {
                   const key = `${day.getFullYear()}-${day.getMonth()}-${day.getDate()}`;
                   const events = monthEvents.get(key) ?? [];
-                  const dayAiTasks = aiTasksMap.get(key) ?? [];
 
                   const inMonth = day.getMonth() === currentMonth.getMonth();
                   const selected = isSameDay(day, selectedDate);
@@ -430,7 +386,7 @@ async function handleDeleteAiTask(aiTask: AITask) {
                                     width: `calc(${span * 100}% + ${
                                       (span - 1) * 6
                                     }px)`,
-                                    backgroundColor: typeColors[ev.type],
+                                    backgroundColor: ev.color || typeColors[ev.type] || "#ccc",
                                   }}
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -446,34 +402,6 @@ async function handleDeleteAiTask(aiTask: AITask) {
                       </div>
                       {/* ================== END FIX ================== */}
 
-                      {/* ================== AI TASKS ================== */}
-                      <div className="ai-task-container">
-                        {dayAiTasks.map((aiTask) => (
-                          <div
-                            key={aiTask.id}
-                            className="ai-task-pill"
-                            style={{
-                              backgroundColor: aiTask.color || "#95E1D3",
-                            }}
-                            title={`${aiTask.ai_task_name} (${aiTask.time_allotted}) - ${aiTask.subject_name}\nClick × to delete`}
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <span className="ai-task-time">{aiTask.time_allotted.split("–")[0]}</span>
-                            <span className="ai-task-name">{aiTask.ai_task_name}</span>
-                            <button
-                              className="ai-task-delete-btn"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteAiTask(aiTask);
-                              }}
-                              title="Delete this AI task"
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                      {/* ================== END AI TASKS ================== */}
 
                     </div>
                   );
