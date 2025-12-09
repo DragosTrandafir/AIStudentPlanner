@@ -1,0 +1,80 @@
+import { USER_ID } from "./apiSubjects";
+
+const BASE_URL = "http://localhost:8000";
+
+export interface AITaskEntry {
+  time_allotted: string;
+  ai_task_name: string;
+  task_name: string;  // subject name
+  difficulty: number;
+  priority: number;
+}
+
+export interface PlanResponse {
+  plan_date: string;
+  entries: AITaskEntry[];
+  notes: string | null;
+}
+
+export interface GeneratedPlanResponse {
+  plans: PlanResponse[];
+  message: string;
+}
+
+/**
+ * Generate an AI plan for the user based on their subjects.
+ * This calls the AI orchestrator to create study tasks.
+ */
+export async function generatePlan(): Promise<GeneratedPlanResponse> {
+  const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans/generate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  if (!res.ok) {
+    const msg = await res.text();
+    throw new Error("Failed to generate plan: " + msg);
+  }
+
+  return res.json();
+}
+
+/**
+ * Get all plans for the user.
+ */
+export async function getPlans(): Promise<PlanResponse[]> {
+  const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans`);
+
+  if (!res.ok) {
+    throw new Error("Failed to load plans");
+  }
+
+  return res.json();
+}
+
+/**
+ * Get the latest plan for the user.
+ */
+export async function getLatestPlan(): Promise<PlanResponse> {
+  const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans/latest`);
+
+  if (!res.ok) {
+    throw new Error("Failed to load latest plan");
+  }
+
+  return res.json();
+}
+
+/**
+ * Get plan history for the user.
+ */
+export async function getPlanHistory(): Promise<PlanResponse[]> {
+  const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans/history`);
+
+  if (!res.ok) {
+    throw new Error("Failed to load plan history");
+  }
+
+  return res.json();
+}
+

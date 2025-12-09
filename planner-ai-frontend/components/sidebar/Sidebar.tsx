@@ -16,6 +16,7 @@ interface SidebarProps {
   onGeneratePlan?: () => void;
   onRegeneratePlan?: (feedback: string) => void;
   canRegenerate?: boolean;
+  isGenerating?: boolean;
 }
 
 export default function Sidebar({
@@ -25,6 +26,7 @@ export default function Sidebar({
   onGeneratePlan,
   onRegeneratePlan,
   //canRegenerate = false,
+  isGenerating = false,
 }: SidebarProps) {
   const { theme, setTheme } = useTheme();
 
@@ -89,8 +91,9 @@ export default function Sidebar({
         <button
           className="ai-generate-btn"
           onClick={onGeneratePlan}
+          disabled={isGenerating}
         >
-          ⚡ Generate Plan
+          {isGenerating ? "⏳ Generating..." : "⚡ Generate Plan"}
         </button>
 
       
