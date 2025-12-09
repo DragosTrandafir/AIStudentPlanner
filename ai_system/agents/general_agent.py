@@ -11,7 +11,6 @@ class CalendarAgent(BaseAgent):
     def __init__(self, token, model, date):
         super().__init__(token, model)
         self.date=date
-        #self.feedback=feedback this needs to be added later
 
     def propose_agent_plan(self, plans):
 
