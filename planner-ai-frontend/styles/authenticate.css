@@ -17,7 +17,7 @@
     #fbfbfb,
     #031a58
     
-  ); /* 🔵 albastru royal */
+  ); 
 
   z-index: 9999;
 }
@@ -34,7 +34,7 @@
 }
 
 /* =========================
-   LEFT PANEL (BLUE)
+   LEFT PANEL 
    ========================= */
 
 .login-left {
@@ -87,7 +87,7 @@
   max-width: 260px;
 }
 
-/* Register button (different font) */
+/* Register button */
 .register-btn {
   width: 180px;
   padding: 12px 0;
@@ -109,7 +109,6 @@
   background: #ffffff;
   color: #2f66f3;
 }
-
 
 
 /* Decorative shapes */
@@ -141,7 +140,7 @@
 }
 
 /* =========================
-   RIGHT PANEL (FORM)
+   RIGHT PANEL s(FORM)
    ========================= */
 
 .login-right {
@@ -247,7 +246,7 @@
 }
 
 .register-title {
-  font-size: 30px;       /* Welcome back = 36px */
+  font-size: 30px;      
   font-weight: 600;
   margin-bottom: 12px;
 }
@@ -276,13 +275,12 @@
   color: rgba(255, 255, 255, 0.9);
   text-align: center;
 
-  /* 🔥 ASTA REZOLVĂ PROBLEMA */
   max-width: none;
   white-space: nowrap;
 }
 
 /* PASSWORD FIELD WITH TOGGLE */
-/* PASSWORD FIELD WITH TOGGLE */
+
 .password-wrapper {
   display: flex;
   align-items: center;
@@ -292,9 +290,8 @@
   background: #fff;
   margin-bottom: 16px;
 
-  padding-right: 0; /* ✅ FIX */
+  padding-right: 0;
 }
-
 
 .password-wrapper input {
   border: none;
@@ -303,9 +300,8 @@
   padding: 13px 14px;
   font-size: 14px;
   background: transparent;
-  margin-bottom: 0; /* ✅ FIX */
+  margin-bottom: 0; 
 }
-
 
 .password-wrapper input:focus {
   border-color: #2563eb;
@@ -314,7 +310,7 @@
 .password-toggle {
   width: 40px;
   height: 40px;
-  margin-right: 4px;   /* tiny breathing room */
+  margin-right: 4px;   
   border-radius: 8px;
   border: none;
   background: transparent;
@@ -328,11 +324,9 @@
   transition: background 0.2s ease, color 0.2s ease;
 }
 
-
 .password-toggle:hover {
   background: rgba(75, 108, 183, 0.12);
 }
-
 
 .form-error {
   color: #dc2626;
