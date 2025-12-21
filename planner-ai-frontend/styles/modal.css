@@ -59,7 +59,11 @@
 .side-modal-content {
   padding: 22px;
   overflow-y: auto;
+  overflow-x: visible;
+  position: relative;
 }
+
+
 
 /* 2-column layout */
 .form-grid {
@@ -124,4 +128,50 @@
 @keyframes slideIn {
   from { transform: translateX(100%); }
   to { transform: translateX(0); }
+}
+
+/* ============================
+   REACT DATEPICKER – DARK THEME FIX
+   Fix white time column
+============================ */
+
+/* Entire picker */
+.react-datepicker {
+  background: var(--surface-2);
+  color: var(--text-main);
+  border: 1px solid var(--border-main);
+}
+
+/* Time container */
+.react-datepicker__time-container {
+  background: var(--surface-2);
+  border-left: 1px solid var(--border-main);
+}
+
+/* Time box */
+.react-datepicker__time-box {
+  background: var(--surface-2);
+}
+
+/* Time list (THIS was the white strip) */
+.react-datepicker__time-list {
+  background: var(--surface-2);
+  color: var(--text-main);
+}
+
+/* Individual time items */
+.react-datepicker__time-list-item {
+  background: var(--surface-2);
+  color: var(--text-main);
+}
+
+/* Hover state */
+.react-datepicker__time-list-item:hover {
+  background: var(--surface-3);
+}
+
+/* Selected time */
+.react-datepicker__time-list-item--selected {
+  background: var(--accent) !important;
+  color: var(--text-on-accent) !important;
 }

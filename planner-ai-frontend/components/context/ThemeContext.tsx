@@ -18,7 +18,7 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 const THEME_KEY = "app:theme";
-const FALLBACK: Theme = "pink";
+const FALLBACK: Theme = "light";
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(FALLBACK);
@@ -31,9 +31,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
     if (saved === "light" || saved === "dark" || saved === "pink") {
       initial = saved;
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      initial = "dark";
-    }
+    } 
 
     setTheme(initial);
     setMounted(true);
