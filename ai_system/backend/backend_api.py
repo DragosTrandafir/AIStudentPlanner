@@ -47,7 +47,7 @@ class BackendAPI:
         return {"tasks": tasks}
 
     def get_current_and_last_feedback(self, user_id: int) -> Dict[str, Any]:
-        current_feedback = "Do not include any learning activity between 10 and 12 a.m."
+        current_feedback = "Do not include any learning activity between 10 and 12 a.m., reschedule them in the evening."
         last_feedback = "Make the schedule more efficient"
         return {"feedback": current_feedback, "last_feedback": last_feedback}
 
@@ -55,7 +55,7 @@ class BackendAPI:
         last_schedule = {
             "calendar": [
                 {
-                    "date": "2025-11-24",
+                    "date": "2026-01-10",
                     "entries": [
                         {
                             "time_allotted": "18:00–20:00",
@@ -75,7 +75,7 @@ class BackendAPI:
                     "notes": "High priority tasks for both exams."
                 },
                 {
-                    "date": "2025-11-25",
+                    "date": "2026-01-11",
                     "entries": [
                         {
                             "time_allotted": "09:00–11:00",
@@ -109,7 +109,7 @@ class BackendAPI:
                     "notes": "Continuing high priority tasks for both exams."
                 },
                 {
-                    "date": "2025-11-26",
+                    "date": "2026-01-12",
                     "entries": [
                         {
                             "time_allotted": "09:00–11:00",
@@ -143,7 +143,7 @@ class BackendAPI:
                     "notes": "Final tasks for both exams, ensuring completion before deadlines."
                 },
                 {
-                    "date": "2025-11-27",
+                    "date": "2026-01-13",
                     "entries": [
                         {
                             "time_allotted": "09:00–11:00",
@@ -156,12 +156,12 @@ class BackendAPI:
                     "notes": "Final review for PDE exam, ensuring all topics are covered. No tasks after 15:30."
                 },
                 {
-                    "date": "2025-11-28",
+                    "date": "2026-01-14",
                     "entries": [],
                     "notes": "Rest day before OOP exam."
                 },
                 {
-                    "date": "2025-11-29",
+                    "date": "2026-01-15",
                     "entries": [
                         {
                             "time_allotted": "09:00–11:00",
