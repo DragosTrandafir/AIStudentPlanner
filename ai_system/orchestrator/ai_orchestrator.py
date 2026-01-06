@@ -11,10 +11,10 @@ from ai_system.agents.general_agent import CalendarAgent
 from ai_system.agents.math_agent import MathAgent
 from ai_system.backend.backend_api import BackendAPI
 
-# -----------------------------------------------------------
-# Config din .env
-# -----------------------------------------------------------
+from concurrent.futures import ThreadPoolExecutor
 
+
+# Config din .env
 load_dotenv()
 
 HF_TOKEN_1 = os.getenv("HF_TOKEN_1")
@@ -23,27 +23,9 @@ CUSTOM_AGENT_MODEL = os.getenv("CUSTOM_AGENT_MODEL")
 CALENDAR_AGENT_MODEL = os.getenv("CALENDAR_AGENT_MODEL")
 BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL", "http://localhost:8000")
 
-# fallback simplu dacă lipsesc env-urile, ca să nu crape direct
-if HF_TOKEN_1 is None:
-    print("[AiOrchestrator] WARNING: HF_TOKEN is not set in environment.")
-if CUSTOM_AGENT_MODEL is None:
-    print("[AiOrchestrator] WARNING: CUSTOM_AGENT_MODEL is not set in environment.")
 
-
-# -----------------------------------------------------------
 # Orchestrator
-# -----------------------------------------------------------
-
 class AiOrchestrator:
-    """
-    Coordonatorul AI:
-    - primește de la backend toate task-urile (examene / proiecte)
-    - alege agentul corect (Math / CS)
-    - cheamă LLM-ul prin agent
-    - combină planurile într-un JSON final (inclusiv un pseudo-calendar)
-    - trimite planul înapoi la backend
-    """
-
     def __init__(
             self,
             hf_token: Optional[str] = None,
@@ -68,16 +50,11 @@ class AiOrchestrator:
         self.cs_agent = CSAgent(self.hf_token_1, self.custom_model_name)
         self.general_agent = CalendarAgent(self.hf_token_2, self.calendar_model_name, datetime.now())
 
-    def generate_plan_for_user(self, user_id, save_to_backend: bool = True) -> Dict[str, Any]:
-        """
-        Flux principal:
-        1) cere la backend toate task-urile pentru user
-        2) cere feedback (nu îl folosim încă în mod avansat, doar îl atașăm)
-        3) rulează agenții pe fiecare task
-        4) combină rezultatele într-un plan unic + blocuri de studiu
-        5) opțional, salvează planul în backend
-        """
+    def _process_single_task(self, task: Dict[str, Any]):
+        agent = self._select_agent_for_task(task)
+        return self._run_agent_on_task(agent, task)
 
+    def generate_plan_for_user(self, user_id, save_to_backend: bool = True) -> Dict[str, Any]:
         try:
             user_data = self.backend.get_user_data(user_id)
         except Exception as e:
@@ -88,8 +65,8 @@ class AiOrchestrator:
                         "id": 1,
                         "title": "OOP practic",
                         "subject_name/project_name": "Object-Oriented Programming",
-                        "start_datetime": "2025-11-23T09:00:00",
-                        "end_datetime": "2025-11-23T11:00:00",
+                        "start_datetime": "2026-01-23T09:00:00",
+                        "end_datetime": "2026-01-23T11:00:00",
                         "type": "Practical Exam",
                         "difficulty": 5,
                         "description": "I did not understand anything during the semester.",
@@ -99,8 +76,8 @@ class AiOrchestrator:
                         "id": 2,
                         "title": "PDE scris",
                         "subject_name/project_name": "Partial Differential Equations",
-                        "start_datetime": "2025-11-19T12:00:00",
-                        "end_datetime": "2025-11-19T15:00:00",
+                        "start_datetime": "2026-01-19T12:00:00",
+                        "end_datetime": "2026-01-19T15:00:00",
                         "type": "Written Exam",
                         "difficulty": 5,
                         "description": "I solved everything with ChatGPT.",
@@ -110,8 +87,8 @@ class AiOrchestrator:
                         "id": 3,
                         "title": "OOP Final Project",
                         "subject_name/project_name": "Object-Oriented Programming",
-                        "start_datetime": "2025-12-25T10:00:00",
-                        "end_datetime": "2025-12-27T12:00:00",
+                        "start_datetime": "2026-01-25T10:00:00",
+                        "end_datetime": "2026-01-27T12:00:00",
                         "type": "Project",
                         "difficulty": 4,
                         "description": "Large OOP project with multiple design patterns.",
@@ -122,8 +99,8 @@ class AiOrchestrator:
                         "id": 4,
                         "title": "PDE Project",
                         "subject_name/project_name": "Partial Differential Equations",
-                        "start_datetime": "2025-12-20T10:00:00",
-                        "end_datetime": "2025-12-22T12:00:00",
+                        "start_datetime": "2026-01-20T10:00:00",
+                        "end_datetime": "2026-01-22T12:00:00",
                         "type": "Project",
                         "difficulty": 3,
                         "description": "Short mathematics project on PDEs with a few problems and a small report.",
@@ -132,24 +109,13 @@ class AiOrchestrator:
                 ]
             }
 
-        try:
-            feedback = self.backend.get_feedback(user_id)
-        except Exception as e:
-            print(f"[AiOrchestrator] Backend feedback unavailable, skipping. ({e})")
-            feedback = {}
-
         tasks_input: List[Dict[str, Any]] = (
             user_data.get("tasks")
         )
 
-        print(f"Tasks input: {tasks_input}")
-
-        plans = []
-
-        for task in tasks_input:
-            agent = self._select_agent_for_task(task)  # kept
-            agent_plan = self._run_agent_on_task(agent, task)  # kept
-            plans.append(agent_plan)
+        max_workers = min(8, len(tasks_input))  # safe default for HF APIs
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            plans = list(executor.map(self._process_single_task, tasks_input))
 
         print(plans)
 
@@ -161,15 +127,11 @@ class AiOrchestrator:
             try:
                 self.backend.save_plan(user_id, final_plan)
             except Exception as exc:
-                # nu omorâm orchestratorul dacă e o problemă de rețea
                 print(f"[AiOrchestrator] WARNING: failed to save plan to backend: {exc}")
 
         return final_plan
 
-    # -------------------------------------------------------
     # Alegerea agentului
-    # -------------------------------------------------------
-
     def _select_agent_for_task(self, task: Dict[str, Any]) -> Any:
         """
         Heuristic simplu:
@@ -199,10 +161,7 @@ class AiOrchestrator:
 
         return self.cs_agent
 
-    # -------------------------------------------------------
     # Rulare agent
-    # -------------------------------------------------------
-
     def _run_agent_on_task(self, agent, task):
         try:
             raw_response = agent.propose_agent_plan(task)

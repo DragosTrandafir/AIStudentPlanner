@@ -34,19 +34,19 @@ def propose_plan(task, general_university_type, client):
     # Define a configuration map for all possible (exam type, university type) pairs
     # Keys use lowercase type values to match backend enums: "written", "practical", "project"
     prompt_map = {
-        ("practical", "Computer Science"): (
+        ("practical exam", "Computer Science"): (
             get_practical_exam_heuristics_cs,
             get_practical_exam_example_cs,
         ),
-        ("practical", "Mathematics"): (
+        ("practical exam", "Mathematics"): (
             get_practical_exam_heuristics_math,
             get_practical_exam_example_math,
         ),
-        ("written", "Computer Science"): (
+        ("written exam", "Computer Science"): (
             get_written_exam_heuristics_cs,
             get_written_exam_example_cs,
         ),
-        ("written", "Mathematics"): (
+        ("written exam", "Mathematics"): (
             get_written_exam_heuristics_math,
             get_written_exam_example_math,
         ),
