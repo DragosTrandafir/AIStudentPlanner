@@ -48,29 +48,33 @@ class BackendAPI:
 
     def get_current_and_last_feedback(self, user_id: int) -> Dict[str, Any]:
         """
-        Get current feedback and last feedback from the last two schedules.
-        Returns feedback for the latest 2 generations (schedules).
+        Get the last 2 feedbacks for a user.
+        Returns: {
+            "current_feedback": feedback from latest schedule,
+            "last_feedback": feedback from second latest schedule (if exists)
+        }
         """
-        url = f"{self.base_url}/users/{user_id}/feedback/last-two-schedules"
+        url = f"{self.base_url}/users/{user_id}/feedback/latest"
         
         try:
             response = requests.get(url)
             if response.status_code != 200:
-                raise Exception(f"Failed to fetch feedback: {response.status_code}")
+                raise Exception(f"Failed to fetch latest feedbacks: {response.status_code}")
             
-            data = response.json()  # {current_feedback, last_feedback}
+            feedbacks = response.json()  # List of last 2 feedbacks
             
             # Map to orchestrator format
             result = {}
-            if data.get("current_feedback"):
-                fb = data["current_feedback"]
+            if feedbacks and len(feedbacks) > 0:
+                fb = feedbacks[0]  # Latest feedback
                 result["current_feedback"] = {
                     "created_at": fb.get("created_at"),
                     "text": fb.get("comments", ""),
                     "rating": fb.get("rating"),
                 }
-            if data.get("last_feedback"):
-                fb = data["last_feedback"]
+            
+            if feedbacks and len(feedbacks) > 1:
+                fb = feedbacks[1]  # Second latest feedback
                 result["last_feedback"] = {
                     "created_at": fb.get("created_at"),
                     "text": fb.get("comments", ""),
@@ -79,7 +83,7 @@ class BackendAPI:
             
             return result
         except Exception as e:
-            print(f"[BackendAPI] Warning: Could not fetch feedback: {e}")
+            print(f"[BackendAPI] Warning: Could not fetch latest feedback: {e}")
             return {}
 
     def get_latest_schedule(self, user_id: int) -> Dict[str, Any]:
