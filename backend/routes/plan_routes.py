@@ -152,60 +152,6 @@ class LastTwoSchedulesResponse(BaseModel):
     last_schedule: Optional[ScheduleWithFeedback] = None
 
 
-@router.get("/last-two-schedules", response_model=LastTwoSchedulesResponse)
-def get_last_two_schedules(user_id: int):
-    """Get the last two schedules with their feedback."""
-    from backend.repository.feedback_repository import FeedbackRepository
-    
-    with get_session() as session:
-        user_repo = UserRepository(session)
-        
-        # Check if user exists
-        if not user_repo.get(user_id):
-            raise HTTPException(status_code=404, detail="User not found")
-        
-        plan_repo = PlanRepository(session)
-        feedback_repo = FeedbackRepository(session)
-        service = PlanService(plan_repo, user_repo)
-        
-        # Get last two schedules
-        latest_plans, second_latest_plans = plan_repo.get_last_two_generations(user_id)
-        
-        current_schedule = None
-        last_schedule = None
-        
-        if latest_plans:
-            generation_id = latest_plans[0].generation_id
-            feedback = feedback_repo.get_feedback_for_generation(user_id, generation_id)
-            current_schedule = ScheduleWithFeedback(
-                plans=[PlanResponse.from_plan(p) for p in latest_plans],
-                feedback={
-                    "id": feedback.id,
-                    "rating": feedback.rating,
-                    "comments": feedback.comments,
-                    "created_at": feedback.created_at.isoformat(),
-                } if feedback else None
-            )
-        
-        if second_latest_plans:
-            generation_id = second_latest_plans[0].generation_id
-            feedback = feedback_repo.get_feedback_for_generation(user_id, generation_id)
-            last_schedule = ScheduleWithFeedback(
-                plans=[PlanResponse.from_plan(p) for p in second_latest_plans],
-                feedback={
-                    "id": feedback.id,
-                    "rating": feedback.rating,
-                    "comments": feedback.comments,
-                    "created_at": feedback.created_at.isoformat(),
-                } if feedback else None
-            )
-        
-        return LastTwoSchedulesResponse(
-            current_schedule=current_schedule,
-            last_schedule=last_schedule
-        )
-
-
 @router.get("/history", response_model=List[PlanResponse])
 def get_plan_history(user_id: int):
     """Get all plans for a specific user."""
@@ -383,11 +329,7 @@ def generate_plan(user_id: int):
                     detail="AI orchestrator failed to generate a valid plan"
                 )
 
-            # Generate a unique generation_id for this schedule
             generation_id = str(uuid4())
-
-            print(f"[generate_plan] AI plan calendar: {ai_plan.get('calendar')}")
-
             created_plans = []
             plan_service = PlanService(plan_repo, user_repo)
             ai_task_service = AITaskService(ai_task_repo, subject_repo, plan_repo)
@@ -406,8 +348,7 @@ def generate_plan(user_id: int):
                 notes = day_plan.get("notes", "")
                 entries = day_plan.get("entries", [])
 
-                # Create plan even if it has no entries (can be empty/rest day)
-                # Always create a NEW plan (don't overwrite existing plans)
+                # Create plan even if it has no entries; always create a NEW plan and don't overwrite existing plans
                 # This preserves plan history and allows iterative refinement
                 try:
                     plan = plan_service.create_plan(
@@ -427,8 +368,6 @@ def generate_plan(user_id: int):
                     subject_name = entry.get("subject_name/project_name", "")
                     difficulty = entry.get("difficulty", 3)
                     priority = entry.get("priority", 5)
-
-                    # Clamp values to valid ranges
                     difficulty = max(1, min(5, difficulty))
                     priority = max(1, min(10, priority))
 
@@ -526,9 +465,7 @@ def reschedule_plan(user_id: int):
                     detail="AI rescheduler failed to generate a valid plan"
                 )
 
-            # Generate a new unique generation_id for this rescheduled schedule
             generation_id = str(uuid4())
-
             created_plans = []
             plan_service = PlanService(plan_repo, user_repo)
             ai_task_service = AITaskService(ai_task_repo, subject_repo, plan_repo)
@@ -547,9 +484,8 @@ def reschedule_plan(user_id: int):
                 notes = day_plan.get("notes", "")
                 entries = day_plan.get("entries", [])
 
-                # Create plan even if it has no entries (can be empty/rest day)
-                # Always create a NEW plan with NEW generation_id (don't overwrite the old one)
-                # This preserves the history and allows users to see the evolution of their schedules
+                # Create plan even if it has no entries; always create a NEW plan and don't overwrite existing plans
+                # This preserves plan history and allows iterative refinement
                 try:
                     plan = plan_service.create_plan(
                         user_id=user_id,
@@ -568,8 +504,6 @@ def reschedule_plan(user_id: int):
                     subject_name = entry.get("subject_name/project_name", "")
                     difficulty = entry.get("difficulty", 3)
                     priority = entry.get("priority", 5)
-
-                    # Clamp values to valid ranges
                     difficulty = max(1, min(5, difficulty))
                     priority = max(1, min(10, priority))
 

@@ -25,10 +25,6 @@ class PlanService:
         if not self.user_repo.get(user_id):
             raise ValueError("User does not exist")
 
-        # Allow multiple plans for the same date
-        # (e.g., when generating multiple versions or rescheduling)
-        # Each plan has a unique ID and can be versioned
-
         plan = Plan()
         plan.user_id = user_id
         plan.plan_date = plan_date
@@ -39,20 +35,8 @@ class PlanService:
         self.plan_repo.session.flush()
         self.plan_repo.session.refresh(plan)
         
-        # Log for debugging
-        print(f"[PlanService] Created plan ID={plan.id} for user={user_id} on date={plan_date} with generation_id={generation_id}")
-        
         return plan
 
-        plan = Plan()
-        plan.user_id = user_id
-        plan.plan_date = plan_date
-        plan.notes = notes
-
-        self.plan_repo.add(plan)
-        self.plan_repo.session.flush()
-        self.plan_repo.session.refresh(plan)
-        return plan
 
     def get_plan(self, plan_id: int) -> Optional[Plan]:
         return self.plan_repo.get(plan_id)
@@ -109,7 +93,3 @@ class PlanService:
     def get_latest_generation(self, user_id: int) -> List[Plan]:
         """Get all plans from the latest generation for a user."""
         return self.plan_repo.get_latest_generation(user_id)
-
-    def get_last_two_generations(self, user_id: int) -> tuple[Optional[List[Plan]], Optional[List[Plan]]]:
-        """Get the last two schedules (generations) for a user. Returns (latest, second_latest)."""
-        return self.plan_repo.get_last_two_generations(user_id)

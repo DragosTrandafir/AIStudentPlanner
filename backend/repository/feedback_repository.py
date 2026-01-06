@@ -24,10 +24,6 @@ class FeedbackRepository(BaseRepository[Feedback]):
         )
         return self.session.scalar(stmt)
 
-    def get_feedback_for_generation(self, user_id: int, generation_id: str) -> Optional[Feedback]:
-        """Get feedback for a specific generation (alias for get_by_generation)."""
-        return self.get_by_generation(user_id, generation_id)
-
     def get_last_two_generation_feedbacks(self, user_id: int) -> tuple[Optional[Feedback], Optional[Feedback]]:
         """Get feedback from the last two schedules (by generation_id)."""
         # Get last 2 unique generation_ids with feedback
