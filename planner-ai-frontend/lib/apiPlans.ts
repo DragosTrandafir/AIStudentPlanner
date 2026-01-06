@@ -16,6 +16,7 @@ export interface PlanResponse {
   plan_date: string;
   entries: AITaskEntry[];
   notes: string | null;
+  generation_id?: string;  // UUID for schedule/generation grouping
 }
 
 export interface GeneratedPlanResponse {
@@ -124,15 +125,21 @@ export async function deletePlan(planId: number): Promise<void> {
 /**
  * Submit feedback for a specific plan.
  */
+/**
+ * Submit feedback for a schedule/generation.
+ * Can provide either generation_id or plan_id.
+ */
 export async function submitFeedback(
-  planId: number,
   rating: number,
-  comments: string
+  comments: string,
+  generationId?: string,
+  planId?: number
 ): Promise<void> {
   const res = await fetch(`${BASE_URL}/users/${USER_ID}/feedback`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
+      generation_id: generationId,
       plan_id: planId,
       rating,
       comments,

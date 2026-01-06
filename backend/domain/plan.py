@@ -23,7 +23,6 @@ class Plan(Base):
 
     user: Mapped["User"] = relationship(back_populates="plans")
     ai_tasks: Mapped[List["AITask"]] = relationship(back_populates="plan", cascade="all, delete-orphan")
-    feedback: Mapped[Optional["Feedback"]] = relationship(back_populates="plan", uselist=False, cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"Plan(id={self.id!r}, user_id={self.user_id!r}, plan_date={self.plan_date!r})"

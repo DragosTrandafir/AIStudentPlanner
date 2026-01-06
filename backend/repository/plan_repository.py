@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import date
 from typing import List, Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session, joinedload
 
 from backend.domain.plan import Plan
@@ -40,32 +40,36 @@ class PlanRepository(BaseRepository[Plan]):
         return self.session.scalar(stmt)
 
     def get_latest_generation(self, user_id: int) -> List[Plan]:
-        """Get all plans from the latest generation (same generation_id) for a user."""
-        stmt = select(Plan.generation_id).where(
+        """Get all plans from the latest generation (most recently created) for a user."""
+        # Subquery to get the latest generation_id by max(created_at)
+        subq = select(Plan.generation_id).where(
             Plan.user_id == user_id,
             Plan.generation_id.isnot(None)
-        ).order_by(Plan.generation_id.desc()).limit(1)
-        latest_gen_id = self.session.scalar(stmt)
-        
-        if not latest_gen_id:
-            return []
+        ).group_by(Plan.generation_id).order_by(
+            func.max(Plan.created_at).desc()
+        ).limit(1).correlate_except(Plan).scalar_subquery()
         
         stmt = select(Plan).where(
             Plan.user_id == user_id,
-            Plan.generation_id == latest_gen_id
+            Plan.generation_id == subq
         ).options(
             joinedload(Plan.ai_tasks).joinedload(AITask.subject)
         ).order_by(Plan.plan_date.asc())
         return list(self.session.scalars(stmt).unique().all())
 
     def get_last_two_generations(self, user_id: int) -> tuple[Optional[List[Plan]], Optional[List[Plan]]]:
-        """Get the last two schedules (by generation_id) for a user. Returns (latest, second_latest)."""
-        # Get last 2 unique generation_ids
-        stmt = select(Plan.generation_id).where(
+        """Get the last two schedules (by creation time) for a user. Returns (latest, second_latest)."""
+        # Subquery to get the last 2 generation_ids ordered by max(created_at) descending
+        subq = select(Plan.generation_id).where(
             Plan.user_id == user_id,
             Plan.generation_id.isnot(None)
-        ).distinct().order_by(Plan.generation_id.desc()).limit(2)
-        gen_ids = self.session.scalars(stmt).all()
+        ).group_by(Plan.generation_id).order_by(
+            func.max(Plan.created_at).desc()
+        ).limit(2).correlate_except(Plan).subquery()
+        
+        # Get all generation_ids from subquery
+        gen_ids_stmt = select(subq.c.generation_id)
+        gen_ids = self.session.scalars(gen_ids_stmt).all()
         
         if len(gen_ids) == 0:
             return None, None

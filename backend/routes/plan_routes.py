@@ -50,11 +50,12 @@ class AITaskEntry(BaseModel):
 
 
 class PlanResponse(BaseModel):
-    """Plan response with date, entries, and notes only (no IDs)."""
+    """Plan response with date, entries, notes, and generation_id."""
     id: int  # Plan database ID
     plan_date: date
     entries: List[AITaskEntry]
     notes: Optional[str]
+    generation_id: Optional[str] = None  # UUID for schedule/generation grouping
 
     class Config:
         from_attributes = True
@@ -67,6 +68,7 @@ class PlanResponse(BaseModel):
             plan_date=plan.plan_date,
             entries=[AITaskEntry.from_ai_task(task) for task in plan.ai_tasks],
             notes=plan.notes,
+            generation_id=plan.generation_id,
         )
 
 

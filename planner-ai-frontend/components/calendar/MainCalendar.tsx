@@ -52,11 +52,14 @@ export default function MainCalendar() {
   useEffect(() => {
     async function loadPlans() {
       try {
-        const plans = await getPlans();
-        const mappedAiTasks = mapPlansToTasks(plans);
-        setAiTasks(mappedAiTasks);
+        // Load only the latest schedule (generation)
+        const latestSchedule = await getLatestSchedule();
+        if (latestSchedule && latestSchedule.length > 0) {
+          const mappedAiTasks = mapPlansToTasks(latestSchedule);
+          setAiTasks(mappedAiTasks);
+        }
       } catch (err) {
-        console.error("Failed loading plans", err);
+        console.error("Failed loading latest schedule", err);
       }
     }
     loadPlans();
@@ -244,12 +247,17 @@ export default function MainCalendar() {
           return;
         }
 
-        // Get the first plan from the latest schedule (to associate feedback with)
-        const latestPlanId = latestSchedule[0].id;
+        // Get the generation_id from the latest schedule
+        const generationId = latestSchedule[0].generation_id;
+        if (!generationId) {
+          alert("Could not find generation ID for the latest schedule.");
+          setIsGenerating(false);
+          return;
+        }
 
-        // Submit feedback for the latest plan
-        console.log(`[regenerate] Submitting feedback for plan ${latestPlanId}`);
-        await submitFeedback(latestPlanId, 3, feedback); // Rating 3 as neutral
+        // Submit feedback for the schedule (generation)
+        console.log(`[regenerate] Submitting feedback for generation ${generationId}`);
+        await submitFeedback(3, feedback, generationId); // Rating 3 as neutral
 
         // Now trigger the rescheduling based on the feedback
         console.log("[regenerate] Calling /reschedule endpoint");
