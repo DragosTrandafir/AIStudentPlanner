@@ -1,6 +1,7 @@
 from __future__ import annotations
 from datetime import date
 from typing import List, Optional
+from uuid import uuid4
 
 from backend.domain.plan import Plan
 from backend.repository.plan_repository import PlanRepository
@@ -18,25 +19,24 @@ class PlanService:
         user_id: int,
         plan_date: date,
         notes: Optional[str] = None,
+        generation_id: Optional[str] = None,
     ) -> Plan:
         # Validate user exists
         if not self.user_repo.get(user_id):
             raise ValueError("User does not exist")
 
-        # Check if plan already exists for this date
-        existing_plan = self.plan_repo.get_by_date(user_id, plan_date)
-        if existing_plan:
-            raise ValueError(f"Plan already exists for date {plan_date}")
-
         plan = Plan()
         plan.user_id = user_id
         plan.plan_date = plan_date
         plan.notes = notes
+        plan.generation_id = generation_id
 
         self.plan_repo.add(plan)
         self.plan_repo.session.flush()
         self.plan_repo.session.refresh(plan)
+        
         return plan
+
 
     def get_plan(self, plan_id: int) -> Optional[Plan]:
         return self.plan_repo.get(plan_id)
@@ -89,3 +89,7 @@ class PlanService:
 
         self.plan_repo.delete(plan)
         return True
+
+    def get_latest_generation(self, user_id: int) -> List[Plan]:
+        """Get all plans from the latest generation for a user."""
+        return self.plan_repo.get_latest_generation(user_id)

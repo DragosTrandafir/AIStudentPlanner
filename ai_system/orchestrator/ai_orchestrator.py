@@ -70,12 +70,14 @@ class AiOrchestrator:
 
     def generate_plan_for_user(self, user_id, save_to_backend: bool = True) -> Dict[str, Any]:
         """
-        Flux principal:
-        1) cere la backend toate task-urile pentru user
-        2) cere feedback (nu îl folosim încă în mod avansat, doar îl atașăm)
-        3) rulează agenții pe fiecare task
-        4) combină rezultatele într-un plan unic + blocuri de studiu
-        5) opțional, salvează planul în backend
+        Flux principal - Generate completely fresh schedule:
+        1) cere la backend toate task-urile (subjects) pentru user
+        2) rulează agenții pe fiecare task - INDEPENDENT of any previous schedules
+        3) combină rezultatele într-un plan unic + blocuri de studiu
+        4) opțional, salvează planul în backend
+        
+        NOTE: This is for FRESH generation, not rescheduling based on feedback.
+              Previous schedules are completely ignored.
         """
 
         try:
@@ -132,17 +134,14 @@ class AiOrchestrator:
                 ]
             }
 
-        try:
-            feedback = self.backend.get_feedback(user_id)
-        except Exception as e:
-            print(f"[AiOrchestrator] Backend feedback unavailable, skipping. ({e})")
-            feedback = {}
+        # NOTE: For FRESH generation, we do NOT fetch or consider previous schedules or feedback
+        # This ensures complete independence from previous generations
 
         tasks_input: List[Dict[str, Any]] = (
             user_data.get("tasks")
         )
 
-        print(f"Tasks input: {tasks_input}")
+        print(f"[AiOrchestrator] Tasks input (fresh generation): {tasks_input}")
 
         plans = []
 
