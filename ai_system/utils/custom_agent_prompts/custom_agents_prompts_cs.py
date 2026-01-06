@@ -83,9 +83,10 @@ def get_project_heuristics_cs():
         "- Testing & debugging: usually under 1 hour.\n"
         "- Documentation + Additional notes MUST NOT exceed a combined total of 1 hour.\n"
         "- Example: Documentation = 0.5h and Additional notes = 0.5h.\n"
-        "- If the difficulty is high, increase only the implementation/testing time—not documentation.\n"
+        "- If the difficulty is high, increase only the implementation/testing time — not documentation.\n"
         "- Subtasks MUST NOT exceed 4 hours — split into logical parts (part 1, part 2, ...).\n"
         "- Ensure total_estimated_hours equals the sum of all subtask hours.\n"
+        "- Ensure "
         "Adjust the distribution of time and difficulty according to task details and "
         "difficulty level."
     )

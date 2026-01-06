@@ -9,6 +9,12 @@ def get_role_prompt(type_, general_university_type):
 
 
 def get_input_output_instructions(title, name, start_datetime, end_datetime, type_, difficulty, description, status):
+
+    if type_ == "project":
+        s_e_dt = end_datetime
+    else:
+        s_e_dt = start_datetime
+
     input_output_instructions = (
         f"Below is the data for a {type_} task. "
         f"Use it to estimate workload, difficulty, and subtasks using the given heuristics.\n\n"
@@ -34,7 +40,7 @@ def get_input_output_instructions(title, name, start_datetime, end_datetime, typ
         f'  "tasks": [\n'
         f'    {{ "task_name": <string>, "estimated_hours": <integer>, "priority": <integer starting from 1> }}\n'
         f'  ],\n'
-        f'  "deadline": "{start_datetime}"\n'
+        f'  "deadline": "{s_e_dt}"\n'
         f"}}\n\n"
 
         f"Output rules:\n"
