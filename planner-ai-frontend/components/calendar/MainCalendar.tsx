@@ -19,7 +19,7 @@ import { Task } from "@/types/Task";
 import "@/styles/calendar.css";
 import { getSubjects, deleteSubject } from "@/lib/apiSubjects";
 import { mapSubjectToTask } from "@/utils/subjectMapper";
-import { generatePlan, getPlans, deleteAiTask } from "@/lib/apiPlans";
+import { generatePlan, reschedulePlan, getLatestSchedule, submitFeedback, getPlans, deleteAiTask } from "@/lib/apiPlans";
 import { mapPlansToTasks } from "@/utils/aiTaskMapper";
 
 
@@ -76,9 +76,9 @@ export default function MainCalendar() {
     [currentMonth]
   );
   const currentMonthLabel = currentMonth.toLocaleDateString("en-US", {
-  month: "long",
-  year: "numeric",
-});
+    month: "long",
+    year: "numeric",
+  });
 
 
 
@@ -198,42 +198,78 @@ export default function MainCalendar() {
     }
   }
 
-/* ---------------- ADD / EDIT MODAL STATE ---------------- */
-const [showAddModal, setShowAddModal] = useState(false);
-const [editTask, setEditTask] = useState<Task | null>(null);
+  /* ---------------- ADD / EDIT MODAL STATE ---------------- */
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editTask, setEditTask] = useState<Task | null>(null);
 
-/* Open modal to CREATE a new task */
-const openAddTaskModal = () => {
-  setEditTask(null);        
-  setShowAddModal(true); 
-};
+  /* Open modal to CREATE a new task */
+  const openAddTaskModal = () => {
+    setEditTask(null);
+    setShowAddModal(true);
+  };
 
-// --- AI PLAN GENERATION ---
-async function generateAIPlan() {
-  console.log("AI Generate Plan triggered!");
-  setIsGenerating(true);
+  // --- AI PLAN GENERATION ---
+  async function generateAIPlan() {
+    console.log("AI Generate Plan triggered!");
+    setIsGenerating(true);
 
-  try {
-    const response = await generatePlan();
-    console.log("Generated plan:", response);
+    try {
+      const response = await generatePlan();
+      console.log("Generated plan:", response);
 
-    // Map the generated plans to Task objects for display
-    const mappedAiTasks = mapPlansToTasks(response.plans);
-    setAiTasks(mappedAiTasks);
+      // Map the generated plans to Task objects for display
+      const mappedAiTasks = mapPlansToTasks(response.plans);
+      setAiTasks(mappedAiTasks);
 
-    alert(`${response.message}`);
-  } catch (err) {
-    console.error("Failed to generate plan:", err);
-    alert("Failed to generate AI plan. Please make sure you have subjects added and try again.");
-  } finally {
-    setIsGenerating(false);
+      alert(`${response.message}`);
+    } catch (err) {
+      console.error("Failed to generate plan:", err);
+      alert("Failed to generate AI plan. Please make sure you have subjects added and try again.");
+    } finally {
+      setIsGenerating(false);
+    }
   }
-}
 
-function regenerateAIPlan(feedback: string) {
-  console.log("Regenerating plan with feedback:", feedback);
-  alert("Regeneration with feedback will be added later!");
-}
+  function regenerateAIPlan(feedback: string) {
+    console.log("Regenerating plan with feedback:", feedback);
+    setIsGenerating(true);
+
+    (async () => {
+      try {
+        // First, get the latest plan to submit feedback for it
+        const latestSchedule = await getLatestSchedule();
+        if (!latestSchedule || latestSchedule.length === 0) {
+          alert("No schedule found to provide feedback for.");
+          setIsGenerating(false);
+          return;
+        }
+
+        // Get the first plan from the latest schedule (to associate feedback with)
+        const latestPlanId = latestSchedule[0].id;
+
+        // Submit feedback for the latest plan
+        console.log(`[regenerate] Submitting feedback for plan ${latestPlanId}`);
+        await submitFeedback(latestPlanId, 3, feedback); // Rating 3 as neutral
+
+        // Now trigger the rescheduling based on the feedback
+        console.log("[regenerate] Calling /reschedule endpoint");
+        const rescheduledResponse = await reschedulePlan();
+        console.log("[regenerate] Rescheduled plans:", rescheduledResponse);
+
+        // Map the rescheduled plans to tasks and display them
+        const mappedAiTasks = mapPlansToTasks(rescheduledResponse.plans);
+        console.log("[regenerate] Mapped tasks from rescheduled plans:", mappedAiTasks);
+        setAiTasks(mappedAiTasks);
+
+        alert("✅ Plan successfully regenerated based on your feedback!");
+      } catch (err) {
+        console.error("[regenerate] Error:", err);
+        alert("Failed to regenerate plan. Please try again.");
+      } finally {
+        setIsGenerating(false);
+      }
+    })();
+  }
 
 
 
@@ -258,17 +294,17 @@ function regenerateAIPlan(feedback: string) {
 
       {/* MAIN */}
       <main className="flex-1 px-10 py-6 bg-gradient-to-b from-[#ffe5e5] to-[#fff0d6] overflow-auto">
-        
 
-       <CalendarHeader
-        currentMonth={currentMonthLabel}
-        onPrev={prev}
-        onNext={next}
-        onToday={goToToday}
-        onAddTask={openAddTaskModal}   // ✅ FIXED
-        view={viewMode}
-        setView={setViewMode}
-      />
+
+        <CalendarHeader
+          currentMonth={currentMonthLabel}
+          onPrev={prev}
+          onNext={next}
+          onToday={goToToday}
+          onAddTask={openAddTaskModal}   // ✅ FIXED
+          view={viewMode}
+          setView={setViewMode}
+        />
 
 
 
@@ -296,9 +332,8 @@ function regenerateAIPlan(feedback: string) {
                   return (
                     <div
                       key={`${wi}-${di}`}
-                      className={`calendar-day-cell ${
-                        inMonth ? "in-month" : "out-month"
-                      } ${selected ? "selected" : ""}`}
+                      className={`calendar-day-cell ${inMonth ? "in-month" : "out-month"
+                        } ${selected ? "selected" : ""}`}
                       onClick={() => setSelectedDate(day)}
                     >
                       <div className="day-number">{day.getDate()}</div>
@@ -369,7 +404,7 @@ function regenerateAIPlan(feedback: string) {
                               const daysLeftInEvent =
                                 Math.floor(
                                   (end.getTime() - dayStart.getTime()) /
-                                    86400000
+                                  86400000
                                 ) + 1;
 
                               const span = Math.min(
@@ -383,9 +418,8 @@ function regenerateAIPlan(feedback: string) {
                                   className="event-bar-multi"
                                   style={{
                                     top: `${laneIdx * 22}px`,
-                                    width: `calc(${span * 100}% + ${
-                                      (span - 1) * 6
-                                    }px)`,
+                                    width: `calc(${span * 100}% + ${(span - 1) * 6
+                                      }px)`,
                                     backgroundColor: ev.color || typeColors[ev.type] || "#ccc",
                                   }}
                                   onClick={(e) => {

@@ -1,5 +1,6 @@
 from datetime import date, datetime
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
+from uuid import uuid4
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
@@ -114,6 +115,93 @@ def get_latest_plan(user_id: int):
         if not plans:
             raise HTTPException(status_code=404, detail="No plans found for this user")
         return PlanResponse.from_plan(plans[0])
+
+
+@router.get("/latest-schedule", response_model=List[PlanResponse])
+def get_latest_schedule(user_id: int):
+    """Get the entire latest schedule (all plans from latest generation) for a user."""
+    with get_session() as session:
+        user_repo = UserRepository(session)
+        
+        # Check if user exists
+        if not user_repo.get(user_id):
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        plan_repo = PlanRepository(session)
+        service = PlanService(plan_repo, user_repo)
+        
+        # Get all plans from the latest generation
+        plans = service.get_latest_generation(user_id)
+        if not plans:
+            raise HTTPException(status_code=404, detail="No schedules found for this user")
+        
+        return [PlanResponse.from_plan(plan) for plan in plans]
+
+
+class ScheduleWithFeedback(BaseModel):
+    """Schedule with its feedback."""
+    plans: List[PlanResponse]
+    feedback: Optional[Dict[str, Any]] = None
+
+
+class LastTwoSchedulesResponse(BaseModel):
+    """Response for last two schedules."""
+    current_schedule: Optional[ScheduleWithFeedback] = None
+    last_schedule: Optional[ScheduleWithFeedback] = None
+
+
+@router.get("/last-two-schedules", response_model=LastTwoSchedulesResponse)
+def get_last_two_schedules(user_id: int):
+    """Get the last two schedules with their feedback."""
+    from backend.repository.feedback_repository import FeedbackRepository
+    
+    with get_session() as session:
+        user_repo = UserRepository(session)
+        
+        # Check if user exists
+        if not user_repo.get(user_id):
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        plan_repo = PlanRepository(session)
+        feedback_repo = FeedbackRepository(session)
+        service = PlanService(plan_repo, user_repo)
+        
+        # Get last two schedules
+        latest_plans, second_latest_plans = plan_repo.get_last_two_generations(user_id)
+        
+        current_schedule = None
+        last_schedule = None
+        
+        if latest_plans:
+            generation_id = latest_plans[0].generation_id
+            feedback = feedback_repo.get_feedback_for_generation(user_id, generation_id)
+            current_schedule = ScheduleWithFeedback(
+                plans=[PlanResponse.from_plan(p) for p in latest_plans],
+                feedback={
+                    "id": feedback.id,
+                    "rating": feedback.rating,
+                    "comments": feedback.comments,
+                    "created_at": feedback.created_at.isoformat(),
+                } if feedback else None
+            )
+        
+        if second_latest_plans:
+            generation_id = second_latest_plans[0].generation_id
+            feedback = feedback_repo.get_feedback_for_generation(user_id, generation_id)
+            last_schedule = ScheduleWithFeedback(
+                plans=[PlanResponse.from_plan(p) for p in second_latest_plans],
+                feedback={
+                    "id": feedback.id,
+                    "rating": feedback.rating,
+                    "comments": feedback.comments,
+                    "created_at": feedback.created_at.isoformat(),
+                } if feedback else None
+            )
+        
+        return LastTwoSchedulesResponse(
+            current_schedule=current_schedule,
+            last_schedule=last_schedule
+        )
 
 
 @router.get("/history", response_model=List[PlanResponse])
@@ -293,6 +381,11 @@ def generate_plan(user_id: int):
                     detail="AI orchestrator failed to generate a valid plan"
                 )
 
+            # Generate a unique generation_id for this schedule
+            generation_id = str(uuid4())
+
+            print(f"[generate_plan] AI plan calendar: {ai_plan.get('calendar')}")
+
             created_plans = []
             plan_service = PlanService(plan_repo, user_repo)
             ai_task_service = AITaskService(ai_task_repo, subject_repo, plan_repo)
@@ -311,27 +404,21 @@ def generate_plan(user_id: int):
                 notes = day_plan.get("notes", "")
                 entries = day_plan.get("entries", [])
 
-                if not entries:
+                # Create plan even if it has no entries (can be empty/rest day)
+                # Always create a NEW plan (don't overwrite existing plans)
+                # This preserves plan history and allows iterative refinement
+                try:
+                    plan = plan_service.create_plan(
+                        user_id=user_id,
+                        plan_date=plan_date,
+                        notes=notes,
+                        generation_id=generation_id,
+                    )
+                except Exception as e:
+                    print(f"[generate_plan] Failed to create plan for {plan_date}: {e}")
                     continue
 
-                # Check if plan already exists for this date, if so skip or update
-                existing_plan = plan_repo.get_by_date(user_id, plan_date)
-                if existing_plan:
-                    # Delete existing AI tasks for this plan to replace them
-                    for old_task in existing_plan.ai_tasks:
-                        ai_task_repo.delete(old_task)
-                    existing_plan.notes = notes
-                    plan = existing_plan
-                else:
-                    # Create new plan
-                    plan = Plan()
-                    plan.user_id = user_id
-                    plan.plan_date = plan_date
-                    plan.notes = notes
-                    plan_repo.add(plan)
-                    session.flush()
-
-                # Process entries and create AI tasks
+                # Process entries and create AI tasks (if any)
                 for entry in entries:
                     time_allotted = entry.get("time_allotted", "")
                     task_name = entry.get("task_name", "")
@@ -376,9 +463,12 @@ def generate_plan(user_id: int):
                     detail="Failed to create any plans from the generated AI response"
                 )
 
+            # Return the latest generation (which includes the plans we just created)
+            latest_generation = plan_service.get_latest_generation(user_id)
+            
             return GeneratedPlanResponse(
-                plans=[PlanResponse.from_plan(p) for p in created_plans],
-                message=f"Successfully generated {len(created_plans)} plan(s) with AI tasks"
+                plans=[PlanResponse.from_plan(p) for p in latest_generation],
+                message=f"Successfully generated {len(latest_generation)} plan(s) with AI tasks"
             )
 
         except HTTPException:
@@ -387,4 +477,145 @@ def generate_plan(user_id: int):
             raise HTTPException(
                 status_code=500,
                 detail=f"Failed to generate plan: {str(e)}"
+            )
+
+
+@router.post("/reschedule", response_model=GeneratedPlanResponse, status_code=status.HTTP_201_CREATED)
+def reschedule_plan(user_id: int):
+    """
+    Regenerate an AI plan for the user based on current and last feedback.
+    Uses the AI Rescheduler to adjust the previous plan according to feedback.
+    """
+    from ai_system.orchestrator.ai_reschedule import AiRescheduler
+
+    with get_session() as session:
+        user_repo = UserRepository(session)
+        subject_repo = SubjectRepository(session)
+        plan_repo = PlanRepository(session)
+        ai_task_repo = AITaskRepository(session)
+
+        # Check if user exists
+        user = user_repo.get(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Check if user has subjects
+        subjects = subject_repo.list_for_user(user_id)
+        if not subjects:
+            raise HTTPException(
+                status_code=400,
+                detail="No subjects found for this user. Add subjects before rescheduling."
+            )
+
+        # Create subject name to id mapping for fast lookup
+        subject_map = {}
+        for s in subjects:
+            subject_map[s.name.lower()] = s.id
+            subject_map[s.title.lower()] = s.id
+
+        try:
+            # Initialize rescheduler and generate rescheduled plan
+            rescheduler = AiRescheduler()
+            ai_plan = rescheduler.generate_plan_for_user(user_id, save_to_backend=False)
+
+            if not ai_plan or "calendar" not in ai_plan:
+                raise HTTPException(
+                    status_code=500,
+                    detail="AI rescheduler failed to generate a valid plan"
+                )
+
+            # Generate a new unique generation_id for this rescheduled schedule
+            generation_id = str(uuid4())
+
+            created_plans = []
+            plan_service = PlanService(plan_repo, user_repo)
+            ai_task_service = AITaskService(ai_task_repo, subject_repo, plan_repo)
+
+            # Process each day in the rescheduled calendar
+            for day_plan in ai_plan.get("calendar", []):
+                plan_date_str = day_plan.get("date")
+                if not plan_date_str:
+                    continue
+
+                try:
+                    plan_date = datetime.strptime(plan_date_str, "%Y-%m-%d").date()
+                except ValueError:
+                    continue
+
+                notes = day_plan.get("notes", "")
+                entries = day_plan.get("entries", [])
+
+                # Create plan even if it has no entries (can be empty/rest day)
+                # Always create a NEW plan with NEW generation_id (don't overwrite the old one)
+                # This preserves the history and allows users to see the evolution of their schedules
+                try:
+                    plan = plan_service.create_plan(
+                        user_id=user_id,
+                        plan_date=plan_date,
+                        notes=notes,
+                        generation_id=generation_id,
+                    )
+                except Exception as e:
+                    print(f"[reschedule_plan] Failed to create plan for {plan_date}: {e}")
+                    continue
+
+                # Process entries and create AI tasks (if any)
+                for entry in entries:
+                    time_allotted = entry.get("time_allotted", "")
+                    task_name = entry.get("task_name", "")
+                    subject_name = entry.get("subject_name/project_name", "")
+                    difficulty = entry.get("difficulty", 3)
+                    priority = entry.get("priority", 5)
+
+                    # Clamp values to valid ranges
+                    difficulty = max(1, min(5, difficulty))
+                    priority = max(1, min(10, priority))
+
+                    # Find subject by name
+                    subject_id = subject_map.get(subject_name.lower())
+                    if not subject_id:
+                        # Try partial matching
+                        for key, sid in subject_map.items():
+                            if subject_name.lower() in key or key in subject_name.lower():
+                                subject_id = sid
+                                break
+
+                    if not subject_id:
+                        # Skip if no matching subject found
+                        continue
+
+                    # Create AI task
+                    ai_task = AITask()
+                    ai_task.time_allotted = time_allotted
+                    ai_task.ai_task_name = task_name
+                    ai_task.difficulty = difficulty
+                    ai_task.priority = priority
+                    ai_task.plan_id = plan.id
+                    ai_task.task_id = subject_id
+                    ai_task_repo.add(ai_task)
+
+                session.flush()
+                session.refresh(plan)
+                created_plans.append(plan)
+
+            if not created_plans:
+                raise HTTPException(
+                    status_code=500,
+                    detail="Failed to create any rescheduled plans from the AI response"
+                )
+
+            # Return the latest generation (which includes the plans we just created)
+            latest_generation = plan_service.get_latest_generation(user_id)
+            
+            return GeneratedPlanResponse(
+                plans=[PlanResponse.from_plan(p) for p in latest_generation],
+                message=f"Successfully rescheduled {len(latest_generation)} plan(s) based on feedback"
+            )
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to reschedule plan: {str(e)}"
             )

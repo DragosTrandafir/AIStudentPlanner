@@ -1,5 +1,5 @@
 import requests
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 
 class BackendAPI:
@@ -47,132 +47,146 @@ class BackendAPI:
         return {"tasks": tasks}
 
     def get_current_and_last_feedback(self, user_id: int) -> Dict[str, Any]:
-        current_feedback = "Do not include any learning activity between 10 and 12 a.m."
-        last_feedback = "Make the schedule more efficient"
-        return {"feedback": current_feedback, "last_feedback": last_feedback}
-
-    def get_last_schedule(self, user_id: int):
-        last_schedule = {
-            "calendar": [
-                {
-                    "date": "2025-11-24",
-                    "entries": [
-                        {
-                            "time_allotted": "18:00–20:00",
-                            "task_name": "Lecture review",
-                            "subject_name/project_name": "pde",
-                            "difficulty": 5,
-                            "priority": 1
-                        },
-                        {
-                            "time_allotted": "20:30–22:30",
-                            "task_name": "Seminar review",
-                            "subject_name/project_name": "OOP",
-                            "difficulty": 3,
-                            "priority": 1
-                        }
-                    ],
-                    "notes": "High priority tasks for both exams."
-                },
-                {
-                    "date": "2025-11-25",
-                    "entries": [
-                        {
-                            "time_allotted": "09:00–11:00",
-                            "task_name": "Seminar review (part 1)",
-                            "subject_name/project_name": "pde",
-                            "difficulty": 5,
-                            "priority": 2
-                        },
-                        {
-                            "time_allotted": "11:30–13:30",
-                            "task_name": "Laboratory review",
-                            "subject_name/project_name": "OOP",
-                            "difficulty": 3,
-                            "priority": 2
-                        },
-                        {
-                            "time_allotted": "14:00–16:00",
-                            "task_name": "Seminar review (part 2)",
-                            "subject_name/project_name": "pde",
-                            "difficulty": 5,
-                            "priority": 3
-                        },
-                        {
-                            "time_allotted": "16:30–18:30",
-                            "task_name": "Algorithm practice",
-                            "subject_name/project_name": "OOP",
-                            "difficulty": 3,
-                            "priority": 3
-                        }
-                    ],
-                    "notes": "Continuing high priority tasks for both exams."
-                },
-                {
-                    "date": "2025-11-26",
-                    "entries": [
-                        {
-                            "time_allotted": "09:00–11:00",
-                            "task_name": "Notes and outlines",
-                            "subject_name/project_name": "pde",
-                            "difficulty": 5,
-                            "priority": 4
-                        },
-                        {
-                            "time_allotted": "11:30–13:30",
-                            "task_name": "Exam model solving",
-                            "subject_name/project_name": "OOP",
-                            "difficulty": 3,
-                            "priority": 4
-                        },
-                        {
-                            "time_allotted": "14:00–16:00",
-                            "task_name": "Exam model solving",
-                            "subject_name/project_name": "pde",
-                            "difficulty": 5,
-                            "priority": 5
-                        },
-                        {
-                            "time_allotted": "16:30–18:30",
-                            "task_name": "Additional practice problems",
-                            "subject_name/project_name": "pde",
-                            "difficulty": 5,
-                            "priority": 6
-                        }
-                    ],
-                    "notes": "Final tasks for both exams, ensuring completion before deadlines."
-                },
-                {
-                    "date": "2025-11-27",
-                    "entries": [
-                        {
-                            "time_allotted": "09:00–11:00",
-                            "task_name": "Review and finalize",
-                            "subject_name/project_name": "pde",
-                            "difficulty": 5,
-                            "priority": 7
-                        }
-                    ],
-                    "notes": "Final review for PDE exam, ensuring all topics are covered. No tasks after 15:30."
-                },
-                {
-                    "date": "2025-11-28",
-                    "entries": [],
-                    "notes": "Rest day before OOP exam."
-                },
-                {
-                    "date": "2025-11-29",
-                    "entries": [
-                        {
-                            "time_allotted": "09:00–11:00",
-                            "task_name": "Review and finalize",
-                            "subject_name/project_name": "OOP",
-                            "difficulty": 3,
-                            "priority": 5
-                        }
-                    ],
-                    "notes": "Final review for OOP exam, ensuring all topics are covered. No tasks after 07:30."
+        """
+        Get current feedback and last feedback from the last two schedules.
+        Returns feedback for the latest 2 generations (schedules).
+        """
+        url = f"{self.base_url}/users/{user_id}/feedback/last-two-schedules"
+        
+        try:
+            response = requests.get(url)
+            if response.status_code != 200:
+                raise Exception(f"Failed to fetch feedback: {response.status_code}")
+            
+            data = response.json()  # {current_feedback, last_feedback}
+            
+            # Map to orchestrator format
+            result = {}
+            if data.get("current_feedback"):
+                fb = data["current_feedback"]
+                result["current_feedback"] = {
+                    "created_at": fb.get("created_at"),
+                    "text": fb.get("comments", ""),
+                    "rating": fb.get("rating"),
                 }
-            ]
-        }
-        return last_schedule
+            if data.get("last_feedback"):
+                fb = data["last_feedback"]
+                result["last_feedback"] = {
+                    "created_at": fb.get("created_at"),
+                    "text": fb.get("comments", ""),
+                    "rating": fb.get("rating"),
+                }
+            
+            return result
+        except Exception as e:
+            print(f"[BackendAPI] Warning: Could not fetch feedback: {e}")
+            return {}
+
+    def get_latest_schedule(self, user_id: int) -> Dict[str, Any]:
+        """
+        Get the entire latest schedule (all plans from latest generation).
+        Returns plans in the format expected by the orchestrator.
+        """
+        url = f"{self.base_url}/users/{user_id}/plans/latest-schedule"
+        
+        try:
+            response = requests.get(url)
+            if response.status_code != 200:
+                raise Exception(f"Failed to fetch latest schedule: {response.status_code}")
+            
+            plans = response.json()  # List of PlanResponse
+            
+            # Convert plans to orchestrator calendar format
+            calendar = []
+            for plan in plans:
+                day_entry = {
+                    "date": plan["plan_date"],
+                    "entries": [],
+                    "notes": plan.get("notes", ""),
+                }
+                
+                # Add AI tasks as entries
+                for task in plan.get("entries", []):
+                    day_entry["entries"].append({
+                        "time_allotted": task["time_allotted"],
+                        "task_name": task["ai_task_name"],
+                        "subject_name/project_name": task["task_name"],
+                        "difficulty": task["difficulty"],
+                        "priority": task["priority"],
+                    })
+                
+                calendar.append(day_entry)
+            
+            return {"calendar": calendar}
+        except Exception as e:
+            print(f"[BackendAPI] Warning: Could not fetch latest schedule: {e}")
+            return None
+
+    def get_last_two_schedules(self, user_id: int) -> tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
+        """
+        Get the last two schedules (latest and second latest) with their feedback.
+        Returns ({current_schedule, current_feedback}, {last_schedule, last_feedback})
+        """
+        url = f"{self.base_url}/users/{user_id}/plans/last-two-schedules"
+        
+        try:
+            response = requests.get(url)
+            if response.status_code != 200:
+                raise Exception(f"Failed to fetch schedules: {response.status_code}")
+            
+            data = response.json()
+            
+            # Convert first schedule
+            current = None
+            if data.get("current_schedule"):
+                calendar = []
+                for plan in data["current_schedule"]["plans"]:
+                    day_entry = {
+                        "date": plan["plan_date"],
+                        "entries": [],
+                        "notes": plan.get("notes", ""),
+                    }
+                    for task in plan.get("entries", []):
+                        day_entry["entries"].append({
+                            "time_allotted": task["time_allotted"],
+                            "task_name": task["ai_task_name"],
+                            "subject_name/project_name": task["task_name"],
+                            "difficulty": task["difficulty"],
+                            "priority": task["priority"],
+                        })
+                    calendar.append(day_entry)
+                
+                current = {
+                    "calendar": calendar,
+                    "feedback": data["current_schedule"].get("feedback"),
+                }
+            
+            # Convert second schedule
+            last = None
+            if data.get("last_schedule"):
+                calendar = []
+                for plan in data["last_schedule"]["plans"]:
+                    day_entry = {
+                        "date": plan["plan_date"],
+                        "entries": [],
+                        "notes": plan.get("notes", ""),
+                    }
+                    for task in plan.get("entries", []):
+                        day_entry["entries"].append({
+                            "time_allotted": task["time_allotted"],
+                            "task_name": task["ai_task_name"],
+                            "subject_name/project_name": task["task_name"],
+                            "difficulty": task["difficulty"],
+                            "priority": task["priority"],
+                        })
+                    calendar.append(day_entry)
+                
+                last = {
+                    "calendar": calendar,
+                    "feedback": data["last_schedule"].get("feedback"),
+                }
+            
+            return current, last
+        except Exception as e:
+            print(f"[BackendAPI] Warning: Could not fetch last two schedules: {e}")
+            return None, None

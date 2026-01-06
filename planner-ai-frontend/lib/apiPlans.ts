@@ -68,6 +68,19 @@ export async function getLatestPlan(): Promise<PlanResponse> {
 }
 
 /**
+ * Get the latest schedule (all plans from the latest generation).
+ */
+export async function getLatestSchedule(): Promise<PlanResponse[]> {
+  const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans/latest-schedule`);
+
+  if (!res.ok) {
+    throw new Error("Failed to load latest schedule");
+  }
+
+  return res.json();
+}
+
+/**
  * Get plan history for the user.
  */
 export async function getPlanHistory(): Promise<PlanResponse[]> {
@@ -108,3 +121,43 @@ export async function deletePlan(planId: number): Promise<void> {
   }
 }
 
+/**
+ * Submit feedback for a specific plan.
+ */
+export async function submitFeedback(
+  planId: number,
+  rating: number,
+  comments: string
+): Promise<void> {
+  const res = await fetch(`${BASE_URL}/users/${USER_ID}/feedback`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      plan_id: planId,
+      rating,
+      comments,
+    }),
+  });
+
+  if (!res.ok) {
+    const msg = await res.text();
+    throw new Error("Failed to submit feedback: " + msg);
+  }
+}
+
+/**
+ * Reschedule a plan based on current and last feedback.
+ */
+export async function reschedulePlan(): Promise<GeneratedPlanResponse> {
+  const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans/reschedule`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  if (!res.ok) {
+    const msg = await res.text();
+    throw new Error("Failed to reschedule plan: " + msg);
+  }
+
+  return res.json();
+}

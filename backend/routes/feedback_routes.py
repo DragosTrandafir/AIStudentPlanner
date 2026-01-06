@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
@@ -29,6 +29,12 @@ class FeedbackResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class LastTwoScheduleFeedbackResponse(BaseModel):
+    """Feedback from last two schedules."""
+    current_feedback: Optional[FeedbackResponse] = None
+    last_feedback: Optional[FeedbackResponse] = None
 
 
 @router.get("/history", response_model=List[FeedbackResponse])
@@ -63,6 +69,25 @@ def list_user_feedback_latest(user_id: int):
 
         latest = service.get_latest_feedback_for_user(user_id, limit=2)
         return latest
+
+
+@router.get("/last-two-schedules", response_model=LastTwoScheduleFeedbackResponse)
+def get_last_two_schedule_feedbacks(user_id: int):
+    """Get feedback from the last two schedules (generations)."""
+    with get_session() as session:
+        user_repo = UserRepository(session)
+        
+        # Check if user exists
+        if not user_repo.get(user_id):
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        feedback_repo = FeedbackRepository(session)
+        current_feedback, last_feedback = feedback_repo.get_last_two_generation_feedbacks(user_id)
+        
+        return LastTwoScheduleFeedbackResponse(
+            current_feedback=current_feedback,
+            last_feedback=last_feedback
+        )
 
 
 @router.post("/", response_model=FeedbackResponse, status_code=status.HTTP_201_CREATED)

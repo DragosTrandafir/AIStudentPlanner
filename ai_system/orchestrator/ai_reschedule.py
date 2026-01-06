@@ -35,53 +35,35 @@ class AiRescheduler:
         save_to_backend: bool = True,
     ) -> Dict[str, Any]:
 
-        # ------------------ FEEDBACK ------------------
+        # Get feedback from last 2 schedules
         try:
             fb = self.backend.get_current_and_last_feedback(user_id)
-        except Exception:
-            fb = {
-                "current_feedback": {
-                    "created_at": "2025-11-25T10:00:00",
-                    "text": "Do not include any learning activity between 13 and 14:30 a.m.",
-                    "day_status": "constraint",
-                },
-                "last_feedback": {
-                    "created_at": "2025-11-24T10:00:00",
-                    "text": "Make the schedule more efficient",
-                    "day_status": "neutral",
-                },
-            }
+        except Exception as e:
+            print(f"[AiRescheduler] Warning: Could not fetch feedback: {e}")
+            fb = {}
 
         current_feedback = fb.get("current_feedback") or {
-            "text": fb.get("feedback", "")
+            "text": fb.get("feedback", "No feedback provided")
         }
-        last_feedback = fb.get("last_feedback", {})
+        last_feedback = fb.get("last_feedback") or {}
 
-        # ------------------ LAST SCHEDULE ------------------
+        # Get the latest schedule (all plans from latest generation)
         try:
-            last_schedule = self.backend.get_last_schedule(user_id)
-        except Exception:
-            last_schedule = {
-                "summary": "Previous plan",
-                "calendar": [],
-            }
+            latest_schedule = self.backend.get_latest_schedule(user_id)
+        except Exception as e:
+            print(f"[AiRescheduler] Warning: Could not fetch latest schedule: {e}")
+            latest_schedule = {"calendar": []}
 
         context = {
             "current_feedback": current_feedback,
             "last_feedback": last_feedback,
-            "last_schedule": last_schedule,
+            "last_schedule": latest_schedule,
         }
 
         new_schedule = self.agent.propose_agent_plan(context)
 
         print("\n[AiRescheduler] ✅ FINAL RESCHEDULED PLAN")
         print(json.dumps(new_schedule, indent=2, ensure_ascii=False))
-
-        if save_to_backend:
-            try:
-                self.backend.save_plan(user_id, new_schedule)
-            except Exception as e:
-                print("[AiRescheduler] Backend save failed:", e)
 
         return new_schedule
 
