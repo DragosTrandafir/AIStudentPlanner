@@ -57,30 +57,33 @@ class AiOrchestrator:
     def generate_plan_for_user(self, user_id, save_to_backend: bool = True) -> Dict[str, Any]:
         try:
             user_data = self.backend.get_user_data(user_id)
+            print("------------------USER DATA START----------------------")
+            print(user_data)
+            print("------------------USER DATA END----------------------")
         except Exception as e:
             print(f"[AiOrchestrator] Backend unavailable, using mock data. ({e})")
             user_data = {
                 "tasks": [
                     {
                         "id": 1,
-                        "title": "OOP practic",
-                        "subject_name/project_name": "Object-Oriented Programming",
-                        "start_datetime": "2026-01-23T09:00:00",
-                        "end_datetime": "2026-01-23T11:00:00",
-                        "type": "Practical Exam",
+                        "title": "pde scris",
+                        "subject_name/project_name": "Partial Differential Equations",
+                        "start_datetime": "2026-01-12T08:00:00",
+                        "end_datetime": "2026-01-12T10:00:00",
+                        "type": "written",
                         "difficulty": 5,
                         "description": "I did not understand anything during the semester.",
                         "status": "Pending"
                     },
                     {
                         "id": 2,
-                        "title": "PDE scris",
-                        "subject_name/project_name": "Partial Differential Equations",
-                        "start_datetime": "2026-01-19T12:00:00",
-                        "end_datetime": "2026-01-19T15:00:00",
-                        "type": "Written Exam",
+                        "title": "astronomie scris",
+                        "subject_name/project_name": "Astronomy",
+                        "start_datetime": "2026-01-26T12:00:00",
+                        "end_datetime": "2026-01-26T14:00:00",
+                        "type": "written",
                         "difficulty": 5,
-                        "description": "I solved everything with ChatGPT.",
+                        "description": "I solved everything with ChatGPT, I do not know anything.",
                         "status": "Pending"
                     },
                     {
@@ -88,8 +91,8 @@ class AiOrchestrator:
                         "title": "OOP Final Project",
                         "subject_name/project_name": "Object-Oriented Programming",
                         "start_datetime": "2026-01-25T10:00:00",
-                        "end_datetime": "2026-01-27T12:00:00",
-                        "type": "Project",
+                        "end_datetime": "2026-01-31T12:00:00",
+                        "type": "project",
                         "difficulty": 4,
                         "description": "Large OOP project with multiple design patterns.",
                         "status": "Pending"
@@ -97,13 +100,13 @@ class AiOrchestrator:
 
                     {
                         "id": 4,
-                        "title": "PDE Project",
-                        "subject_name/project_name": "Partial Differential Equations",
-                        "start_datetime": "2026-01-20T10:00:00",
-                        "end_datetime": "2026-01-22T12:00:00",
-                        "type": "Project",
-                        "difficulty": 3,
-                        "description": "Short mathematics project on PDEs with a few problems and a small report.",
+                        "title": "ap practic",
+                        "subject_name/project_name": "Algorithms and Programming",
+                        "start_datetime": "2026-02-02T10:00:00",
+                        "end_datetime": "2026-02-02T12:00:00",
+                        "type": "practical",
+                        "difficulty": 2,
+                        "description": "I just need a bit of revise.",
                         "status": "Pending"
                     }
                 ]
@@ -152,7 +155,7 @@ class AiOrchestrator:
         print(f"Selected agent :{text}")
 
         if "math" in text or "algebra" in text or "analysis" in text \
-                or "equations" in text or "pde" in text or "ode" in text:
+                or "equations" in text or "pde" in text or "ode" or "astro" in text:
             return self.math_agent
 
         if "computer" in text or "programming" in text or "cs" in text \
