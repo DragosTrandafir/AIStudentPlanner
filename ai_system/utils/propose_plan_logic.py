@@ -26,13 +26,12 @@ def propose_plan(task, general_university_type, client):
     name = task['subject_name/project_name']
     start_datetime = task['start_datetime']
     end_datetime = task['end_datetime']
-    type_ = task['type'].lower()  # Normalize to lowercase
+    type_ = task['type']
     difficulty = task['difficulty']
     description = task['description']
     status = task['status']
 
     # Define a configuration map for all possible (exam type, university type) pairs
-    # Keys use lowercase type values to match backend enums: "written", "practical", "project"
     prompt_map = {
         ("practical", "Computer Science"): (
             get_practical_exam_heuristics_cs,
