@@ -43,13 +43,10 @@ def generate_calendar_instructions(plans_array, date):
         "ESSENTIAL CONSTRAINTS (MUST NEVER BE VIOLATED):\n"
         "- NEVER schedule tasks for a subject/project after its deadline.\n"
         "- ALL tasks must finish at least 2 hours BEFORE the exact deadline timestamp.\n"
-        "- Each task from the input plans MUST appear exactly ONCE in the entire calendar.\n"
         "- Schedule tasks AS CLOSE AS POSSIBLE to their deadlines; do NOT be proactive.\n"
-        "- Do not schedule overlapping time ranges on the same day.\n"
-        "- Skip days with no tasks; do not create empty calendar entries.\n\n"
+        "- DO NOT schedule overlapping time ranges on the same day.\n"
 
         "DEADLINE INTERPRETATION:\n"
-        "- Deadlines include BOTH date and time.\n"
         "- On a deadline date, the LAST allowed study time is (deadline time minus 2 hours).\n"
         "- If a deadline occurs before 08:00, NO tasks may be scheduled on that date.\n\n"
 
@@ -72,7 +69,6 @@ def generate_calendar_instructions(plans_array, date):
 
         "PRIORITY RULES:\n"
         "- Exams or projects with closer deadlines ALWAYS take precedence.\n"
-        "- Within a day, higher difficulty and higher task priority come first.\n"
         "- Priority values MUST start at 1 for the MOST important task of the day and be unique within that day.\n\n"
 
         "SCHEDULING PHILOSOPHY:\n"
@@ -85,14 +81,12 @@ def generate_calendar_instructions(plans_array, date):
         "- In such cases, prioritize covering ALL topics superficially over partial deep learning.\n"
         "- The deadline boundary must NEVER be violated.\n\n"
 
-        "NOTES FIELD USAGE:\n"
-        "- Use notes sparingly.\n"
-        "- Notes may mention focus tips, fatigue warnings, or exam proximity.\n"
-        "- Notes must be at most ONE short sentence.\n\n"
 
         "FINAL OUTPUT RULE:\n"
         "- Output ONLY the final JSON object.\n"
-        "- Any deviation from the specified structure is INVALID."
+        "- Any deviation from the specified structure is INVALID.\n"
+        "- REVIEW the generated schedule once more before providing it - make sure ALL the rules and constrains are "
+        "respected!!!"
     )
 
     return prompt
