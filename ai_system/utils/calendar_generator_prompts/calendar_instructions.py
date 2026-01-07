@@ -41,8 +41,7 @@ def generate_calendar_instructions(plans_array, date):
         "}\n\n"
 
         "ESSENTIAL CONSTRAINTS (MUST NEVER BE VIOLATED):\n"
-        "- NEVER schedule tasks for a subject/project after its deadline.\n"
-        "- ALL tasks must finish at least 2 hours BEFORE the exact deadline timestamp.\n"
+        "- ALL tasks must finish at least 2 hours BEFORE any deadline and start later than 4 ours AFTER.\n"
         "- Schedule tasks AS CLOSE AS POSSIBLE to their deadlines; do NOT be proactive.\n"
         "- DO NOT schedule overlapping time ranges on the same day.\n"
 
