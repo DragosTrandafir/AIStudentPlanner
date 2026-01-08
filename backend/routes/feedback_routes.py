@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
@@ -14,7 +14,8 @@ router = APIRouter(prefix="/users/{user_id}/feedback", tags=["feedback"])
 
 
 class FeedbackCreateRequest(BaseModel):
-    plan_id: int
+    plan_id: Optional[int] = None  # For convenience - we'll look up generation_id
+    generation_id: Optional[str] = None  # Direct generation_id reference
     rating: int
     comments: Optional[str] = None
 
@@ -22,13 +23,19 @@ class FeedbackCreateRequest(BaseModel):
 class FeedbackResponse(BaseModel):
     id: int
     user_id: int
-    plan_id: int
+    generation_id: str
     rating: int
     comments: Optional[str]
     created_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class LastTwoScheduleFeedbackResponse(BaseModel):
+    """Feedback from last two schedules."""
+    current_feedback: Optional[FeedbackResponse] = None
+    last_feedback: Optional[FeedbackResponse] = None
 
 
 @router.get("/history", response_model=List[FeedbackResponse])
@@ -64,10 +71,14 @@ def list_user_feedback_latest(user_id: int):
         latest = service.get_latest_feedback_for_user(user_id, limit=2)
         return latest
 
-
 @router.post("/", response_model=FeedbackResponse, status_code=status.HTTP_201_CREATED)
 def add_feedback(user_id: int, payload: FeedbackCreateRequest):
-    """Add a new feedback for a specific plan."""
+    """Add feedback for a schedule/generation.
+    
+    Can provide either:
+    - generation_id: directly reference the schedule UUID
+    - plan_id: we'll look up the generation_id from the plan
+    """
     with get_session() as session:
         user_repo = UserRepository(session)
         plan_repo = PlanRepository(session)
@@ -76,20 +87,12 @@ def add_feedback(user_id: int, payload: FeedbackCreateRequest):
         if not user_repo.get(user_id):
             raise HTTPException(status_code=404, detail="User not found")
         
-        # Check if plan exists
-        plan = plan_repo.get(payload.plan_id)
-        if not plan:
-            raise HTTPException(status_code=404, detail="Plan not found")
-        
-        # Check if plan belongs to user
-        if plan.user_id != user_id:
-            raise HTTPException(status_code=403, detail="Plan does not belong to this user")
-        
         feedback_repo = FeedbackRepository(session)
         service = FeedbackService(feedback_repo, user_repo, plan_repo)
         try:
             feedback = service.create_feedback(
                 user_id=user_id,
+                generation_id=payload.generation_id,
                 plan_id=payload.plan_id,
                 rating=payload.rating, 
                 comments=payload.comments

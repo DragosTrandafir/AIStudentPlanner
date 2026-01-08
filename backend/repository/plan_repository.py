@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import date
 from typing import List, Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session, joinedload
 
 from backend.domain.plan import Plan
@@ -38,3 +38,21 @@ class PlanRepository(BaseRepository[Plan]):
             joinedload(Plan.ai_tasks).joinedload(AITask.subject)
         )
         return self.session.scalar(stmt)
+
+    def get_latest_generation(self, user_id: int) -> List[Plan]:
+        """Get all plans from the latest generation (most recently created) for a user."""
+        # Subquery to get the latest generation_id by max(created_at)
+        subq = select(Plan.generation_id).where(
+            Plan.user_id == user_id,
+            Plan.generation_id.isnot(None)
+        ).group_by(Plan.generation_id).order_by(
+            func.max(Plan.created_at).desc()
+        ).limit(1).correlate_except(Plan).scalar_subquery()
+        
+        stmt = select(Plan).where(
+            Plan.user_id == user_id,
+            Plan.generation_id == subq
+        ).options(
+            joinedload(Plan.ai_tasks).joinedload(AITask.subject)
+        ).order_by(Plan.plan_date.asc())
+        return list(self.session.scalars(stmt).unique().all())

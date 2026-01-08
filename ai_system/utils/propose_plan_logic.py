@@ -49,23 +49,22 @@ def propose_plan(task, general_university_type, client):
             get_written_exam_heuristics_math,
             get_written_exam_example_math,
         ),
-        ("project", "Computer Science"):
-            (get_project_heuristics_cs,
-             get_project_example_cs
-             ),
-        ("project", "Mathematics"):
-            (get_project_heuristics_math,
-             get_project_example_math
-             ),
-        ("Assignment", "Computer Science"):
-            (get_assignment_heuristics_cs(),
-             get_assignment_example_cs()
-             ),
-        ("Assignment", "Mathematics"):
-            (get_assignment_heuristics_math(),
-             get_assignment_example_math()
-             ),
-
+        ("project", "Computer Science"): (
+            get_project_heuristics_cs,
+            get_project_example_cs,
+        ),
+        ("project", "Mathematics"): (
+            get_project_heuristics_math,
+            get_project_example_math,
+        ),
+        ("assignment", "Computer Science"): (
+            get_assignment_heuristics_cs,
+            get_assignment_example_cs,
+        ),
+        ("assignment", "Mathematics"): (
+            get_assignment_heuristics_math,
+            get_assignment_example_math,
+        ),
     }
 
     # Get the right functions for the given combination
