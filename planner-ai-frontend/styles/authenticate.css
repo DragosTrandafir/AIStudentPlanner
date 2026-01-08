@@ -1,0 +1,340 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+
+/* =========================
+   OVERLAY & CONTAINER
+   ========================= */
+
+.login-overlay {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: linear-gradient(
+    135deg,
+    #fbfbfb,
+    #031a58
+    
+  ); 
+
+  z-index: 9999;
+}
+
+
+.login-container {
+  width: 900px;
+  height: 520px;
+  background: #ffffff;
+  border-radius: 18px;
+  display: flex;
+  overflow: hidden;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
+}
+
+/* =========================
+   LEFT PANEL 
+   ========================= */
+
+.login-left {
+  flex: 1;
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  color: #ffffff;
+  padding: 48px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Header (top-left aligned) */
+.login-left-header {
+  text-align: left;
+}
+
+.login-left-header h1 {
+  font-size: 36px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.login-left-header p {
+  font-size: 15px;
+  opacity: 0.9;
+  max-width: 280px;
+}
+
+/* =========================
+   REGISTER CTA (CENTERED)
+   ========================= */
+
+.register-cta {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.register-text {
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  opacity: 0.9;
+  line-height: 1.45;
+  margin-bottom: 18px;
+  max-width: 260px;
+}
+
+/* Register button */
+.register-btn {
+  width: 180px;
+  padding: 12px 0;
+  border-radius: 12px;
+
+  background: transparent;
+  color: #ffffff;
+
+  font-size: 16px;
+  font-weight: 600;
+
+  border: 2px solid #ffffff;
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+.register-btn:hover {
+  background: #ffffff;
+  color: #2f66f3;
+}
+
+
+/* Decorative shapes */
+.login-shapes span {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.login-shapes span:nth-child(1) {
+  width: 120px;
+  height: 120px;
+  top: 20px;
+  right: -40px;
+}
+
+.login-shapes span:nth-child(2) {
+  width: 70px;
+  height: 70px;
+  bottom: 80px;
+  left: 40px;
+}
+
+.login-shapes span:nth-child(3) {
+  width: 50px;
+  height: 50px;
+  bottom: 30px;
+  right: 70px;
+}
+
+/* =========================
+   RIGHT PANEL s(FORM)
+   ========================= */
+
+.login-right {
+  flex: 1;
+  padding: 64px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-right h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 28px;
+}
+
+.login-right form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-right input {
+  padding: 13px 14px;
+  font-size: 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  margin-bottom: 16px;
+  outline: none;
+}
+
+.login-right input:focus {
+  border-color: #2563eb;
+}
+
+/* =========================
+   REMEMBER / FORGOT
+   ========================= */
+
+.login-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  margin-bottom: 26px;
+}
+
+.login-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.login-options input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  translate: 0 1px;
+  cursor: pointer;
+}
+
+.login-options a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+/* =========================
+   MAIN BUTTON
+   ========================= */
+
+.login-right button {
+  padding: 14px;
+  border-radius: 12px;
+  background: #1347b6;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+
+.login-right button:hover {
+  background: #1e40af;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 900px) {
+  .login-container {
+    width: 95%;
+    height: auto;
+    flex-direction: column;
+  }
+
+  .login-left,
+  .login-right {
+    padding: 40px;
+  }
+}
+
+.register-title {
+  font-size: 30px;      
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.auth-switch {
+  margin-top: 18px;
+  font-size: 13px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.auth-switch span {
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.auth-switch span:hover {
+  text-decoration: underline;
+}
+
+.login-left .register-text {
+  margin-top: 20px;
+  margin-bottom: 16px;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+
+  max-width: none;
+  white-space: nowrap;
+}
+
+/* PASSWORD FIELD WITH TOGGLE */
+
+.password-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 1px solid #d6dbe5;
+  border-radius: 10px;
+  background: #fff;
+  margin-bottom: 16px;
+
+  padding-right: 0;
+}
+
+.password-wrapper input {
+  border: none;
+  outline: none;
+  flex: 1;
+  padding: 13px 14px;
+  font-size: 14px;
+  background: transparent;
+  margin-bottom: 0; 
+}
+
+.password-wrapper input:focus {
+  border-color: #2563eb;
+}
+
+.password-toggle {
+  width: 40px;
+  height: 40px;
+  margin-right: 4px;   
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #4b6cb7;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.password-toggle:hover {
+  background: rgba(75, 108, 183, 0.12);
+}
+
+.form-error {
+  color: #dc2626;
+  font-size: 13px;
+  margin: 8px 0 12px;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

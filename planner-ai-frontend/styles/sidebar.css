@@ -1,108 +1,229 @@
-/* --------------------------------------------------
-   THEME SWITCHER BUTTONS (safe to paste)
-   -------------------------------------------------- */
-
 /* ------------------------------------
-   SIDEBAR BASE (THEME-AWARE)
+   SIDEBAR BASE
 ------------------------------------ */
 .sidebar {
   background: var(--surface-1);
   border-right: 1px solid var(--border-main);
-
   width: 260px;
   padding: 20px;
 
   display: flex;
   flex-direction: column;
-  gap: 24px;
-
-  /* OPTIONAL: remove if you don’t want it */
-  box-shadow: 2px 0 6px rgba(0,0,0,0.05);
+  gap: 22px;
 }
 
+/* =========================
+   USER AVATAR (THEME AWARE)
+========================= */
+.user-avatar {
+  align-self: center;
+  margin-top: 6px;
+  margin-bottom: 6px;
 
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* LIGHT THEME – darker blue */
+.user-avatar.light {
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: white;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+}
+
+/* DARK THEME – YELLOW (as requested) */
+.user-avatar.dark {
+  background: linear-gradient(135deg, #facc15, #f59e0b);
+  color: #1a1a1a;
+  box-shadow: 0 8px 22px rgba(250, 204, 21, 0.45);
+}
+
+/* PINK THEME */
+.user-avatar.pink {
+  background: linear-gradient(135deg, #ec4899, #f472b6);
+  color: white;
+  box-shadow: 0 8px 20px rgba(236, 72, 153, 0.35);
+}
+
+.user-avatar:hover {
+  transform: scale(1.08);
+}
+
+/* ------------------------------------
+   THEME SWITCHER
+------------------------------------ */
 
 .theme-switcher {
   display: flex;
-  gap: 12px;
-  margin: 18px 0;
+  justify-content: center; /* ⬅️ CENTER */
+  gap: 10px;
+  margin-top: 12px;
 }
 
+/* Base button */
 .theme-icon-btn {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 12px;
+
   border: 1px solid var(--border-light);
   background: var(--surface-2);
   color: var(--text-main);
 
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
 
   cursor: pointer;
   transition:
-    background 0.18s ease,
-    border-color 0.18s ease,
-    color 0.18s ease,
-    transform 0.18s ease;
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
+/* 🔁 HOVER (BACK LIKE BEFORE) */
 .theme-icon-btn:hover {
   background: var(--surface-3);
-  transform: translateY(-2px);
-}
-
-/* Active/selected theme */
-.theme-icon-btn.active {
   border-color: var(--accent);
-  background: var(--surface-3);
   color: var(--accent);
-  transform: scale(1.03);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 }
 
+/* ACTIVE THEME */
+.theme-icon-btn.active {
+  background: var(--accent);
+  color: var(--text-on-accent);
+  border-color: var(--accent);
+  transform: scale(1.05);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+/* Icons inside */
 .theme-icon-btn svg {
   width: 20px;
   height: 20px;
   pointer-events: none;
 }
-.feedback-sidebar-btn {
-  width: 100%;
-  padding: 10px 12px;
-  margin-bottom: 12px;
-  border-radius: 8px;
-  background: var(--accent);
-  color: var(--text-on-accent);
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
+
+
+
+/* =========================
+   AI + FEEDBACK
+========================= */
+.ai-buttons {
+  margin-top: 10px;
 }
 
+.ai-generate-btn,
+.feedback-sidebar-btn {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+
+  background: var(--accent);
+  color: var(--text-on-accent);
+
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.ai-generate-btn:hover,
 .feedback-sidebar-btn:hover {
   background: var(--accent-hover);
 }
-.ai-buttons {
-  margin: 20px 0;
+
+/* Footer container */
+.profile-footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end; /* ⬅ bottom-right */
+}
+
+.user-modal {
+  width: 380px;
+  padding: 24px;
+  border-radius: 16px;
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+
+  /* 🔥 ASTA LIPSEA */
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
 }
 
-.ai-generate-btn {
-  padding: 10px 16px;
-  background: var(--accent);
-  color: var(--text-on-accent);
-  border-radius: 8px;
-  border: none;
+
+/* LIGHT */
+.user-modal.light {
+  background: var(--modal-bg-light);
+  color: var(--modal-text-light);
+  border: 1px solid var(--modal-border-light);
+}
+
+
+/* DARK */
+.user-modal.dark {
+  background: var(--modal-bg-dark);
+  color: var(--modal-text-dark);
+  border: 1px solid var(--modal-border-dark);
+}
+
+
+/* PINK */
+.user-modal.pink {
+  background: var(--modal-bg-pink);
+  color: var(--modal-text-pink);
+  border: 1px solid var(--modal-border-pink);
+}
+
+
+.user-modal .label {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.75;
+  letter-spacing: 0.02em;
+}
+
+.user-modal .value {
+  font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
 }
 
-.ai-generate-btn:hover {
-  background: var(--accent-hover);
+.user-modal .divider {
+  height: 1px;
+  margin: 22px 0;
+  background: rgba(0, 0, 0, var(--modal-divider-opacity));
 }
 
+.user-modal.dark .divider {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+
+/* De aici incepe partea din main */
+
+.signout-btn {
+  padding: 8px 18px;
+  border-radius: 10px;
+
+  background: #ef4444;
+  
+  /* De aici se termina partea din main */
+  
+  /* De aici incepe partea din generate_plan_test */
 .ai-generate-btn:disabled {
   background: var(--surface-3);
   color: var(--text-secondary);
@@ -113,14 +234,18 @@
 .ai-regenerate-btn {
   padding: 10px 16px;
   background: #f39c12;
+  
+  /* Aici se termina partea din generate_plan_test */
   color: white;
-  border-radius: 8px;
-  border: none;
+
+  font-size: 14px;
   font-weight: 600;
+
+  border: none;
   cursor: pointer;
-  transition: 0.2s;
+  transition: background 0.2s ease;
 }
 
-.ai-regenerate-btn:hover {
-  background: #d68910;
+.signout-btn:hover {
+  background: #dc2626;
 }
