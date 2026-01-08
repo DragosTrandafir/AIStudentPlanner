@@ -13,7 +13,9 @@ class UserService:
         self,
         *,
         name: str,
+        username: str,
         email: str,
+        password: str,
         major: Optional[str] = None,
         google_id: Optional[str] = None
     ) -> User:
@@ -23,9 +25,10 @@ class UserService:
             raise ValueError("Email is required")
 
         # Enforce unique email and google_id at service level (db also enforces)
-        existing = self.user_repo.get_by_email(email)
-        if existing:
+        if self.user_repo.get_by_email(email):
             raise ValueError("A user with this email already exists")
+        if self.user_repo.get_by_username(username):
+            raise ValueError("A user with this username already exists")
         if google_id:
             existing_google = self.user_repo.get_by_google_id(google_id)
             if existing_google:
@@ -33,7 +36,9 @@ class UserService:
 
         user = User()
         user.name = name.strip()
+        user.username = username.strip()
         user.email = email.strip()
+        user.password = password.strip()
         user.major = major.strip() if major else None
         user.google_id = google_id
 
@@ -99,3 +104,16 @@ class UserService:
 
         self.user_repo.delete(user)
         return True
+
+    def login_user(self, username_or_email: str, password: str) -> User:
+        if not username_or_email.strip() or not password.strip():
+            raise ValueError("Username/email and password are required")
+
+        user = self.user_repo.get_by_username_or_email(username_or_email.strip())
+        if not user:
+            raise ValueError("User not found")
+
+        if user.password != password.strip():  # plain text check
+            raise ValueError("Incorrect password")
+
+        return user

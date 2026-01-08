@@ -28,3 +28,54 @@
   background: var(--accent) !important;
   color: var(--text-on-accent) !important;
 }
+
+/* ============================
+   HARD OVERRIDE: remove white time column (ALL themes)
+   Put this at the END of date_picker.css
+============================ */
+
+.react-datepicker,
+.react-datepicker * {
+  box-sizing: border-box;
+}
+
+.react-datepicker,
+.react-datepicker__time-container,
+.react-datepicker__time,
+.react-datepicker__time-box,
+.react-datepicker__time-list,
+.react-datepicker__time-list-item {
+  background-color: var(--surface-2) !important;
+  color: var(--text-main) !important;
+}
+
+/* the "Time" header area */
+.react-datepicker__time-container .react-datepicker__header {
+  background-color: var(--surface-3) !important;
+  border-bottom: 1px solid var(--border-main) !important;
+}
+
+/* the BIG white strip is usually this exact UL */
+.react-datepicker__time-container
+  .react-datepicker__time
+  .react-datepicker__time-box
+  ul.react-datepicker__time-list {
+  background-color: var(--surface-2) !important;
+  color: var(--text-main) !important;
+}
+
+/* time rows */
+.react-datepicker__time-list-item {
+  background-color: var(--surface-2) !important;
+  color: var(--text-main) !important;
+}
+
+.react-datepicker__time-list-item:hover {
+  background-color: var(--surface-3) !important;
+}
+
+/* selected time */
+.react-datepicker__time-list-item--selected {
+  background-color: var(--accent) !important;
+  color: var(--text-on-accent) !important;
+}
