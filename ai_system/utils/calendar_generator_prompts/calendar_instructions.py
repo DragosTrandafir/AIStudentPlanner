@@ -45,10 +45,6 @@ def generate_calendar_instructions(plans_array, date):
         "- Schedule tasks AS CLOSE AS POSSIBLE to their deadlines; do NOT be proactive.\n"
         "- DO NOT schedule overlapping time ranges on the same day.\n"
 
-        "DEADLINE INTERPRETATION:\n"
-        "- On a deadline date, the LAST allowed study time is (deadline time minus 2 hours).\n"
-        "- If a deadline occurs before 08:00, NO tasks may be scheduled on that date.\n\n"
-
         "TASK SPLITTING RULES:\n"
         "- No single study block may exceed 2 hours (excluding breaks).\n"
         "- Tasks longer than 2 hours MUST be split across multiple blocks or days.\n"
@@ -79,7 +75,6 @@ def generate_calendar_instructions(plans_array, date):
         "  shorter task blocks, task merging, or shallower coverage.\n"
         "- In such cases, prioritize covering ALL topics superficially over partial deep learning.\n"
         "- The deadline boundary must NEVER be violated.\n\n"
-
 
         "FINAL OUTPUT RULE:\n"
         "- Output ONLY the final JSON object.\n"

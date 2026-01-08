@@ -112,9 +112,10 @@ class AiOrchestrator:
                 ]
             }
 
-        tasks_input: List[Dict[str, Any]] = (
-            user_data.get("tasks")
-        )
+        tasks_input: List[Dict[str, Any]] = [
+            task for task in user_data.get("tasks", [])
+            if task.get("status") != "Completed"
+        ]
 
         max_workers = min(8, len(tasks_input))  # safe default for HF APIs
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
