@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import CalendarPage from "@/components/calendar/MainCalendar";
-import LoginLayout from "@/components/authenticate/login/LoginLayout";
-import RegisterLayout from "@/components/authenticate/register/RegisterLayout";
+import LoginLayout from "@/components/authenticate/LoginLayout";
+import RegisterLayout from "@/components/authenticate/RegisterLayout";
 import "@/styles/authenticate.css";
 
 type View = "login" | "register" | "app";

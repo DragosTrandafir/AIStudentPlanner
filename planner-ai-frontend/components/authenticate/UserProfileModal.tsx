@@ -1,14 +1,9 @@
 "use client";
 import "@/styles/user_detail.css";
-
-type User = {
-  fullName: string;
-  username: string;
-  email: string;
-};
+import { clearUser, type StoredUser } from "@/utils/userStorage";
 
 type Props = {
-  user: User;
+  user: StoredUser;   // pass current user as prop
   theme: "light" | "dark" | "pink";
   onClose: () => void;
   onSignOut: () => void;
@@ -20,11 +15,14 @@ export default function UserProfileModal({
   onClose,
   onSignOut,
 }: Props) {
+  const handleSignOut = () => {
+    clearUser();       // remove from localStorage
+    onSignOut();       // notify parent to update state / hide modal
+  };
+
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
-      
       <div className={`user-modal ${theme}`}>
-
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
@@ -54,7 +52,7 @@ export default function UserProfileModal({
         <div className="divider" />
 
         <div className="profile-footer">
-          <button className="signout-btn" onClick={onSignOut}>
+          <button className="signout-btn" onClick={handleSignOut}>
             Sign out
           </button>
         </div>

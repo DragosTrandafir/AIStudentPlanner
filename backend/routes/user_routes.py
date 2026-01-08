@@ -13,7 +13,9 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 class UserCreateRequest(BaseModel):
     name: str
+    username: str
     email: str
+    password: str
     major: Optional[str] = None
     google_id: Optional[str] = None
 
@@ -28,6 +30,22 @@ class UserUpdateRequest(BaseModel):
 class UserResponse(BaseModel):
     id: int
     name: str
+    username: str
+    email: str
+    major: Optional[str]
+    google_id: Optional[str]
+    created_at: datetime
+
+
+class LoginRequest(BaseModel):
+    username_or_email: str
+    password: str
+
+
+class LoginResponse(BaseModel):
+    id: int
+    name: str
+    username: str
     email: str
     major: Optional[str]
     google_id: Optional[str]
@@ -37,6 +55,17 @@ class UserResponse(BaseModel):
         from_attributes = True
 
 
+@router.post("/login", response_model=LoginResponse)
+def login(payload: LoginRequest):
+    """User login with username/email and password"""
+    with get_session() as session:
+        service = UserService(UserRepository(session))
+        try:
+            user = service.login_user(payload.username_or_email, payload.password)
+            return user
+        except ValueError as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def add_user(payload: UserCreateRequest):
     """Create a new user."""
@@ -45,7 +74,9 @@ def add_user(payload: UserCreateRequest):
         try:
             user = service.create_user(
                 name=payload.name,
+                username=payload.username,
                 email=payload.email,
+                password=payload.password,
                 major=payload.major,
                 google_id=payload.google_id
             )

@@ -213,17 +213,6 @@
 }
 
 
-/* De aici incepe partea din main */
-
-.signout-btn {
-  padding: 8px 18px;
-  border-radius: 10px;
-
-  background: #ef4444;
-  
-  /* De aici se termina partea din main */
-  
-  /* De aici incepe partea din generate_plan_test */
 .ai-generate-btn:disabled {
   background: var(--surface-3);
   color: var(--text-secondary);
@@ -232,14 +221,31 @@
 }
 
 .ai-regenerate-btn {
+  width: 100%;
   padding: 10px 16px;
+  border-radius: 8px;
+
   background: #f39c12;
-  
-  /* Aici se termina partea din generate_plan_test */
   color: white;
 
   font-size: 14px;
   font-weight: 600;
+
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.ai-regenerate-btn:hover {
+  background: #e08e0b;
+}
+
+.signout-btn {
+  padding: 8px 18px;
+  border-radius: 10px;
+
+  background: #ef4444;
+  color: white;
 
   border: none;
   cursor: pointer;

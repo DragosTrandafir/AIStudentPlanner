@@ -21,28 +21,42 @@ export default function RegisterForm({
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(e: React.FormEvent) {
+  e.preventDefault();
 
-    if (
-      !fullName.trim() ||
-      !username.trim() ||
-      !email.trim() ||
-      !password.trim() ||
-      !confirm.trim()
-    ) {
-      setError("Please fill in all fields.");
-      return;
-    }
-
-    if (password !== confirm) {
-      setError("Passwords do not match.");
-      return;
-    }
-
-    setError("");
-    onRegisterSuccess();
+  if (!fullName || !username || !email || !password || !confirm) {
+    setError("Please fill in all fields.");
+    return;
   }
+
+  if (password !== confirm) {
+    setError("Passwords do not match.");
+    return;
+  }
+
+  try {
+    const res = await fetch("http://localhost:8000/users/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: fullName,
+        username: username,
+        email: email,
+        password: password,
+      }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      setError(data.detail || "Registration failed");
+      return;
+    }
+
+    onRegisterSuccess();
+  } catch (err) {
+    setError("Server unreachable");
+  }
+}
 
   return (
     <div className="login-right">

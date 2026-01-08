@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { User, Sun, Moon, Sparkles } from "lucide-react";
 
-import UserProfileModal from "@/components/authenticate/user/UserProfileModal";
+import UserProfileModal from "@/components/authenticate/UserProfileModal";
 import MiniMonthView from "@/components/calendar/MiniMonthView";
 import { useTheme } from "@/components/context/ThemeContext";
 import FeedbackModal from "@/components/modals/FeedbackModal";

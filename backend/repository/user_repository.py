@@ -23,3 +23,13 @@ class UserRepository(BaseRepository[User]):
     def get_by_google_id(self, google_id: str) -> Optional[User]:
         stmt = select(User).where(User.google_id == google_id)
         return self.session.scalar(stmt)
+
+    def get_by_username(self, username: str) -> Optional[User]:
+        stmt = select(User).where(User.username == username)
+        return self.session.scalar(stmt)
+
+    def get_by_username_or_email(self, username_or_email: str) -> Optional[User]:
+        stmt = select(User).where(
+            (User.username == username_or_email) | (User.email == username_or_email)
+        )
+        return self.session.scalar(stmt)
