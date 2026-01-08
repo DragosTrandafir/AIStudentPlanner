@@ -43,7 +43,7 @@ class AiRescheduler:
             fb = {}
 
         current_feedback = fb.get("current_feedback") or {
-            "text": fb.get("feedback", "No feedback provided")
+            "current_feedback": fb.get("feedback", "No feedback provided")
         }
         last_feedback = fb.get("last_feedback") or {}
 
@@ -55,10 +55,14 @@ class AiRescheduler:
             latest_schedule = {"calendar": []}
 
         context = {
-            "current_feedback": current_feedback,
             "last_feedback": last_feedback,
             "last_schedule": latest_schedule,
+            "current_feedback": current_feedback
         }
+
+        print("---------------------- CONTEXT ------------------------")
+        print(context)
+        print("---------------------- CONTEXT ------------------------")
 
         new_schedule = self.agent.propose_agent_plan(context)
 

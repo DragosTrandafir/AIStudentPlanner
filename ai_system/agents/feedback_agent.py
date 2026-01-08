@@ -26,17 +26,16 @@ class FeedbackAgent(BaseAgent):
         """
         client = InferenceClient(model=self.model, token=self.token)
 
-        current_feedback: Dict[str, Any] = context.get("current_feedback", {}) or {}
         last_feedback: Dict[str, Any] = context.get("last_feedback", {}) or {}
         last_schedule: Dict[str, Any] = context.get("last_schedule", {}) or {}
+        current_feedback: Dict[str, Any] = context.get("current_feedback", {}) or {}
 
-        # 1) Call LLM
         response = propose_feedback_reschedule(
             self.date,
             client,
-            current_feedback,
             last_feedback,
             last_schedule,
+            current_feedback
         )
 
         try:
