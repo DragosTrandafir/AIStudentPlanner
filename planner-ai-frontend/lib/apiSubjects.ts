@@ -1,4 +1,5 @@
-export const USER_ID = 1;
+import { getAuthHeaders, getCurrentUserId } from "@/utils/apiUtils";
+
 const BASE_URL = "http://localhost:8000";
 
 export interface SubjectCreatePayload {
@@ -13,9 +14,10 @@ export interface SubjectCreatePayload {
 }
 
 export async function createSubject(subject: SubjectCreatePayload) {
+  const USER_ID = getCurrentUserId();
   const res = await fetch(`${BASE_URL}/users/${USER_ID}/subjects`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: getAuthHeaders(),
     body: JSON.stringify(subject),
   });
 
@@ -27,13 +29,20 @@ export async function createSubject(subject: SubjectCreatePayload) {
 }
 
 export async function getSubjects() {
-  const res = await fetch(`${BASE_URL}/users/${USER_ID}/subjects`);
-  if (!res.ok) throw new Error("Failed to load subjects");
-  return res.json();
+    const USER_ID = getCurrentUserId();
+    const res = await fetch(`${BASE_URL}/users/${USER_ID}/subjects`, {
+        method: "GET",
+        headers: getAuthHeaders()
+      });
+
+      if (!res.ok) throw new Error("Failed to load subjects");
+      return res.json();
 }
 export async function deleteSubject(subjectId: number) {
+  const USER_ID = getCurrentUserId();
   const res = await fetch(`${BASE_URL}/users/${USER_ID}/subjects/${subjectId}`, {
     method: "DELETE",
+    headers: getAuthHeaders()
   });
 
   if (!res.ok) {
@@ -42,9 +51,10 @@ export async function deleteSubject(subjectId: number) {
   }
 }
 export async function updateSubject(id: number, subject: SubjectCreatePayload) {
+  const USER_ID = getCurrentUserId();
   const res = await fetch(`${BASE_URL}/users/${USER_ID}/subjects/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: getAuthHeaders(),
     body: JSON.stringify(subject),
   });
 

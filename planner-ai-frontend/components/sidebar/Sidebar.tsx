@@ -130,14 +130,13 @@ export default function Sidebar({
      {/* USER PROFILE MODAL */}
       {showProfile && (
         <UserProfileModal
-          user={displayUser}           // ✅ Passing real data
+            user={displayUser}
 
-          onClose={() => setShowProfile(false)}
-          onSignOut={() => {
-            setShowProfile(false);
-            window.location.reload();
-          }}
-        />
+            onClose={() => setShowProfile(false)}
+            onSignOut={() => {
+                setShowProfile(false);
+                window.location.reload();
+            }} theme={"light"}        />
       )}
 
     </aside>

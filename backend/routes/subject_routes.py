@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional, List
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
 
@@ -9,7 +9,7 @@ from backend.domain.enums import SubjectType, SubjectStatus
 from backend.repository.subject_repository import SubjectRepository
 from backend.repository.user_repository import UserRepository
 from backend.service.subject_service import SubjectService
-
+from backend.security import get_current_user_id
 router = APIRouter(prefix="/users/{user_id}/subjects", tags=["subjects"])
 
 
@@ -52,8 +52,10 @@ class SubjectResponse(BaseModel):
 
 
 @router.post("/", response_model=SubjectResponse, status_code=status.HTTP_201_CREATED)
-def add_subject(user_id: int, payload: SubjectCreateRequest):
+def add_subject(user_id: int, payload: SubjectCreateRequest, current_user_id: int = Depends(get_current_user_id)):
     """Add a new subject to a specific user."""
+    if user_id != current_user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to modify this user's data")
     with get_session() as session:
         user_repo = UserRepository(session)
         
@@ -83,8 +85,10 @@ def add_subject(user_id: int, payload: SubjectCreateRequest):
 
 
 @router.get("/", response_model=List[SubjectResponse])
-def list_user_subjects(user_id: int):
+def list_user_subjects(user_id: int, current_user_id: int = Depends(get_current_user_id)):
     """List all subjects for a specific user."""
+    if user_id != current_user_id:  # <--- Security Check
+        raise HTTPException(status_code=403, detail="Not authorized")
     with get_session() as session:
         user_repo = UserRepository(session)
         
@@ -98,8 +102,10 @@ def list_user_subjects(user_id: int):
 
 
 @router.get("/{subject_id}", response_model=SubjectResponse)
-def get_subject(user_id: int, subject_id: int):
+def get_subject(user_id: int, subject_id: int, current_user_id: int = Depends(get_current_user_id)):
     """Get a specific subject for a user."""
+    if user_id != current_user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
     with get_session() as session:
         user_repo = UserRepository(session)
         
@@ -121,8 +127,10 @@ def get_subject(user_id: int, subject_id: int):
 
 
 @router.put("/{subject_id}", response_model=SubjectResponse)
-def update_subject(user_id: int, subject_id: int, payload: SubjectUpdateRequest):
+def update_subject(user_id: int, subject_id: int, payload: SubjectUpdateRequest, current_user_id: int = Depends(get_current_user_id)):
     """Update a subject for a specific user."""
+    if user_id != current_user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
     with get_session() as session:
         user_repo = UserRepository(session)
         
@@ -161,8 +169,10 @@ def update_subject(user_id: int, subject_id: int, payload: SubjectUpdateRequest)
 
 
 @router.delete("/{subject_id}", status_code=status.HTTP_204_NO_CONTENT)
-def remove_subject(user_id: int, subject_id: int):
+def remove_subject(user_id: int, subject_id: int,current_user_id: int = Depends(get_current_user_id)):
     """Remove a subject from a specific user."""
+    if user_id != current_user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
     with get_session() as session:
         user_repo = UserRepository(session)
         

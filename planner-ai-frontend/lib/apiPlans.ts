@@ -1,4 +1,4 @@
-import { USER_ID } from "./apiSubjects";
+import { getAuthHeaders, getCurrentUserId } from "@/utils/apiUtils";
 
 const BASE_URL = "http://localhost:8000";
 
@@ -29,10 +29,11 @@ export interface GeneratedPlanResponse {
  * This calls the AI orchestrator to create study tasks.
  */
 export async function generatePlan(): Promise<GeneratedPlanResponse> {
+  const USER_ID = getCurrentUserId();
   try {
     const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans/generate`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
     });
 
     if (!res.ok) {
@@ -51,9 +52,12 @@ export async function generatePlan(): Promise<GeneratedPlanResponse> {
  * Get all plans for the user.
  */
 export async function getPlans(): Promise<PlanResponse[]> {
+  const USER_ID = getCurrentUserId();
   try {
-    const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans`);
-
+  const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans`, {
+      method: "GET",
+      headers: getAuthHeaders()
+    });
     if (!res.ok) {
       throw new Error("Failed to load plans");
     }
@@ -69,8 +73,10 @@ export async function getPlans(): Promise<PlanResponse[]> {
  * Get the latest plan for the user.
  */
 export async function getLatestPlan(): Promise<PlanResponse> {
-  const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans/latest`);
-
+  const USER_ID = getCurrentUserId();
+  const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans/latest`, {
+      headers: getAuthHeaders()
+  });
   if (!res.ok) {
     throw new Error("Failed to load latest plan");
   }
@@ -82,8 +88,10 @@ export async function getLatestPlan(): Promise<PlanResponse> {
  * Get the latest schedule (all plans from the latest generation).
  */
 export async function getLatestSchedule(): Promise<PlanResponse[]> {
+  const USER_ID = getCurrentUserId();
   try {
-    const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans/latest-schedule`);
+    const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans/latest-schedule`,
+        {headers: getAuthHeaders()});
 
     if (!res.ok) {
       console.log(`[getLatestSchedule] HTTP ${res.status}`);
@@ -100,7 +108,9 @@ export async function getLatestSchedule(): Promise<PlanResponse[]> {
  * Get plan history for the user.
  */
 export async function getPlanHistory(): Promise<PlanResponse[]> {
-  const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans/history`);
+  const USER_ID = getCurrentUserId();
+  const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans/history`,
+        {headers: getAuthHeaders()});
 
   if (!res.ok) {
     throw new Error("Failed to load plan history");
@@ -115,6 +125,7 @@ export async function getPlanHistory(): Promise<PlanResponse[]> {
 export async function deleteAiTask(planId: number, aiTaskId: number): Promise<void> {
   const res = await fetch(`${BASE_URL}/plans/${planId}/ai-tasks/${aiTaskId}`, {
     method: "DELETE",
+    headers: getAuthHeaders()
   });
 
   if (!res.ok) {
@@ -127,8 +138,10 @@ export async function deleteAiTask(planId: number, aiTaskId: number): Promise<vo
  * Delete an entire plan.
  */
 export async function deletePlan(planId: number): Promise<void> {
+  const USER_ID = getCurrentUserId();
   const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans/${planId}`, {
     method: "DELETE",
+    headers: getAuthHeaders()
   });
 
   if (!res.ok) {
@@ -147,10 +160,11 @@ export async function submitFeedback(
   generationId?: string,
   planId?: number
 ): Promise<void> {
+  const USER_ID = getCurrentUserId();
   try {
     const res = await fetch(`${BASE_URL}/users/${USER_ID}/feedback`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify({
         generation_id: generationId,
         plan_id: planId,
@@ -174,10 +188,11 @@ export async function submitFeedback(
  * Reschedule a plan based on current and last feedback.
  */
 export async function reschedulePlan(): Promise<GeneratedPlanResponse> {
+  const USER_ID = getCurrentUserId();
   try {
     const res = await fetch(`${BASE_URL}/users/${USER_ID}/plans/reschedule`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
     });
 
     if (!res.ok) {

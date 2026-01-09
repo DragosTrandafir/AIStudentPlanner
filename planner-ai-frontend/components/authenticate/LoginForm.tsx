@@ -43,11 +43,15 @@ export default function LoginForm({ onLogin }: Props) {
 
       const userData = await response.json();
 
+      localStorage.setItem("authToken", userData.access_token);
+
+      const backendUser = userData.user;
 
       const formattedUser = {
-        fullName: userData.name || userData.name || "No Name",
-        username: userData.username,
-        email: userData.email
+        id: backendUser.id,
+        fullName: backendUser.name ||  "No Name",
+        username: backendUser.username,
+        email: backendUser.email
       };
 
       saveUser(formattedUser);
