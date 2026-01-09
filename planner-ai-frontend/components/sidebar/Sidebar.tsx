@@ -54,7 +54,8 @@ export default function Sidebar({
     email: "Not signed in"
   };
 
-  return (
+  // @ts-ignore
+    return (
     <aside className="sidebar">
 
       {/* USER AVATAR */}
@@ -136,7 +137,7 @@ export default function Sidebar({
             onSignOut={() => {
                 setShowProfile(false);
                 window.location.reload();
-            }} theme={"light"}        />
+            }}         />
       )}
 
     </aside>

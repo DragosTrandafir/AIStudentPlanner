@@ -39,6 +39,7 @@ export async function generatePlan(): Promise<GeneratedPlanResponse> {
     if (!res.ok) {
       const msg = await res.text();
       console.log(`[generatePlan] HTTP ${res.status}: ${msg}`);
+      throw new Error(msg);
     }
 
     return res.json();
