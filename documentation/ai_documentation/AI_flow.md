@@ -19,5 +19,6 @@ AI Flow overview
 
 2️⃣ AI Rescheduler takes the now broader context from 1) and just makes smaller or bigger changes to the previous generated schedule
 
+The model we chose for all agents and mini-agents is openai/gpt-oss-20b, as it does not require high HuggingFace inference use (such as Qwen), is fast, and although the prompt has to be shorter (it does not have such a large context windows as Qwen), can be easier to convince and prompt engineering in special cases works better, when working with it.
 
 
