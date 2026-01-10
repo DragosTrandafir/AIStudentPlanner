@@ -19,26 +19,50 @@ import { Task } from "@/types/Task";
 import "@/styles/calendar.css";
 import { getSubjects, deleteSubject } from "@/lib/apiSubjects";
 import { mapSubjectToTask } from "@/utils/subjectMapper";
+import { generatePlan, reschedulePlan, getLatestSchedule, submitFeedback, getPlans, deleteAiTask } from "@/lib/apiPlans";
+import { mapPlansToTasks } from "@/utils/aiTaskMapper";
 
 
 
 export default function MainCalendar() {
   const today = new Date();
   // ---------------- LOAD TASKS FROM BACKEND ----------------
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [subjectTasks, setSubjectTasks] = useState<Task[]>([]);
+  const [aiTasks, setAiTasks] = useState<Task[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Combined tasks for display
+  const tasks = useMemo(() => [...subjectTasks, ...aiTasks], [subjectTasks, aiTasks]);
 
   useEffect(() => {
     async function load() {
       try {
         const subjects = await getSubjects();
         const mapped = subjects.map(mapSubjectToTask);
-        setTasks(mapped);
+        setSubjectTasks(mapped);
       } catch (err) {
         console.error("Failed loading subjects", err);
       }
     }
 
     load();
+  }, []);
+
+  // Load existing AI tasks/plans on mount
+  useEffect(() => {
+    async function loadPlans() {
+      try {
+        // Load only the latest schedule (generation)
+        const latestSchedule = await getLatestSchedule();
+        if (latestSchedule && latestSchedule.length > 0) {
+          const mappedAiTasks = mapPlansToTasks(latestSchedule);
+          setAiTasks(mappedAiTasks);
+        }
+      } catch (err) {
+        console.error("Failed loading latest schedule", err);
+      }
+    }
+    loadPlans();
   }, []);
 
 
@@ -55,20 +79,21 @@ export default function MainCalendar() {
     [currentMonth]
   );
   const currentMonthLabel = currentMonth.toLocaleDateString("en-US", {
-  month: "long",
-  year: "numeric",
-});
+    month: "long",
+    year: "numeric",
+  });
 
 
 
 
 
   /* ---------------- COLORS ---------------- */
-  const typeColors = {
+  const typeColors: Record<string, string> = {
     Assignment: "#F4C2C2",
     Project: "#90EE90",
     "Written Exam": "#87CEFA",
     "Practical Exam": "#FFB6C1",
+    "AI Study Task": "#95E1D3",
   };
 
   /* ---------------- MONTH EVENT MAP ---------------- */
@@ -89,6 +114,7 @@ export default function MainCalendar() {
 
     return map;
   }, [tasks]);
+
 
   /* ---------------- NAVIGATION ---------------- */
   const next = () => {
@@ -130,57 +156,128 @@ export default function MainCalendar() {
 
   /* ---------------- SAVE TASK ---------------- */
   function handleSaveTask(task: Task) {
-  setTasks(prev => {
-    const idx = prev.findIndex(t => t.id === task.id);
-    if (idx >= 0) {
-      const copy = [...prev];
-      copy[idx] = task;   // 🔥 UPDATE in place
-      return copy;
+    // Only save subject tasks (not AI tasks)
+    if (task.isAiTask) {
+      // For now, AI tasks are read-only from the generation
+      return;
     }
-    return [...prev, task]; // 🔥 NEW
-  });
-}
 
-
+    setSubjectTasks(prev => {
+      const idx = prev.findIndex(t => t.id === task.id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = task;
+        return copy;
+      }
+      return [...prev, task];
+    });
+  }
 
   /* ---------------- DELETE TASK ---------------- */
   async function handleDelete(id: number) {
-  try {
-    await deleteSubject(id);
+    // Find the task to check if it's an AI task
+    const task = tasks.find(t => t.id === id);
 
-    setTasks((prev) => prev.filter((t) => t.id !== id));
-    setSelectedTask(null);
-  } catch (err) {
-    console.error(err);
-    alert("Failed to delete task.");
+    if (task?.isAiTask && task.planId && task.aiTaskId) {
+      // Delete AI task
+      try {
+        await deleteAiTask(task.planId, task.aiTaskId);
+        setAiTasks((prev) => prev.filter((t) => t.id !== id));
+        setSelectedTask(null);
+      } catch (err) {
+        console.error(err);
+        alert("Failed to delete AI task.");
+      }
+    } else {
+      // Delete subject task
+      try {
+        await deleteSubject(id);
+        setSubjectTasks((prev) => prev.filter((t) => t.id !== id));
+        setSelectedTask(null);
+      } catch (err) {
+        console.error(err);
+        alert("Failed to delete task.");
+      }
+    }
   }
-}
 
-/* ---------------- ADD / EDIT MODAL STATE ---------------- */
-const [showAddModal, setShowAddModal] = useState(false);
-const [editTask, setEditTask] = useState<Task | null>(null);
+  /* ---------------- ADD / EDIT MODAL STATE ---------------- */
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editTask, setEditTask] = useState<Task | null>(null);
 
-/* Open modal to CREATE a new task */
-const openAddTaskModal = () => {
-  setEditTask(null);        
-  setShowAddModal(true); 
-};
+  /* Open modal to CREATE a new task */
+  const openAddTaskModal = () => {
+    setEditTask(null);
+    setShowAddModal(true);
+  };
 
-// --- AI PLAN GENERATION PLACEHOLDERS ---
-function generateAIPlan() {
-  console.log("AI Generate Plan triggered!");
+  // --- AI PLAN GENERATION ---
+  async function generateAIPlan() {
+    console.log("AI Generate Plan triggered!");
+    setIsGenerating(true);
 
+    try {
+      const response = await generatePlan();
+      console.log("Generated plan:", response);
 
+      // Map the generated plans to Task objects for display
+      const mappedAiTasks = mapPlansToTasks(response.plans);
+      setAiTasks(mappedAiTasks);
 
-  alert("AI plan generation will be added later!");
-}
+      alert(`${response.message}`);
+    } catch (err) {
+      console.error("Failed to generate plan:", err);
+      alert("Failed to generate AI plan. Please make sure you have subjects added and try again.");
+    } finally {
+      setIsGenerating(false);
+    }
+  }
 
-function regenerateAIPlan(feedback: string) {
-  console.log("Regenerating plan with feedback:", feedback);
-  alert("Regeneration with feedback will be added later!");
-}
+  function regenerateAIPlan(feedback: string) {
+    console.log("Regenerating plan with feedback:", feedback);
+    setIsGenerating(true);
 
+    (async () => {
+      try {
+        // First, get the latest plan to submit feedback for it
+        const latestSchedule = await getLatestSchedule();
+        if (!latestSchedule || latestSchedule.length === 0) {
+          alert("No schedule found to provide feedback for.");
+          setIsGenerating(false);
+          return;
+        }
 
+        // Get the generation_id from the latest schedule
+        const generationId = latestSchedule[0].generation_id;
+        if (!generationId) {
+          alert("Could not find generation ID for the latest schedule.");
+          setIsGenerating(false);
+          return;
+        }
+
+        // Submit feedback for the schedule (generation)
+        console.log(`[regenerate] Submitting feedback for generation ${generationId}`);
+        await submitFeedback(3, feedback, generationId); // Rating 3 as neutral
+
+        // Now trigger the rescheduling based on the feedback
+        console.log("[regenerate] Calling /reschedule endpoint");
+        const rescheduledResponse = await reschedulePlan();
+        console.log("[regenerate] Rescheduled plans:", rescheduledResponse);
+
+        // Map the rescheduled plans to tasks and display them
+        const mappedAiTasks = mapPlansToTasks(rescheduledResponse.plans);
+        console.log("[regenerate] Mapped tasks from rescheduled plans:", mappedAiTasks);
+        setAiTasks(mappedAiTasks);
+
+        alert("✅ Plan successfully regenerated based on your feedback!");
+      } catch (err) {
+        console.error("[regenerate] Error:", err);
+        alert("Failed to regenerate plan. Please try again.");
+      } finally {
+        setIsGenerating(false);
+      }
+    })();
+  }
 
 
 
@@ -199,21 +296,23 @@ function regenerateAIPlan(feedback: string) {
           setCurrentMonth(new Date(d.getFullYear(), d.getMonth(), 1));
         }}
         onGeneratePlan={generateAIPlan}
-        onRegeneratePlan={(feedback) => regenerateAIPlan(feedback)}      />
+        onRegeneratePlan={(feedback) => regenerateAIPlan(feedback)}
+        isGenerating={isGenerating}
+      />
 
       {/* MAIN */}
       <main className="flex-1 px-10 py-6 bg-gradient-to-b from-[#ffe5e5] to-[#fff0d6] overflow-auto">
-        
 
-       <CalendarHeader
-        currentMonth={currentMonthLabel}
-        onPrev={prev}
-        onNext={next}
-        onToday={goToToday}
-        onAddTask={openAddTaskModal}   // ✅ FIXED
-        view={viewMode}
-        setView={setViewMode}
-      />
+
+        <CalendarHeader
+          currentMonth={currentMonthLabel}
+          onPrev={prev}
+          onNext={next}
+          onToday={goToToday}
+          onAddTask={openAddTaskModal}   // ✅ FIXED
+          view={viewMode}
+          setView={setViewMode}
+        />
 
 
 
@@ -241,9 +340,8 @@ function regenerateAIPlan(feedback: string) {
                   return (
                     <div
                       key={`${wi}-${di}`}
-                      className={`calendar-day-cell ${
-                        inMonth ? "in-month" : "out-month"
-                      } ${selected ? "selected" : ""}`}
+                      className={`calendar-day-cell ${inMonth ? "in-month" : "out-month"
+                        } ${selected ? "selected" : ""}`}
                       onClick={() => setSelectedDate(day)}
                     >
                       <div className="day-number">{day.getDate()}</div>
@@ -314,7 +412,7 @@ function regenerateAIPlan(feedback: string) {
                               const daysLeftInEvent =
                                 Math.floor(
                                   (end.getTime() - dayStart.getTime()) /
-                                    86400000
+                                  86400000
                                 ) + 1;
 
                               const span = Math.min(
@@ -328,10 +426,9 @@ function regenerateAIPlan(feedback: string) {
                                   className="event-bar-multi"
                                   style={{
                                     top: `${laneIdx * 22}px`,
-                                    width: `calc(${span * 100}% + ${
-                                      (span - 1) * 6
-                                    }px)`,
-                                    backgroundColor: typeColors[ev.type],
+                                    width: `calc(${span * 100}% + ${(span - 1) * 6
+                                      }px)`,
+                                    backgroundColor: ev.color || typeColors[ev.type] || "#ccc",
                                   }}
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -346,6 +443,7 @@ function regenerateAIPlan(feedback: string) {
                         })()}
                       </div>
                       {/* ================== END FIX ================== */}
+
 
                     </div>
                   );

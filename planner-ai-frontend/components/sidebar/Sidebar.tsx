@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, Sun, Moon, Sparkles } from "lucide-react";
 
-import UserProfileModal from "@/components/authenticate/user/UserProfileModal";
+import UserProfileModal from "@/components/authenticate/UserProfileModal";
 import MiniMonthView from "@/components/calendar/MiniMonthView";
 import { useTheme } from "@/components/context/ThemeContext";
 import FeedbackModal from "@/components/modals/FeedbackModal";
+import { loadUser, type StoredUser } from "@/utils/userStorage";
 import "@/styles/sidebar.css";
 
 interface SidebarProps {
@@ -15,6 +16,8 @@ interface SidebarProps {
   onSelectDate: (date: Date) => void;
   onGeneratePlan?: () => void;
   onRegeneratePlan?: (feedback: string) => void;
+  canRegenerate?: boolean;
+  isGenerating?: boolean;
 }
 
 export default function Sidebar({
@@ -23,20 +26,36 @@ export default function Sidebar({
   onSelectDate,
   onGeneratePlan,
   onRegeneratePlan,
+  //canRegenerate = false,
+  isGenerating = false,
 }: SidebarProps) {
   const { theme, setTheme } = useTheme();
 
   const [showFeedback, setShowFeedback] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
-  /* ✅ YOUR REAL DATA (replace with your actual values) */
-  const user = {
-    fullName: "name",
-    username: "username",
-    email: "email",
+  const [currentUser, setCurrentUser] = useState<StoredUser | null>(null);
+
+  // 3. Effect to load user data when Sidebar appears
+  useEffect(() => {
+    // Check if we are in the browser (client-side) to avoid server errors
+    if (typeof window !== "undefined") {
+      const loaded = loadUser();
+      if (loaded) {
+        setCurrentUser(loaded);
+      }
+    }
+  }, []);
+
+  // Default fallback if no user is found (e.g. fresh load before login)
+  const displayUser = currentUser || {
+    fullName: "Guest User",
+    username: "guest",
+    email: "Not signed in"
   };
 
-  return (
+  // @ts-ignore
+    return (
     <aside className="sidebar">
 
       {/* USER AVATAR */}
@@ -74,8 +93,12 @@ export default function Sidebar({
 
       {/* AI BUTTON */}
       <div className="ai-buttons">
-        <button className="ai-generate-btn" onClick={onGeneratePlan}>
-          ⚡ Generate Plan
+        <button
+          className="ai-generate-btn"
+          onClick={onGeneratePlan}
+          disabled={isGenerating}
+        >
+          {isGenerating ? "⏳ Generating..." : "⚡ Generate Plan"}
         </button>
       </div>
 
@@ -105,16 +128,16 @@ export default function Sidebar({
         />
       )}
 
-      {/* USER PROFILE MODAL */}
+     {/* USER PROFILE MODAL */}
       {showProfile && (
         <UserProfileModal
-          user={user}
-          onClose={() => setShowProfile(false)}
-          onSignOut={() => {
-            setShowProfile(false);
-            window.location.reload(); // back to login
-          }}
-        />
+            user={displayUser}
+
+            onClose={() => setShowProfile(false)}
+            onSignOut={() => {
+                setShowProfile(false);
+                window.location.reload();
+            }}         />
       )}
 
     </aside>

@@ -1,7 +1,5 @@
 import os
-import json
-import tempfile
-from datetime import datetime, date, time, timedelta
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from dotenv import load_dotenv
@@ -11,10 +9,10 @@ from ai_system.agents.general_agent import CalendarAgent
 from ai_system.agents.math_agent import MathAgent
 from ai_system.backend.backend_api import BackendAPI
 
-# -----------------------------------------------------------
-# Config din .env
-# -----------------------------------------------------------
+from concurrent.futures import ThreadPoolExecutor
 
+
+# Config din .env
 load_dotenv()
 
 HF_TOKEN_1 = os.getenv("HF_TOKEN_1")
@@ -23,27 +21,17 @@ CUSTOM_AGENT_MODEL = os.getenv("CUSTOM_AGENT_MODEL")
 CALENDAR_AGENT_MODEL = os.getenv("CALENDAR_AGENT_MODEL")
 BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL", "http://localhost:8000")
 
-# fallback simplu dacă lipsesc env-urile, ca să nu crape direct
-if HF_TOKEN_1 is None:
-    print("[AiOrchestrator] WARNING: HF_TOKEN is not set in environment.")
-if CUSTOM_AGENT_MODEL is None:
-    print("[AiOrchestrator] WARNING: CUSTOM_AGENT_MODEL is not set in environment.")
 
-
-# -----------------------------------------------------------
 # Orchestrator
-# -----------------------------------------------------------
+def _run_agent_on_task(agent, task):
+    try:
+        raw_response = agent.propose_agent_plan(task)
+        return raw_response
+    except Exception as e:
+        print(e)
+
 
 class AiOrchestrator:
-    """
-    Coordonatorul AI:
-    - primește de la backend toate task-urile (examene / proiecte)
-    - alege agentul corect (Math / CS)
-    - cheamă LLM-ul prin agent
-    - combină planurile într-un JSON final (inclusiv un pseudo-calendar)
-    - trimite planul înapoi la backend
-    """
-
     def __init__(
             self,
             hf_token: Optional[str] = None,
@@ -56,172 +44,127 @@ class AiOrchestrator:
         self.custom_model_name = custom_model_name or CUSTOM_AGENT_MODEL
         self.calendar_model_name = calendar_model_name or CALENDAR_AGENT_MODEL
 
-        if self.hf_token_1 is None or self.custom_model_name is None:
-            raise ValueError(
-                "[AiOrchestrator] HF_TOKEN or CUSTOM_AGENT_MODEL not configured. "
-                "Check your .env file."
-            )
-
         self.backend = BackendAPI(backend_base_url or BACKEND_BASE_URL)
 
         self.math_agent = MathAgent(self.hf_token_1, self.custom_model_name)
         self.cs_agent = CSAgent(self.hf_token_1, self.custom_model_name)
         self.general_agent = CalendarAgent(self.hf_token_2, self.calendar_model_name, datetime.now())
 
+    def _process_single_task(self, task: Dict[str, Any]):
+        agent = self._select_agent_for_task(task)
+        return _run_agent_on_task(agent, task)
 
-    def generate_plan_for_user(self, user_id: str, save_to_backend: bool = True) -> Dict[str, Any]:
-        """
-        Flux principal:
-        1) cere la backend toate task-urile pentru user
-        2) cere feedback (nu îl folosim încă în mod avansat, doar îl atașăm)
-        3) rulează agenții pe fiecare task
-        4) combină rezultatele într-un plan unic + blocuri de studiu
-        5) opțional, salvează planul în backend
-        """
-
-        #feedback = self.backend.get_feedback(user_id)
+    def generate_plan_for_user(self, user_id, save_to_backend) -> Dict[str, Any]:
         try:
-            user_data = self.backend.get_user_data(user_id) # !!!! implement this
+            user_data = self.backend.get_user_data(user_id)
         except Exception as e:
             print(f"[AiOrchestrator] Backend unavailable, using mock data. ({e})")
             user_data = {
                 "tasks": [
                     {
                         "id": 1,
-                        "title": "OOP practic",
-                        "subject_name/project_name": "Object-Oriented Programming",
-                        "start_datetime": "2025-11-23T09:00:00",
-                        "end_datetime": "2025-11-23T11:00:00",
-                        "type": "Practical Exam",
+                        "title": "pde scris",
+                        "subject_name/project_name": "Partial Differential Equations",
+                        "start_datetime": "2026-01-12T08:00:00",
+                        "end_datetime": "2026-01-12T10:00:00",
+                        "type": "written",
                         "difficulty": 5,
                         "description": "I did not understand anything during the semester.",
                         "status": "Pending"
                     },
                     {
                         "id": 2,
-                        "title": "PDE scris",
-                        "subject_name/project_name": "Partial Differential Equations",
-                        "start_datetime": "2025-11-19T12:00:00",
-                        "end_datetime": "2025-11-19T15:00:00",
-                        "type": "Written Exam",
+                        "title": "astronomie scris",
+                        "subject_name/project_name": "Astronomy",
+                        "start_datetime": "2026-01-26T12:00:00",
+                        "end_datetime": "2026-01-26T14:00:00",
+                        "type": "written",
                         "difficulty": 5,
-                        "description": "I solved everything with ChatGPT.",
+                        "description": "I solved everything with ChatGPT, I do not know anything.",
                         "status": "Pending"
                     },
                     {
                         "id": 3,
                         "title": "OOP Final Project",
                         "subject_name/project_name": "Object-Oriented Programming",
-                        "start_datetime": "2025-12-25T10:00:00",
-                        "end_datetime": "2025-12-27T12:00:00",
-                        "type": "Project",
+                        "start_datetime": "2026-01-25T10:00:00",
+                        "end_datetime": "2026-01-31T12:00:00",
+                        "type": "project",
                         "difficulty": 4,
                         "description": "Large OOP project with multiple design patterns.",
                         "status": "Pending"
                     },
 
-                {
-                    "id": 4,
-                    "title": "PDE Project",
-                    "subject_name/project_name": "Partial Differential Equations",
-                    "start_datetime": "2025-12-20T10:00:00",
-                    "end_datetime": "2025-12-22T12:00:00",
-                    "type": "Project",
-                    "difficulty": 3,
-                    "description": "Short mathematics project on PDEs with a few problems and a small report.",
-                    "status": "Pending"
-                }
+                    {
+                        "id": 4,
+                        "title": "ap practic",
+                        "subject_name/project_name": "Algorithms and Programming",
+                        "start_datetime": "2026-02-02T10:00:00",
+                        "end_datetime": "2026-02-02T12:00:00",
+                        "type": "practical",
+                        "difficulty": 2,
+                        "description": "I just need a bit of revise.",
+                        "status": "Pending"
+                    }
                 ]
             }
 
-        try:
-            feedback = self.backend.get_feedback(user_id)
-        except Exception as e:
-            print(f"[AiOrchestrator] Backend feedback unavailable, skipping. ({e})")
-            feedback = {}
+        tasks_input: List[Dict[str, Any]] = [
+            task for task in user_data.get("tasks", [])
+            if task.get("status") != "Completed"
+        ]
 
-        tasks_input: List[Dict[str, Any]] = (
-            user_data.get("tasks")
-        )
+        max_workers = min(8, len(tasks_input))  # safe default for HF APIs
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            plans = list(executor.map(self._process_single_task, tasks_input))
 
-        print(f"Tasks input: {tasks_input}")
-
-        plans = []
-
-        for task in tasks_input:
-            agent = self._select_agent_for_task(task)  # kept
-            agent_plan = self._run_agent_on_task(agent, task)  # kept
-            plans.append(agent_plan)
-
-        print(plans)
-
-        final_plan = self._run_agent_on_task(self.general_agent, plans)
-
-        print(f"Plan final: {final_plan}")
-
-        if save_to_backend:
-            try:
-                self.backend.save_plan(user_id, final_plan)
-            except Exception as exc:
-                # nu omorâm orchestratorul dacă e o problemă de rețea
-                print(f"[AiOrchestrator] WARNING: failed to save plan to backend: {exc}")
+        final_plan = _run_agent_on_task(self.general_agent, plans)
 
         return final_plan
 
-    # -------------------------------------------------------
-    # Alegerea agentului
-    # -------------------------------------------------------
+    def _select_agent_for_task(self, task: Dict[str, Any]):
 
-    def _select_agent_for_task(self, task: Dict[str, Any]) -> Any:
-        """
-        Heuristic simplu:
-        - dacă există câmp 'domain' / 'category', folosim asta
-        - altfel, încercăm să ghicim după numele materiei
-        - default: CSAgent
-        """
-        domain = (
-                task.get("domain")
-                or task.get("category")
-                or task.get("faculty")
-                or ""
-        ).lower()
+        text = " ".join([
+            task.get("title", ""),
+            task.get("subject_name/project_name", ""),
+            task.get("description", ""),
+            task.get("type", ""),
+        ]).lower()
 
-        subject_name = task.get("subject_name/project_name", "").lower()
-        title = task.get("title", "").lower()
-        text = f"{domain} {subject_name} {title}"
-        print(f"Selected agent :{text}")
+        math_keywords = {
+            # Pure mathematics
+            "mathematics",
+            "math",
+            "algebra",
+            "analysis",
+            "geometry",
+            "calculus",
+            "statistics",
+            "probability",
+            "logic",
+            "numerical",
+            "modeling",
 
-        if "math" in text or "algebra" in text or "analysis" in text \
-                or "equations" in text or "pde" in text or "ode" in text:
+            # Differential equations
+            "pde",
+            "ode",
+            "partial differential equations",
+            "differential equations",
+
+            # Applied mathematics / physics
+            "astronomy",
+            "astrophysics",
+            "mechanics",
+            "classical mechanics",
+            "dynamics",
+            "thermodynamics",
+            "optics",
+            "physics",
+        }
+
+        if any(keyword in text for keyword in math_keywords):
             return self.math_agent
-
-        if "computer" in text or "programming" in text or "cs" in text \
-                or "oop" in text or "data structures" in text:
-            return self.cs_agent
 
         return self.cs_agent
 
-    # -------------------------------------------------------
-    # Rulare agent
-    # -------------------------------------------------------
 
-    def _run_agent_on_task(self, agent, task):
-        try:
-            raw_response = agent.propose_agent_plan(task)
-            return raw_response
-        except Exception as e:
-            print(e)
-
-
-# -----------------------------------------------------------
-# Script de test / exemplu de folosire
-# -----------------------------------------------------------
-
-if __name__ == "__main__":
-
-    test_user_id = os.getenv("TEST_USER_ID", "demo_user")
-
-    orchestrator = AiOrchestrator()
-    plan = orchestrator.generate_plan_for_user(test_user_id, save_to_backend=False)
-
-    print(json.dumps(plan, indent=2))

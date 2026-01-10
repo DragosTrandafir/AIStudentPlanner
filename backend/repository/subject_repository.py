@@ -24,3 +24,12 @@ class SubjectRepository(BaseRepository[Subject]):
     def get_by_title_for_user(self, user_id: int, title: str) -> Optional[Subject]:
         stmt = select(Subject).where(Subject.student_id == user_id, Subject.title == title)
         return self.session.scalars(stmt).first()
+
+    def get_by_name_for_user(self, user_id: int, name: str) -> Optional[Subject]:
+        """Get a subject by name (case-insensitive) for a specific user."""
+        stmt = select(Subject).where(
+            Subject.student_id == user_id,
+            Subject.name.ilike(name)
+        )
+        return self.session.scalars(stmt).first()
+

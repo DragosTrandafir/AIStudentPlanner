@@ -3,15 +3,13 @@ import json
 from huggingface_hub import InferenceClient
 
 from ai_system.agents.base_agent import BaseAgent
-from ai_system.utils.format_handling.load_json import json_load
-from ai_system.utils.propose_plan_logic import propose_plan, propose_calendar
+from ai_system.utils.propose_plan_logic import propose_calendar
 
 
 class CalendarAgent(BaseAgent):
     def __init__(self, token, model, date):
         super().__init__(token, model)
         self.date=date
-        #self.feedback=feedback this needs to be added later
 
     def propose_agent_plan(self, plans):
 

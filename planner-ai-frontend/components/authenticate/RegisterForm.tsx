@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { saveUser } from "@/utils/userStorage";
 
 type Props = {
   onRegisterSuccess: () => void;
@@ -21,16 +22,10 @@ export default function RegisterForm({
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    if (
-      !fullName.trim() ||
-      !username.trim() ||
-      !email.trim() ||
-      !password.trim() ||
-      !confirm.trim()
-    ) {
+    if (!fullName || !username || !email || !password || !confirm) {
       setError("Please fill in all fields.");
       return;
     }
@@ -40,8 +35,62 @@ export default function RegisterForm({
       return;
     }
 
-    setError("");
-    onRegisterSuccess();
+    try {
+      // --- STEP 1: REGISTER ---
+      const res = await fetch("http://localhost:8000/users/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: fullName,
+          username: username,
+          email: email,
+          password: password,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.detail || "Registration failed");
+        return;
+      }
+
+
+      const loginRes = await fetch("http://localhost:8000/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username_or_email: username,
+          password: password,
+        }),
+      });
+
+      if (loginRes.ok) {
+        const loginData = await loginRes.json();
+
+
+        localStorage.setItem("authToken", loginData.access_token);
+
+
+        const backendUser = loginData.user;
+        const formattedUser = {
+          id: backendUser.id,
+          fullName: backendUser.name || "No Name",
+          username: backendUser.username,
+          email: backendUser.email
+        };
+        saveUser(formattedUser);
+
+
+        onRegisterSuccess();
+      } else {
+
+        onGoToLogin();
+      }
+
+    } catch (err) {
+      console.error(err);
+      setError("Server unreachable");
+    }
   }
 
   return (

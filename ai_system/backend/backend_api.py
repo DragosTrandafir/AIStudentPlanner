@@ -1,5 +1,5 @@
 import requests
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 
 class BackendAPI:
@@ -7,8 +7,8 @@ class BackendAPI:
     Wrapper over your FastAPI backend.
     Provides:
       - get_user_data(user_id)
-      - get_feedback(user_id)    (placeholder)
-      - save_plan(user_id, plan)
+      - get_current_and_last_feedback(user_id)
+      - get_last_schedule(user_id)
     """
 
     def __init__(self, base_url: str):
@@ -38,12 +38,90 @@ class BackendAPI:
                 "subject_name/project_name": s["name"],
                 "start_datetime": s["start_date"],
                 "end_datetime": s["end_date"],
-                "type": s["type"],            # EXAM / PROJECT / etc.
+                "type": s["type"],  # EXAM / PROJECT / etc.
                 "difficulty": s["difficulty"],
                 "description": s["description"],
-                "status": s["status"],        # PENDING / IN_PROGRESS / COMPLETED
+                "status": s["status"],  # PENDING / IN_PROGRESS / COMPLETED
             })
 
         return {"tasks": tasks}
 
+    def get_current_and_last_feedback(self, user_id: int) -> Dict[str, Any]:
+        """
+        Get the last 2 feedbacks for a user.
+        Returns: {
+            "current_feedback": feedback from latest schedule,
+            "last_feedback": feedback from second latest schedule (if exists)
+        }
+        """
+        url = f"{self.base_url}/users/{user_id}/feedback/latest"
+        
+        try:
+            response = requests.get(url)
+            if response.status_code != 200:
+                raise Exception(f"Failed to fetch latest feedbacks: {response.status_code}")
+            
+            feedbacks = response.json()  # List of last 2 feedbacks
+            
+            # Map to orchestrator format
+            result = {}
+            if feedbacks and len(feedbacks) > 0:
+                fb = feedbacks[0]  # Latest feedback
+                result["current_feedback"] = {
+                    "created_at": fb.get("created_at"),
+                    "text": fb.get("comments", ""),
+                    "rating": fb.get("rating"),
+                }
+            
+            if feedbacks and len(feedbacks) > 1:
+                fb = feedbacks[1]  # Second latest feedback
+                result["last_feedback"] = {
+                    "created_at": fb.get("created_at"),
+                    "text": fb.get("comments", ""),
+                    "rating": fb.get("rating"),
+                }
+            
+            return result
+        except Exception as e:
+            print(f"[BackendAPI] Warning: Could not fetch latest feedback: {e}")
+            return {}
 
+    def get_latest_schedule(self, user_id: int) -> Dict[str, Any]:
+        """
+        Get the entire latest schedule (all plans from latest generation).
+        Returns plans in the format expected by the orchestrator.
+        """
+        url = f"{self.base_url}/users/{user_id}/plans/latest-schedule"
+        
+        try:
+            response = requests.get(url)
+            if response.status_code != 200:
+                raise Exception(f"Failed to fetch latest schedule: {response.status_code}")
+            
+            plans = response.json()  # List of PlanResponse
+            
+            # Convert plans to orchestrator calendar format
+            calendar = []
+            for plan in plans:
+                day_entry = {
+                    "date": plan["plan_date"],
+                    "entries": [],
+                    "notes": plan.get("notes", ""),
+                }
+                
+                # Add AI tasks as entries
+                for task in plan.get("entries", []):
+                    day_entry["entries"].append({
+                        "time_allotted": task["time_allotted"],
+                        "task_name": task["ai_task_name"],
+                        "subject_name/project_name": task["task_name"],
+                        "difficulty": task["difficulty"],
+                        "priority": task["priority"],
+                    })
+                
+                calendar.append(day_entry)
+            
+            return {"calendar": calendar}
+        except Exception as e:
+            print(f"[BackendAPI] Warning: Could not fetch latest schedule: {e}")
+            return None
