@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { saveUser } from "@/utils/userStorage";
 
 type Props = {
   onRegisterSuccess: () => void;
@@ -22,41 +23,75 @@ export default function RegisterForm({
   const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!fullName || !username || !email || !password || !confirm) {
-    setError("Please fill in all fields.");
-    return;
-  }
-
-  if (password !== confirm) {
-    setError("Passwords do not match.");
-    return;
-  }
-
-  try {
-    const res = await fetch("http://localhost:8000/users/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: fullName,
-        username: username,
-        email: email,
-        password: password,
-      }),
-    });
-
-    if (!res.ok) {
-      const data = await res.json();
-      setError(data.detail || "Registration failed");
+    if (!fullName || !username || !email || !password || !confirm) {
+      setError("Please fill in all fields.");
       return;
     }
 
-    onRegisterSuccess();
-  } catch (err) {
-    setError("Server unreachable");
+    if (password !== confirm) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    try {
+      // --- STEP 1: REGISTER ---
+      const res = await fetch("http://localhost:8000/users/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: fullName,
+          username: username,
+          email: email,
+          password: password,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.detail || "Registration failed");
+        return;
+      }
+
+
+      const loginRes = await fetch("http://localhost:8000/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username_or_email: username,
+          password: password,
+        }),
+      });
+
+      if (loginRes.ok) {
+        const loginData = await loginRes.json();
+
+
+        localStorage.setItem("authToken", loginData.access_token);
+
+
+        const backendUser = loginData.user;
+        const formattedUser = {
+          id: backendUser.id,
+          fullName: backendUser.name || "No Name",
+          username: backendUser.username,
+          email: backendUser.email
+        };
+        saveUser(formattedUser);
+
+
+        onRegisterSuccess();
+      } else {
+
+        onGoToLogin();
+      }
+
+    } catch (err) {
+      console.error(err);
+      setError("Server unreachable");
+    }
   }
-}
 
   return (
     <div className="login-right">

@@ -2,6 +2,8 @@
 
 import { useState, FormEvent } from "react";
 import { Eye, EyeOff } from "lucide-react";
+// 1. Add this import!
+import { saveUser } from "@/utils/userStorage";
 
 type Props = {
   onLogin: (userData: any) => void;
@@ -16,16 +18,14 @@ export default function LoginForm({ onLogin }: Props) {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Validate inputs
     if (!usernameOrEmail.trim() || !password.trim()) {
       setError("Please fill in all fields.");
       return;
     }
 
-    setError(""); // reset error before sending
+    setError("");
 
     try {
-      // Call backend login endpoint
       const response = await fetch("http://localhost:8000/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -41,11 +41,24 @@ export default function LoginForm({ onLogin }: Props) {
         return;
       }
 
-      // Get user data from backend
       const userData = await response.json();
 
-      // Call parent callback with backend user info
-      onLogin(userData);
+      localStorage.setItem("authToken", userData.access_token);
+
+      const backendUser = userData.user;
+
+      const formattedUser = {
+        id: backendUser.id,
+        fullName: backendUser.name ||  "No Name",
+        username: backendUser.username,
+        email: backendUser.email
+      };
+
+      saveUser(formattedUser);
+
+      // Now we can tell the parent component to redirect
+      onLogin(formattedUser);
+
     } catch (err) {
       console.error(err);
       setError("Server unreachable");
@@ -55,8 +68,8 @@ export default function LoginForm({ onLogin }: Props) {
   return (
     <div className="login-right">
       <h2>Sign In</h2>
-
-      <form onSubmit={handleSubmit} className="login-form">
+      {/* ... rest of your JSX remains exactly the same ... */}
+       <form onSubmit={handleSubmit} className="login-form">
         <input
           type="text"
           placeholder="Username or email"

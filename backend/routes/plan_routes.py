@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import Optional, List, Dict, Any
 from uuid import uuid4
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
 
@@ -10,6 +10,7 @@ from backend.repository.plan_repository import PlanRepository
 from backend.repository.user_repository import UserRepository
 from backend.repository.subject_repository import SubjectRepository
 from backend.repository.ai_task_repository import AITaskRepository
+from backend.security import get_current_user_id
 from backend.service.plan_service import PlanService
 from backend.service.ai_task_service import AITaskService
 from backend.domain.ai_task import AITask
@@ -286,12 +287,21 @@ class GeneratedPlanResponse(BaseModel):
 
 
 @router.post("/generate", response_model=GeneratedPlanResponse, status_code=status.HTTP_201_CREATED)
-def generate_plan(user_id: int):
+def generate_plan(user_id: int, current_user_id: int = Depends(get_current_user_id)):
     """
     Generate an AI plan for the user based on their subjects.
     Uses the AI orchestrator to generate study tasks and creates plans with AI tasks.
     """
     from ai_system.orchestrator.ai_orchestrator import AiOrchestrator
+
+    # --- 🕵️ SPY SECTION START ---
+    print(f"\n--- DEBUGGING GENERATE PLAN ---")
+    print(f"1. URL requested for User ID: {user_id}")
+    print(f"2. Token belongs to User ID: {current_user_id}")
+
+    if user_id != current_user_id:
+        print("❌ MISMATCH: Token user does not match URL user!")
+    # --- SPY SECTION END ---
 
     with get_session() as session:
         user_repo = UserRepository(session)

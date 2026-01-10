@@ -4,6 +4,8 @@ from typing import Optional, List
 from backend.domain.user import User
 from backend.repository.user_repository import UserRepository
 
+from backend.security import verify_password
+
 
 class UserService:
     def __init__(self, user_repo: UserRepository):
@@ -113,7 +115,7 @@ class UserService:
         if not user:
             raise ValueError("User not found")
 
-        if user.password != password.strip():  # plain text check
+        if not verify_password(password.strip(), user.password):
             raise ValueError("Incorrect password")
 
         return user

@@ -8,6 +8,8 @@ from backend.config.database import get_session
 from backend.repository.user_repository import UserRepository
 from backend.service.user_service import UserService
 
+from backend.security import get_password_hash, create_access_token
+
 router = APIRouter(prefix="/users", tags=["users"])
 
 
@@ -43,13 +45,9 @@ class LoginRequest(BaseModel):
 
 
 class LoginResponse(BaseModel):
-    id: int
-    name: str
-    username: str
-    email: str
-    major: Optional[str]
-    google_id: Optional[str]
-    created_at: datetime
+    access_token: str
+    token_type: str
+    user: UserResponse  # Nest the user info inside
 
     class Config:
         from_attributes = True
@@ -61,22 +59,31 @@ def login(payload: LoginRequest):
     with get_session() as session:
         service = UserService(UserRepository(session))
         try:
+
             user = service.login_user(payload.username_or_email, payload.password)
-            return user
+
+            access_token = create_access_token(data={"sub": str(user.id)})
+
+            return {
+                "access_token": access_token,
+                "token_type": "bearer",
+                "user": user
+            }
         except ValueError as e:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def add_user(payload: UserCreateRequest):
     """Create a new user."""
+
     with get_session() as session:
         service = UserService(UserRepository(session))
         try:
+            hashed_pw = get_password_hash(payload.password)
             user = service.create_user(
                 name=payload.name,
                 username=payload.username,
                 email=payload.email,
-                password=payload.password,
+                password=hashed_pw,
                 major=payload.major,
                 google_id=payload.google_id
             )
