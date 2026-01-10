@@ -8,7 +8,6 @@ from ai_system.agents.base_agent import BaseAgent
 from ai_system.utils.propose_feedback_reschule_logic import (
     propose_feedback_reschedule,
 )
-from ai_system.utils.llm_json import extract_json_from_llm
 
 
 class FeedbackAgent(BaseAgent):
@@ -17,13 +16,6 @@ class FeedbackAgent(BaseAgent):
         self.date = date  # datetime representing "today" for this agent
 
     def propose_agent_plan(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Main entry point:
-        - Builds prompt and calls LLM.
-        - Parses JSON.
-        - Enforces hard constraints (forbidden windows, priorities).
-        - Normalizes the summary so it reflects the actual forbidden windows.
-        """
         client = InferenceClient(model=self.model, token=self.token)
 
         last_feedback: Dict[str, Any] = context.get("last_feedback", {}) or {}

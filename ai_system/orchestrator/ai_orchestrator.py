@@ -1,7 +1,5 @@
 import os
-import json
-import tempfile
-from datetime import datetime, date, time, timedelta
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from dotenv import load_dotenv
@@ -25,6 +23,14 @@ BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL", "http://localhost:8000")
 
 
 # Orchestrator
+def _run_agent_on_task(agent, task):
+    try:
+        raw_response = agent.propose_agent_plan(task)
+        return raw_response
+    except Exception as e:
+        print(e)
+
+
 class AiOrchestrator:
     def __init__(
             self,
@@ -38,12 +44,6 @@ class AiOrchestrator:
         self.custom_model_name = custom_model_name or CUSTOM_AGENT_MODEL
         self.calendar_model_name = calendar_model_name or CALENDAR_AGENT_MODEL
 
-        if self.hf_token_1 is None or self.custom_model_name is None:
-            raise ValueError(
-                "[AiOrchestrator] HF_TOKEN or CUSTOM_AGENT_MODEL not configured. "
-                "Check your .env file."
-            )
-
         self.backend = BackendAPI(backend_base_url or BACKEND_BASE_URL)
 
         self.math_agent = MathAgent(self.hf_token_1, self.custom_model_name)
@@ -52,14 +52,11 @@ class AiOrchestrator:
 
     def _process_single_task(self, task: Dict[str, Any]):
         agent = self._select_agent_for_task(task)
-        return self._run_agent_on_task(agent, task)
+        return _run_agent_on_task(agent, task)
 
-    def generate_plan_for_user(self, user_id, save_to_backend: bool = True) -> Dict[str, Any]:
+    def generate_plan_for_user(self, user_id, save_to_backend) -> Dict[str, Any]:
         try:
             user_data = self.backend.get_user_data(user_id)
-            print("------------------USER DATA START----------------------")
-            print(user_data)
-            print("------------------USER DATA END----------------------")
         except Exception as e:
             print(f"[AiOrchestrator] Backend unavailable, using mock data. ({e})")
             user_data = {
@@ -121,67 +118,53 @@ class AiOrchestrator:
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             plans = list(executor.map(self._process_single_task, tasks_input))
 
-        print(plans)
-
-        final_plan = self._run_agent_on_task(self.general_agent, plans)
-
-        print(f"Plan final: {final_plan}")
-
-        if save_to_backend:
-            try:
-                self.backend.save_plan(user_id, final_plan)
-            except Exception as exc:
-                print(f"[AiOrchestrator] WARNING: failed to save plan to backend: {exc}")
+        final_plan = _run_agent_on_task(self.general_agent, plans)
 
         return final_plan
 
-    # Alegerea agentului
-    def _select_agent_for_task(self, task: Dict[str, Any]) -> Any:
-        """
-        Heuristic simplu:
-        - dacă există câmp 'domain' / 'category', folosim asta
-        - altfel, încercăm să ghicim după numele materiei
-        - default: CSAgent
-        """
-        domain = (
-                task.get("domain")
-                or task.get("category")
-                or task.get("faculty")
-                or ""
-        ).lower()
+    def _select_agent_for_task(self, task: Dict[str, Any]):
 
-        subject_name = task.get("subject_name/project_name", "").lower()
-        title = task.get("title", "").lower()
-        text = f"{domain} {subject_name} {title}"
-        print(f"Selected agent :{text}")
+        text = " ".join([
+            task.get("title", ""),
+            task.get("subject_name/project_name", ""),
+            task.get("description", ""),
+            task.get("type", ""),
+        ]).lower()
 
-        if "math" in text or "algebra" in text or "analysis" in text \
-                or "equations" in text or "pde" in text or "ode" or "astro" in text:
+        math_keywords = {
+            # Pure mathematics
+            "mathematics",
+            "math",
+            "algebra",
+            "analysis",
+            "geometry",
+            "calculus",
+            "statistics",
+            "probability",
+            "logic",
+            "numerical",
+            "modeling",
+
+            # Differential equations
+            "pde",
+            "ode",
+            "partial differential equations",
+            "differential equations",
+
+            # Applied mathematics / physics
+            "astronomy",
+            "astrophysics",
+            "mechanics",
+            "classical mechanics",
+            "dynamics",
+            "thermodynamics",
+            "optics",
+            "physics",
+        }
+
+        if any(keyword in text for keyword in math_keywords):
             return self.math_agent
-
-        if "computer" in text or "programming" in text or "cs" in text \
-                or "oop" in text or "data structures" in text:
-            return self.cs_agent
 
         return self.cs_agent
 
-    # Rulare agent
-    def _run_agent_on_task(self, agent, task):
-        try:
-            raw_response = agent.propose_agent_plan(task)
-            return raw_response
-        except Exception as e:
-            print(e)
 
-
-# -----------------------------------------------------------
-# Script de test / exemplu de folosire
-# -----------------------------------------------------------
-
-if __name__ == "__main__":
-    test_user_id = os.getenv("TEST_USER_ID", "demo_user")
-
-    orchestrator = AiOrchestrator()
-    plan = orchestrator.generate_plan_for_user(test_user_id, save_to_backend=False)
-
-    print(json.dumps(plan, indent=2))

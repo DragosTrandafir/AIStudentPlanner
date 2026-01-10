@@ -81,13 +81,6 @@ export default function TaskDetailsModal({
             </div>
           )}
 
-          {task.description && (
-            <div className="taskdetails-description">
-              <span className="taskdetails-label">Description:</span>
-              <p className="taskdetails-description-text">{task.description}</p>
-            </div>
-          )}
-
           {/* AI Task indicator */}
           {task.isAiTask && (
             <div className="taskdetails-ai-badge">
