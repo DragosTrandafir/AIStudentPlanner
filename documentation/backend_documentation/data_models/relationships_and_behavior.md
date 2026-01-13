@@ -6,8 +6,7 @@ This document explains the non-trivial relationships between entities, cascade d
 
 ## 1. Entity Relationship Diagram
 
-```
-```
+![Entity Relationship Diagram](documentation/backend_documentation/data_models/entity_relationship_diagram.png)
 
 **Key Relationships:**
 - User → Plan (1:N, cascade delete)
