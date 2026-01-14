@@ -1,5 +1,7 @@
 # Backend Architecture Overview
 
+![](documentation/Architecture diagram/architecture.png)
+
 ## System Abstract
 The Backend serves as the **Single Source of Truth** for the AI Student Planner. It acts as the mediator between the React Frontend and the AI Orchestration layer.
 
@@ -10,10 +12,10 @@ The Backend serves as the **Single Source of Truth** for the AI Student Planner.
 * **Security:** OAuth2 with JWT (JSON Web Tokens) & Bcrypt password hashing.
 * **Database:** SQLite (Development) / PostgreSQL (Production ready).
 
-## Architectural Pattern: Three-Layer Design
+## Architectural Pattern: CSR (Controller-Service-Repository)
 The application follows a strict separation of concerns to ensure maintainability and testability:
 
-1.  **Router Layer (`/routes`)**:
+1.  **Controller/Router Layer (`/routes`)**:
     * Handles HTTP Requests/Responses.
     * Manages Authentication/Authorization dependencies.
     * **No business logic allowed here.**
@@ -27,3 +29,9 @@ The application follows a strict separation of concerns to ensure maintainabilit
     * Direct interface with the Database.
     * Executes CRUD (Create, Read, Update, Delete) operations.
     * Maps SQL rows to Python Objects.
+
+4.  **Domain Layer (`/domain`)**:
+    * Defines the core business objects (entities and value objects) that map to database tables.
+    * Encapsulates business rules directly on the data they belong to.
+    * Independent of HTTP and infrastructure concerns.
+    * Used by repositories to persist and load data.
