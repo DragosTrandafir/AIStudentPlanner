@@ -101,7 +101,6 @@
 ### LLM & Inference
 - **HuggingFace Hub 1.0.1+** - Model repository and inference API
 - **openai/gpt-oss-20b** - Open-source LLM (custom agent model; balance between performance and resources)
-- **Qwen/Qwen2.5-72B-Instruct** - Large-scale LLM (calendar agent model; high performance for complex scheduling)
 
 ---
 
