@@ -1,3 +1,6 @@
+An AI powered study planner for students, focusing on automatic organization of study time and providing adaptation to deadlines, task difficulty and feedback. Also, some key features are: CRUD Operation, Multi-Thread Multi-Agent Architecture and Dynamic feedback loop.
+
+
 How to run the application:
 
 1. Delete all backend/.db files
